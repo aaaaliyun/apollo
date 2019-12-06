@@ -30,15 +30,17 @@ DEFINE_TYPE_TRAIT(HasLess, operator<)  // NOLINT
 template <class Value, class End>
 typename std::enable_if<HasLess<Value>::value && HasLess<End>::value,
                         bool>::type
-LessThan(const Value& val, const End& end) {
-  return val < end;
+LessThan(const Value& val, const End& end) 
+{
+        return val < end;
 }
 
 template <class Value, class End>
 typename std::enable_if<!HasLess<Value>::value || !HasLess<End>::value,
                         bool>::type
-LessThan(const Value& val, const End& end) {
-  return val != end;
+LessThan(const Value& val, const End& end) 
+{
+        return val != end;
 }
 
 #define FOR_EACH(i, begin, end)           \
