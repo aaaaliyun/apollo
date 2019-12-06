@@ -21,9 +21,7 @@
 namespace apollo {
 namespace cyber {
 
-namespace {
-std::atomic<State> g_cyber_state;
-}
+namespace {std::atomic<State> g_cyber_state;}
 
 State GetState() { return g_cyber_state.load(); }
 
