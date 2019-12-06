@@ -28,13 +28,14 @@ namespace cyber {
 namespace message {
 
 // Template specialization for RawMessage
-inline bool SerializeToArray(const PyMessageWrap& message, void* data,
-                             int size) {
-  return message.SerializeToArray(data, size);
+inline bool SerializeToArray(const PyMessageWrap& message, void* data, int size) 
+{
+        return message.SerializeToArray(data, size);
 }
 
-inline bool ParseFromArray(const void* data, int size, PyMessageWrap* message) {
-  return message->ParseFromArray(data, size);
+inline bool ParseFromArray(const void* data, int size, PyMessageWrap* message) 
+{
+        return message->ParseFromArray(data, size);
 }
 
 inline int ByteSize(const PyMessageWrap& message) { return message.ByteSize(); }

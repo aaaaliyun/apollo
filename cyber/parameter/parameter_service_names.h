@@ -28,9 +28,9 @@ constexpr auto SET_PARAMETER_SERVICE_NAME = "set_parameter";
 constexpr auto LIST_PARAMETERS_SERVICE_NAME = "list_parameters";
 
 static inline std::string FixParameterServiceName(const std::string& node_name,
-                                                  const char* service_name) {
-  return node_name + std::string(SERVICE_NAME_DELIMITER) +
-         std::string(service_name);
+                                                  const char* service_name) 
+{
+        return node_name + std::string(SERVICE_NAME_DELIMITER) + std::string(service_name);
 }
 
 }  // namespace cyber
