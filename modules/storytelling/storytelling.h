@@ -13,19 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
+#pragma once
 
-#include "modules/prediction/submodules/evaluator_output.h"
+#include <memory>
+#include <vector>
+
+#include "cyber/component/component.h"
+#include "cyber/component/timer_component.h"
+#include "modules/common/adapters/adapter_gflags.h"
+#include "modules/storytelling/story_tellers/base_teller.h"
 
 namespace apollo {
-namespace prediction {
+namespace storytelling {
 
-EvaluatorOutput::EvaluatorOutput(const SubmoduleOutput&& submodule_output) {
-  submodule_output_ = submodule_output;
-}
+class Storytelling final : public apollo::cyber::TimerComponent {
+ public:
+  Storytelling() = default;
+  ~Storytelling() = default;
 
-const SubmoduleOutput& EvaluatorOutput::submodule_output() const {
-  return submodule_output_;
-}
+  bool Init() override;
 
-}  // namespace prediction
+  bool Proc() override;
+
+ private:
+  std::vector<std::unique_ptr<BaseTeller>> story_tellers_;
+  Stories stories_;
+};
+
+CYBER_REGISTER_COMPONENT(Storytelling)
+}  // namespace storytelling
 }  // namespace apollo
