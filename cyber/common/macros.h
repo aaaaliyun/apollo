@@ -28,14 +28,15 @@
 DEFINE_TYPE_TRAIT(HasShutdown, Shutdown)
 
 template <typename T>
-typename std::enable_if<HasShutdown<T>::value>::type CallShutdown(T *instance) {
-  instance->Shutdown();
+typename std::enable_if<HasShutdown<T>::value>::type CallShutdown(T *instance) 
+{
+        instance->Shutdown();
 }
 
 template <typename T>
-typename std::enable_if<!HasShutdown<T>::value>::type CallShutdown(
-    T *instance) {
-  (void)instance;
+typename std::enable_if<!HasShutdown<T>::value>::type CallShutdown(T *instance) 
+{
+        (void)instance;
 }
 
 // There must be many copy-paste versions of these macros which are same

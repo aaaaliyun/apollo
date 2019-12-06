@@ -25,30 +25,34 @@ TimerComponent::TimerComponent() {}
 
 TimerComponent::~TimerComponent() {}
 
-bool TimerComponent::Process() {
-  if (is_shutdown_.load()) {
-    return true;
-  }
-  return Proc();
+bool TimerComponent::Process() 
+{
+        if (is_shutdown_.load()) 
+        {
+                return true;
+        }
+        return Proc();
 }
 
-bool TimerComponent::Initialize(const TimerComponentConfig& config) {
-  if (!config.has_name() || !config.has_interval()) {
-    AERROR << "Missing required field in config file.";
-    return false;
-  }
-  node_.reset(new Node(config.name()));
-  LoadConfigFiles(config);
-  if (!Init()) {
-    return false;
-  }
+bool TimerComponent::Initialize(const TimerComponentConfig& config) 
+{
+        if (!config.has_name() || !config.has_interval()) 
+        {
+                AERROR << "Missing required field in config file.";
+                return false;
+        }
+        node_.reset(new Node(config.name()));
+        LoadConfigFiles(config);
+        if (!Init()) 
+        {
+                return false;
+        }
 
-  std::shared_ptr<TimerComponent> self =
-      std::dynamic_pointer_cast<TimerComponent>(shared_from_this());
-  auto func = [self]() { self->Proc(); };
-  timer_.reset(new Timer(config.interval(), func, false));
-  timer_->Start();
-  return true;
+        std::shared_ptr<TimerComponent> self = std::dynamic_pointer_cast<TimerComponent>(shared_from_this());
+        auto func = [self]() { self->Proc(); };
+        timer_.reset(new Timer(config.interval(), func, false));
+        timer_->Start();
+        return true;
 }
 
 void TimerComponent::Clear() { timer_.reset(); }

@@ -23,8 +23,9 @@ namespace apollo {
 namespace cyber {
 namespace common {
 
-inline std::size_t Hash(const std::string& key) {
-  return std::hash<std::string>{}(key);
+inline std::size_t Hash(const std::string& key) 
+{
+        return std::hash<std::string>{}(key);
 }
 
 }  // namespace common

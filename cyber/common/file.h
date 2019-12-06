@@ -47,8 +47,7 @@ namespace common {
 // file type: file or directory
 enum FileType { TYPE_FILE, TYPE_DIR };
 
-bool SetProtoToASCIIFile(const google::protobuf::Message &message,
-                         int file_descriptor);
+bool SetProtoToASCIIFile(const google::protobuf::Message &message, int file_descriptor);
 /**
  * @brief Sets the content of the file specified by the file_name to be the
  *        ascii representation of the input protobuf.
@@ -56,8 +55,7 @@ bool SetProtoToASCIIFile(const google::protobuf::Message &message,
  * @param file_name The name of the target file to set the content.
  * @return If the action is successful.
  */
-bool SetProtoToASCIIFile(const google::protobuf::Message &message,
-                         const std::string &file_name);
+bool SetProtoToASCIIFile(const google::protobuf::Message &message, const std::string &file_name);
 
 /**
  * @brief Parses the content of the file specified by the file_name as ascii
@@ -67,8 +65,7 @@ bool SetProtoToASCIIFile(const google::protobuf::Message &message,
  * @param message The proto to carry the parsed content in the specified file.
  * @return If the action is successful.
  */
-bool GetProtoFromASCIIFile(const std::string &file_name,
-                           google::protobuf::Message *message);
+bool GetProtoFromASCIIFile(const std::string &file_name, google::protobuf::Message *message);
 
 /**
  * @brief Sets the content of the file specified by the file_name to be the
@@ -77,8 +74,7 @@ bool GetProtoFromASCIIFile(const std::string &file_name,
  * @param file_name The name of the target file to set the content.
  * @return If the action is successful.
  */
-bool SetProtoToBinaryFile(const google::protobuf::Message &message,
-                          const std::string &file_name);
+bool SetProtoToBinaryFile(const google::protobuf::Message &message, const std::string &file_name);
 
 /**
  * @brief Parses the content of the file specified by the file_name as binary
@@ -88,8 +84,7 @@ bool SetProtoToBinaryFile(const google::protobuf::Message &message,
  * @param message The proto to carry the parsed content in the specified file.
  * @return If the action is successful.
  */
-bool GetProtoFromBinaryFile(const std::string &file_name,
-                            google::protobuf::Message *message);
+bool GetProtoFromBinaryFile(const std::string &file_name, google::protobuf::Message *message);
 
 /**
  * @brief Parses the content of the file specified by the file_name as a
@@ -99,8 +94,7 @@ bool GetProtoFromBinaryFile(const std::string &file_name,
  * @param message The proto to carry the parsed content in the specified file.
  * @return If the action is successful.
  */
-bool GetProtoFromFile(const std::string &file_name,
-                      google::protobuf::Message *message);
+bool GetProtoFromFile(const std::string &file_name, google::protobuf::Message *message);
 
 /**
  * @brief Get file content as string.
@@ -114,8 +108,7 @@ bool GetContent(const std::string &file_name, std::string *content);
  * @brief Get absolute path by concatenating prefix and relative_path.
  * @return The absolute path.
  */
-std::string GetAbsolutePath(const std::string &prefix,
-                            const std::string &relative_path);
+std::string GetAbsolutePath(const std::string &prefix, const std::string &relative_path);
 
 /**
  * @brief Check if the path exists.
@@ -186,8 +179,7 @@ bool RemoveAllFiles(const std::string &directory_path);
  * @param d_type Sub-path type, DT_DIR for directory, or DT_REG for file.
  * @return A vector of sub-paths, without the directory_path prefix.
  */
-std::vector<std::string> ListSubPaths(const std::string &directory_path,
-                                      const unsigned char d_type = DT_DIR);
+std::vector<std::string> ListSubPaths(const std::string &directory_path, const unsigned char d_type = DT_DIR);
 
 std::string GetFileName(const std::string &path,
                         const bool remove_extension = false);
