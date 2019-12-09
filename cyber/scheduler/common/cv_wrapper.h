@@ -23,13 +23,14 @@ namespace apollo {
 namespace cyber {
 namespace scheduler {
 
-class CvWrapper {
- public:
-  CvWrapper& operator=(const CvWrapper& other) = delete;
-  std::condition_variable& Cv() { return cv_; }
+class CvWrapper 
+{
+public:
+        CvWrapper& operator=(const CvWrapper& other) = delete;
+        std::condition_variable& Cv() { return cv_; }
 
- private:
-  mutable std::condition_variable cv_;
+private:
+        mutable std::condition_variable cv_;
 };
 
 }  // namespace scheduler

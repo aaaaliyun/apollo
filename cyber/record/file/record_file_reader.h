@@ -40,50 +40,58 @@ using google::protobuf::io::CodedInputStream;
 using google::protobuf::io::FileInputStream;
 using google::protobuf::io::ZeroCopyInputStream;
 
-class RecordFileReader : public RecordFileBase {
- public:
-  RecordFileReader() = default;
-  virtual ~RecordFileReader() = default;
-  bool Open(const std::string& path) override;
-  void Close() override;
-  bool Reset();
-  bool ReadSection(Section* section);
-  bool SkipSection(int64_t size);
-  template <typename T>
-  bool ReadSection(int64_t size, T* message);
-  bool ReadIndex();
-  bool EndOfFile() { return end_of_file_; }
+class RecordFileReader : public RecordFileBase 
+{
+public:
+        RecordFileReader() = default;
+        virtual ~RecordFileReader() = default;
+        bool Open(const std::string& path) override;
+        void Close() override;
+        bool Reset();
+        bool ReadSection(Section* section);
+        bool SkipSection(int64_t size);
+        template <typename T>
+        bool ReadSection(int64_t size, T* message);
+        bool ReadIndex();
+        bool EndOfFile() { return end_of_file_; }
 
- private:
-  bool ReadHeader();
-  bool end_of_file_ = false;
+private:
+        bool ReadHeader();
+        bool end_of_file_ = false;
 };
 
 template <typename T>
-bool RecordFileReader::ReadSection(int64_t size, T* message) {
-  if (size < INT_MIN || size > INT_MAX) {
-    AERROR << "Size value greater than the range of int value.";
-    return false;
-  }
-  FileInputStream raw_input(fd_, static_cast<int>(size));
-  CodedInputStream coded_input(&raw_input);
-  CodedInputStream::Limit limit = coded_input.PushLimit(static_cast<int>(size));
-  if (!message->ParseFromCodedStream(&coded_input)) {
-    AERROR << "Parse section message failed.";
-    end_of_file_ = coded_input.ExpectAtEnd();
-    return false;
-  }
-  if (!coded_input.ConsumedEntireMessage()) {
-    AERROR << "Do not consumed entire message.";
-    return false;
-  }
-  coded_input.PopLimit(limit);
-  if (message->ByteSize() != size) {
-    AERROR << "Message size is not consistent in section header"
-           << ", expect: " << size << ", actual: " << message->ByteSize();
-    return false;
-  }
-  return true;
+bool RecordFileReader::ReadSection(int64_t size, T* message) 
+{
+        if (size < INT_MIN || size > INT_MAX) 
+        {
+                AERROR << "Size value greater than the range of int value.";
+                return false;
+        }
+        FileInputStream raw_input(fd_, static_cast<int>(size));
+        CodedInputStream coded_input(&raw_input);
+        CodedInputStream::Limit limit = coded_input.PushLimit(static_cast<int>(size));
+        if (!message->ParseFromCodedStream(&coded_input)) 
+        {
+                AERROR << "Parse section message failed.";
+                end_of_file_ = coded_input.ExpectAtEnd();
+                return false;
+        }
+
+        if (!coded_input.ConsumedEntireMessage()) 
+        {
+                AERROR << "Do not consumed entire message.";
+                return false;
+        }
+
+        coded_input.PopLimit(limit);
+        if (message->ByteSize() != size) 
+        {
+                AERROR << "Message size is not consistent in section header"
+                       << ", expect: " << size << ", actual: " << message->ByteSize();
+                return false;
+        }
+        return true;
 }
 
 }  // namespace record
