@@ -26,19 +26,21 @@
 namespace apollo {
 namespace cyber {
 
-class TimerBucket {
- public:
-  void AddTask(const std::shared_ptr<TimerTask>& task) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    task_list_.push_back(task);
-  }
+class TimerBucket 
+{
+public:
+        void AddTask(const std::shared_ptr<TimerTask>& task) 
+        {
+                std::lock_guard<std::mutex> lock(mutex_);
+                task_list_.push_back(task);
+        }
 
-  std::mutex& mutex() { return mutex_; }
-  std::list<std::weak_ptr<TimerTask>>& task_list() { return task_list_; }
+        std::mutex& mutex() { return mutex_; }
+        std::list<std::weak_ptr<TimerTask>>& task_list() { return task_list_; }
 
- private:
-  std::mutex mutex_;
-  std::list<std::weak_ptr<TimerTask>> task_list_;
+private:
+        std::mutex mutex_;
+        std::list<std::weak_ptr<TimerTask>> task_list_;
 };
 
 }  // namespace cyber

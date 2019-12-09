@@ -24,63 +24,64 @@ RtpsDispatcher::RtpsDispatcher() : participant_(nullptr) {}
 
 RtpsDispatcher::~RtpsDispatcher() { Shutdown(); }
 
-void RtpsDispatcher::Shutdown() {
-  if (is_shutdown_.exchange(true)) {
-    return;
-  }
+void RtpsDispatcher::Shutdown() 
+{
+        if (is_shutdown_.exchange(true)) 
+        {
+                return;
+        }
 
-  {
-    std::lock_guard<std::mutex> lock(subs_mutex_);
-    for (auto& item : subs_) {
-      item.second.sub = nullptr;
-    }
-  }
+        {
+                std::lock_guard<std::mutex> lock(subs_mutex_);
+                for (auto& item : subs_) 
+                {
+                        item.second.sub = nullptr;
+                }
+        }
 
-  participant_ = nullptr;
+        participant_ = nullptr;
 }
 
-void RtpsDispatcher::AddSubscriber(const RoleAttributes& self_attr) {
-  if (participant_ == nullptr) {
-    AWARN << "please set participant firstly.";
-    return;
-  }
+void RtpsDispatcher::AddSubscriber(const RoleAttributes& self_attr) 
+{
+        if (participant_ == nullptr) 
+        {
+                AWARN << "please set participant firstly.";
+                return;
+        }
 
-  uint64_t channel_id = self_attr.channel_id();
-  std::lock_guard<std::mutex> lock(subs_mutex_);
-  if (subs_.count(channel_id) > 0) {
-    return;
-  }
+        uint64_t channel_id = self_attr.channel_id();
+        std::lock_guard<std::mutex> lock(subs_mutex_);
+        if (subs_.count(channel_id) > 0) 
+        {
+                return;
+        }
 
-  Subscriber new_sub;
-  eprosima::fastrtps::SubscriberAttributes sub_attr;
-  auto& qos = self_attr.qos_profile();
-  RETURN_IF(!AttributesFiller::FillInSubAttr(self_attr.channel_name(), qos,
-                                             &sub_attr));
+        Subscriber new_sub;
+        eprosima::fastrtps::SubscriberAttributes sub_attr;
+        auto& qos = self_attr.qos_profile();
+        RETURN_IF(!AttributesFiller::FillInSubAttr(self_attr.channel_name(), qos, &sub_attr));
 
-  new_sub.sub_listener = std::make_shared<SubListener>(
-      std::bind(&RtpsDispatcher::OnMessage, this, std::placeholders::_1,
-                std::placeholders::_2, std::placeholders::_3));
+        new_sub.sub_listener = std::make_shared<SubListener>(std::bind(&RtpsDispatcher::OnMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
-  new_sub.sub = eprosima::fastrtps::Domain::createSubscriber(
-      participant_->fastrtps_participant(), sub_attr,
-      new_sub.sub_listener.get());
-  RETURN_IF_NULL(new_sub.sub);
-  subs_[channel_id] = new_sub;
+        new_sub.sub = eprosima::fastrtps::Domain::createSubscriber(participant_->fastrtps_participant(), sub_attr, new_sub.sub_listener.get());
+        RETURN_IF_NULL(new_sub.sub);
+        subs_[channel_id] = new_sub;
 }
 
-void RtpsDispatcher::OnMessage(uint64_t channel_id,
-                               const std::shared_ptr<std::string>& msg_str,
-                               const MessageInfo& msg_info) {
-  if (is_shutdown_.load()) {
-    return;
-  }
+void RtpsDispatcher::OnMessage(uint64_t channel_id, const std::shared_ptr<std::string>& msg_str, const MessageInfo& msg_info) 
+{
+        if (is_shutdown_.load()) 
+        {
+                return;
+        }
 
-  ListenerHandlerBasePtr* handler_base = nullptr;
-  if (msg_listeners_.Get(channel_id, &handler_base)) {
-    auto handler =
-        std::dynamic_pointer_cast<ListenerHandler<std::string>>(*handler_base);
-    handler->Run(msg_str, msg_info);
-  }
+        ListenerHandlerBasePtr* handler_base = nullptr;
+        if (msg_listeners_.Get(channel_id, &handler_base)) 
+        {
+                auto handler = std::dynamic_pointer_cast<ListenerHandler<std::string>>(*handler_base);
+                handler->Run(msg_str, msg_info);
+        }
 }
 
 }  // namespace transport

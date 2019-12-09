@@ -31,23 +31,24 @@ namespace cyber {
 
 using apollo::cyber::scheduler::Scheduler;
 
-class SysMo {
- public:
-  void Start();
-  void Shutdown();
+class SysMo 
+{
+public:
+        void Start();
+        void Shutdown();
 
- private:
-  void Checker();
+private:
+        void Checker();
 
-  std::atomic<bool> shut_down_{false};
-  bool start_ = false;
+        std::atomic<bool> shut_down_{false};
+        bool start_ = false;
 
-  int sysmo_interval_ms_ = 100;
-  std::condition_variable cv_;
-  std::mutex lk_;
-  std::thread sysmo_;
+        int sysmo_interval_ms_ = 100;
+        std::condition_variable cv_;
+        std::mutex lk_;
+        std::thread sysmo_;
 
-  DECLARE_SINGLETON(SysMo);
+        DECLARE_SINGLETON(SysMo);
 };
 
 }  // namespace cyber

@@ -33,32 +33,33 @@ namespace scheduler {
 using apollo::cyber::croutine::CRoutine;
 using apollo::cyber::proto::ChoreographyTask;
 
-class SchedulerChoreography : public Scheduler {
- public:
-  bool RemoveCRoutine(uint64_t crid) override;
-  bool RemoveTask(const std::string& name) override;
-  bool DispatchTask(const std::shared_ptr<CRoutine>&) override;
+class SchedulerChoreography : public Scheduler 
+{
+public:
+        bool RemoveCRoutine(uint64_t crid) override;
+        bool RemoveTask(const std::string& name) override;
+        bool DispatchTask(const std::shared_ptr<CRoutine>&) override;
 
- private:
-  friend Scheduler* Instance();
-  SchedulerChoreography();
+private:
+        friend Scheduler* Instance();
+        SchedulerChoreography();
 
-  void CreateProcessor();
-  bool NotifyProcessor(uint64_t crid) override;
+        void CreateProcessor();
+        bool NotifyProcessor(uint64_t crid) override;
 
-  std::unordered_map<std::string, ChoreographyTask> cr_confs_;
+        std::unordered_map<std::string, ChoreographyTask> cr_confs_;
 
-  int32_t choreography_processor_prio_;
-  int32_t pool_processor_prio_;
+        int32_t choreography_processor_prio_;
+        int32_t pool_processor_prio_;
 
-  std::string choreography_affinity_;
-  std::string pool_affinity_;
+        std::string choreography_affinity_;
+        std::string pool_affinity_;
 
-  std::string choreography_processor_policy_;
-  std::string pool_processor_policy_;
+        std::string choreography_processor_policy_;
+        std::string pool_processor_policy_;
 
-  std::vector<int> choreography_cpuset_;
-  std::vector<int> pool_cpuset_;
+        std::vector<int> choreography_cpuset_;
+        std::vector<int> pool_cpuset_;
 };
 
 }  // namespace scheduler

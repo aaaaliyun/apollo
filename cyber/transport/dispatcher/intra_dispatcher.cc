@@ -20,7 +20,10 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
-IntraDispatcher::IntraDispatcher() { chain_.reset(new ChannelChain()); }
+IntraDispatcher::IntraDispatcher() 
+{ 
+        chain_.reset(new ChannelChain()); 
+}
 
 IntraDispatcher::~IntraDispatcher() {}
 

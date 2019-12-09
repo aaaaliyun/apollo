@@ -24,39 +24,46 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
-Identity::Identity(bool need_generate) : hash_value_(0), hash_value_str_("") {
-  memset(data_, 0, ID_SIZE);
-  if (need_generate) {
-    uuid_t uuid;
-    uuid_generate(uuid);
-    memcpy(data_, uuid, ID_SIZE);
-    Update();
-  }
+Identity::Identity(bool need_generate) : hash_value_(0), hash_value_str_("") 
+{
+        memset(data_, 0, ID_SIZE);
+        if (need_generate) 
+        {
+                uuid_t uuid;
+                uuid_generate(uuid);
+                memcpy(data_, uuid, ID_SIZE);
+                Update();
+        }
 }
 
-Identity::Identity(const Identity& another) {
-  memcpy(data_, another.data(), ID_SIZE);
-  hash_value_ = another.hash_value_;
-  hash_value_str_ = another.hash_value_str_;
+Identity::Identity(const Identity& another) 
+{
+        memcpy(data_, another.data(), ID_SIZE);
+        hash_value_ = another.hash_value_;
+        hash_value_str_ = another.hash_value_str_;
 }
 
 Identity::~Identity() {}
 
-Identity& Identity::operator=(const Identity& another) {
-  if (this != &another) {
-    memcpy(data_, another.data(), ID_SIZE);
-    hash_value_ = another.hash_value_;
-    hash_value_str_ = another.hash_value_str_;
-  }
-  return *this;
+Identity& Identity::operator=(const Identity& another) 
+{
+        if (this != &another) 
+        {
+                memcpy(data_, another.data(), ID_SIZE);
+                hash_value_ = another.hash_value_;
+                hash_value_str_ = another.hash_value_str_;
+        }
+        return *this;
 }
 
-bool Identity::operator==(const Identity& another) const {
-  return memcmp(data_, another.data(), ID_SIZE) == 0;
+bool Identity::operator==(const Identity& another) const 
+{
+        return memcmp(data_, another.data(), ID_SIZE) == 0;
 }
 
-bool Identity::operator!=(const Identity& another) const {
-  return memcmp(data_, another.data(), ID_SIZE) != 0;
+bool Identity::operator!=(const Identity& another) const 
+{
+        return memcmp(data_, another.data(), ID_SIZE) != 0;
 }
 
 const std::string& Identity::ToString() const { return hash_value_str_; }
@@ -65,9 +72,10 @@ size_t Identity::Length() const { return ID_SIZE; }
 
 uint64_t Identity::HashValue() const { return hash_value_; }
 
-void Identity::Update() {
-  hash_value_ = common::Hash(std::string(data_, ID_SIZE));
-  hash_value_str_ = std::to_string(hash_value_);
+void Identity::Update() 
+{
+        hash_value_ = common::Hash(std::string(data_, ID_SIZE));
+        hash_value_str_ = std::to_string(hash_value_);
 }
 
 }  // namespace transport

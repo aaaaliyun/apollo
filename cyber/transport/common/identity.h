@@ -27,37 +27,40 @@ namespace transport {
 
 const uint8_t ID_SIZE = 8;
 
-class Identity {
- public:
-  explicit Identity(bool need_generate = true);
-  Identity(const Identity& another);
-  virtual ~Identity();
+class Identity 
+{
+public:
+        explicit Identity(bool need_generate = true);
+        Identity(const Identity& another);
+        virtual ~Identity();
 
-  Identity& operator=(const Identity& another);
-  bool operator==(const Identity& another) const;
-  bool operator!=(const Identity& another) const;
+        Identity& operator=(const Identity& another);
+        bool operator==(const Identity& another) const;
+        bool operator!=(const Identity& another) const;
 
-  const std::string& ToString() const;
-  size_t Length() const;
-  uint64_t HashValue() const;
+        const std::string& ToString() const;
+        size_t Length() const;
+        uint64_t HashValue() const;
 
-  // getter and setter
-  const char* data() const { return data_; }
-  void set_data(const char* data) {
-    if (data == nullptr) {
-      return;
-    }
-    memset(data_, 0, sizeof(data_));
-    memcpy(data_, data, sizeof(data_));
-    Update();
-  }
+        // getter and setter
+        const char* data() const { return data_; }
+        void set_data(const char* data) 
+        {
+                if (data == nullptr) 
+                {
+                        return;
+                }
+                memset(data_, 0, sizeof(data_));
+                memcpy(data_, data, sizeof(data_));
+                Update();
+        }
 
- private:
-  void Update();
+private:
+        void Update();
 
-  char data_[ID_SIZE];
-  uint64_t hash_value_;
-  std::string hash_value_str_;
+        char data_[ID_SIZE];
+        uint64_t hash_value_;
+        std::string hash_value_str_;
 };
 
 }  // namespace transport

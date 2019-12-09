@@ -28,21 +28,19 @@ namespace apollo {
 namespace cyber {
 namespace service_discovery {
 
-class ParticipantListener : public eprosima::fastrtps::ParticipantListener {
- public:
-  using ChangeFunc = std::function<void(
-      const eprosima::fastrtps::ParticipantDiscoveryInfo& info)>;
+class ParticipantListener : public eprosima::fastrtps::ParticipantListener 
+{
+public:
+        using ChangeFunc = std::function<void(const eprosima::fastrtps::ParticipantDiscoveryInfo& info)>;
 
-  explicit ParticipantListener(const ChangeFunc& callback);
-  virtual ~ParticipantListener();
+        explicit ParticipantListener(const ChangeFunc& callback);
+        virtual ~ParticipantListener();
 
-  virtual void onParticipantDiscovery(
-      eprosima::fastrtps::Participant* p,
-      eprosima::fastrtps::ParticipantDiscoveryInfo info);
+        virtual void onParticipantDiscovery(eprosima::fastrtps::Participant* p, eprosima::fastrtps::ParticipantDiscoveryInfo info);
 
- private:
-  ChangeFunc callback_;
-  std::mutex mutex_;
+private:
+        ChangeFunc callback_;
+        std::mutex mutex_;
 };
 
 }  // namespace service_discovery

@@ -46,41 +46,54 @@ std::atomic<Scheduler*> instance = {nullptr};
 std::mutex mutex;
 }  // namespace
 
-Scheduler* Instance() {
-  Scheduler* obj = instance.load(std::memory_order_acquire);
-  if (obj == nullptr) {
-    std::lock_guard<std::mutex> lock(mutex);
-    obj = instance.load(std::memory_order_relaxed);
-    if (obj == nullptr) {
-      std::string policy("classic");
-      std::string conf("conf/");
-      conf.append(GlobalData::Instance()->ProcessGroup()).append(".conf");
-      auto cfg_file = GetAbsolutePath(WorkRoot(), conf);
-      apollo::cyber::proto::CyberConfig cfg;
-      if (PathExists(cfg_file) && GetProtoFromFile(cfg_file, &cfg)) {
-        policy = cfg.scheduler_conf().policy();
-      } else {
-        AWARN << "No sched conf found, use default conf.";
-      }
-      if (!policy.compare("classic")) {
-        obj = new SchedulerClassic();
-      } else if (!policy.compare("choreography")) {
-        obj = new SchedulerChoreography();
-      } else {
-        AWARN << "Invalid scheduler policy: " << policy;
-        obj = new SchedulerClassic();
-      }
-      instance.store(obj, std::memory_order_release);
-    }
-  }
-  return obj;
+Scheduler* Instance() 
+{
+        Scheduler* obj = instance.load(std::memory_order_acquire);
+        if (obj == nullptr) 
+        {
+                std::lock_guard<std::mutex> lock(mutex);
+                obj = instance.load(std::memory_order_relaxed);
+                if (obj == nullptr) 
+                {
+                        std::string policy("classic");
+                        std::string conf("conf/");
+                        conf.append(GlobalData::Instance()->ProcessGroup()).append(".conf");
+                        auto cfg_file = GetAbsolutePath(WorkRoot(), conf);
+                        apollo::cyber::proto::CyberConfig cfg;
+                        if (PathExists(cfg_file) && GetProtoFromFile(cfg_file, &cfg)) 
+                        {
+                                policy = cfg.scheduler_conf().policy();
+                        } 
+                        else 
+                        {
+                                AWARN << "No sched conf found, use default conf.";
+                        }
+                        if (!policy.compare("classic")) 
+                        {
+                                obj = new SchedulerClassic();
+                        } 
+                        else if (!policy.compare("choreography")) 
+                        {
+                                obj = new SchedulerChoreography();
+                        } 
+                        else 
+                        {
+                                AWARN << "Invalid scheduler policy: " << policy;
+                                obj = new SchedulerClassic();
+                        }
+                        instance.store(obj, std::memory_order_release);
+                }
+        }
+        return obj;
 }
 
-void CleanUp() {
-  Scheduler* obj = instance.load(std::memory_order_acquire);
-  if (obj != nullptr) {
-    obj->Shutdown();
-  }
+void CleanUp() 
+{
+        Scheduler* obj = instance.load(std::memory_order_acquire);
+        if (obj != nullptr) 
+        {
+                obj->Shutdown();
+        }
 }
 
 }  // namespace scheduler
