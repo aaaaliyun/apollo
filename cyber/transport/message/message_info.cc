@@ -43,73 +43,81 @@ MessageInfo::MessageInfo(const MessageInfo& another)
 
 MessageInfo::~MessageInfo() {}
 
-MessageInfo& MessageInfo::operator=(const MessageInfo& another) {
-  if (this != &another) {
-    sender_id_ = another.sender_id_;
-    channel_id_ = another.channel_id_;
-    seq_num_ = another.seq_num_;
-    spare_id_ = another.spare_id_;
-  }
-  return *this;
+MessageInfo& MessageInfo::operator=(const MessageInfo& another) 
+{
+        if (this != &another) 
+        {
+                sender_id_ = another.sender_id_;
+                channel_id_ = another.channel_id_;
+                seq_num_ = another.seq_num_;
+                spare_id_ = another.spare_id_;
+        }
+        return *this;
 }
 
-bool MessageInfo::operator==(const MessageInfo& another) const {
-  return sender_id_ == another.sender_id_ &&
-         channel_id_ == another.channel_id_ && seq_num_ == another.seq_num_ &&
-         spare_id_ == another.spare_id_;
+bool MessageInfo::operator==(const MessageInfo& another) const 
+{
+        return sender_id_ == another.sender_id_ &&
+               channel_id_ == another.channel_id_ && seq_num_ == another.seq_num_ &&
+               spare_id_ == another.spare_id_;
 }
 
-bool MessageInfo::operator!=(const MessageInfo& another) const {
-  return !(*this == another);
+bool MessageInfo::operator!=(const MessageInfo& another) const 
+{
+        return !(*this == another);
 }
 
-bool MessageInfo::SerializeTo(std::string* dst) const {
-  RETURN_VAL_IF_NULL(dst, false);
+bool MessageInfo::SerializeTo(std::string* dst) const 
+{
+        RETURN_VAL_IF_NULL(dst, false);
 
-  dst->assign(sender_id_.data(), ID_SIZE);
-  dst->append(reinterpret_cast<char*>(const_cast<uint64_t*>(&seq_num_)),
-              sizeof(seq_num_));
-  dst->append(spare_id_.data(), ID_SIZE);
+        dst->assign(sender_id_.data(), ID_SIZE);
+        dst->append(reinterpret_cast<char*>(const_cast<uint64_t*>(&seq_num_)), sizeof(seq_num_));
+        dst->append(spare_id_.data(), ID_SIZE);
 
-  return true;
+        return true;
 }
 
-bool MessageInfo::SerializeTo(char* dst, std::size_t len) const {
-  RETURN_VAL_IF_NULL(dst, false);
-  if (len < kSize) {
-    return false;
-  }
+bool MessageInfo::SerializeTo(char* dst, std::size_t len) const 
+{
+        RETURN_VAL_IF_NULL(dst, false);
+        if (len < kSize) 
+        {
+                return false;
+        }
 
-  char* ptr = dst;
-  memcpy(ptr, sender_id_.data(), ID_SIZE);
-  ptr += ID_SIZE;
-  memcpy(ptr, reinterpret_cast<char*>(const_cast<uint64_t*>(&seq_num_)),
-         sizeof(seq_num_));
-  ptr += sizeof(seq_num_);
-  memcpy(ptr, spare_id_.data(), ID_SIZE);
+        char* ptr = dst;
+        memcpy(ptr, sender_id_.data(), ID_SIZE);
+        ptr += ID_SIZE;
+        memcpy(ptr, reinterpret_cast<char*>(const_cast<uint64_t*>(&seq_num_)), sizeof(seq_num_));
+        ptr += sizeof(seq_num_);
+        memcpy(ptr, spare_id_.data(), ID_SIZE);
 
-  return true;
+        return true;
 }
 
-bool MessageInfo::DeserializeFrom(const std::string& src) {
-  return DeserializeFrom(src.data(), src.size());
+bool MessageInfo::DeserializeFrom(const std::string& src) 
+{
+        return DeserializeFrom(src.data(), src.size());
 }
 
-bool MessageInfo::DeserializeFrom(const char* src, std::size_t len) {
-  RETURN_VAL_IF_NULL(src, false);
-  if (len != kSize) {
-    AWARN << "src size mismatch, given[" << len << "] target[" << kSize << "]";
-    return false;
-  }
+bool MessageInfo::DeserializeFrom(const char* src, std::size_t len) 
+{
+        RETURN_VAL_IF_NULL(src, false);
+        if (len != kSize) 
+        {
+                AWARN << "src size mismatch, given[" << len << "] target[" << kSize << "]";
+                return false;
+        }
 
-  char* ptr = const_cast<char*>(src);
-  sender_id_.set_data(ptr);
-  ptr += ID_SIZE;
-  memcpy(reinterpret_cast<char*>(&seq_num_), ptr, sizeof(seq_num_));
-  ptr += sizeof(seq_num_);
-  spare_id_.set_data(ptr);
+        char* ptr = const_cast<char*>(src);
+        sender_id_.set_data(ptr);
+        ptr += ID_SIZE;
+        memcpy(reinterpret_cast<char*>(&seq_num_), ptr, sizeof(seq_num_));
+        ptr += sizeof(seq_num_);
+        spare_id_.set_data(ptr);
 
-  return true;
+        return true;
 }
 
 }  // namespace transport

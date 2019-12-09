@@ -26,66 +26,66 @@ namespace cyber {
 namespace transport {
 
 template <typename M>
-class RtpsReceiver : public Receiver<M> {
- public:
-  RtpsReceiver(const RoleAttributes& attr,
-               const typename Receiver<M>::MessageListener& msg_listener);
-  virtual ~RtpsReceiver();
+class RtpsReceiver : public Receiver<M> 
+{
+public:
+        RtpsReceiver(const RoleAttributes& attr, const typename Receiver<M>::MessageListener& msg_listener);
+        virtual ~RtpsReceiver();
 
-  void Enable() override;
-  void Disable() override;
+        void Enable() override;
+        void Disable() override;
 
-  void Enable(const RoleAttributes& opposite_attr) override;
-  void Disable(const RoleAttributes& opposite_attr) override;
+        void Enable(const RoleAttributes& opposite_attr) override;
+        void Disable(const RoleAttributes& opposite_attr) override;
 
- private:
-  RtpsDispatcherPtr dispatcher_;
+private:
+        RtpsDispatcherPtr dispatcher_;
 };
 
 template <typename M>
-RtpsReceiver<M>::RtpsReceiver(
-    const RoleAttributes& attr,
-    const typename Receiver<M>::MessageListener& msg_listener)
-    : Receiver<M>(attr, msg_listener) {
-  dispatcher_ = RtpsDispatcher::Instance();
+RtpsReceiver<M>::RtpsReceiver(const RoleAttributes& attr, const typename Receiver<M>::MessageListener& msg_listener) : Receiver<M>(attr, msg_listener) 
+{
+        dispatcher_ = RtpsDispatcher::Instance();
 }
 
 template <typename M>
-RtpsReceiver<M>::~RtpsReceiver() {
-  Disable();
+RtpsReceiver<M>::~RtpsReceiver() 
+{
+        Disable();
 }
 
 template <typename M>
-void RtpsReceiver<M>::Enable() {
-  if (this->enabled_) {
-    return;
-  }
-  dispatcher_->AddListener<M>(
-      this->attr_, std::bind(&RtpsReceiver<M>::OnNewMessage, this,
-                             std::placeholders::_1, std::placeholders::_2));
-  this->enabled_ = true;
+void RtpsReceiver<M>::Enable() 
+{
+        if (this->enabled_) 
+        {
+                return;
+        }
+        dispatcher_->AddListener<M>(this->attr_, std::bind(&RtpsReceiver<M>::OnNewMessage, this, std::placeholders::_1, std::placeholders::_2));
+        this->enabled_ = true;
 }
 
 template <typename M>
-void RtpsReceiver<M>::Disable() {
-  if (!this->enabled_) {
-    return;
-  }
-  dispatcher_->RemoveListener<M>(this->attr_);
-  this->enabled_ = false;
+void RtpsReceiver<M>::Disable() 
+{
+        if (!this->enabled_) 
+        {
+                return;
+        }     
+        dispatcher_->RemoveListener<M>(this->attr_);
+        this->enabled_ = false;
 }
 
 template <typename M>
-void RtpsReceiver<M>::Enable(const RoleAttributes& opposite_attr) {
-  dispatcher_->AddListener<M>(
-      this->attr_, opposite_attr,
-      std::bind(&RtpsReceiver<M>::OnNewMessage, this, std::placeholders::_1,
-                std::placeholders::_2));
+void RtpsReceiver<M>::Enable(const RoleAttributes& opposite_attr) 
+{
+        dispatcher_->AddListener<M>(this->attr_, opposite_attr, std::bind(&RtpsReceiver<M>::OnNewMessage, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 template <typename M>
-void RtpsReceiver<M>::Disable(const RoleAttributes& opposite_attr) {
-  dispatcher_->RemoveListener<M>(this->attr_, opposite_attr);
+void RtpsReceiver<M>::Disable(const RoleAttributes& opposite_attr) 
+{
+        dispatcher_->RemoveListener<M>(this->attr_, opposite_attr);
 }
 
 }  // namespace transport

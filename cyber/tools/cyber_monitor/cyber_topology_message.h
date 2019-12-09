@@ -34,35 +34,34 @@ class RoleAttributes;
 class GeneralChannelMessage;
 // class GeneralMessage;
 
-class CyberTopologyMessage : public RenderableMessage {
- public:
-  explicit CyberTopologyMessage(const std::string& channel);
-  ~CyberTopologyMessage();
+class CyberTopologyMessage : public RenderableMessage 
+{
+public:
+        explicit CyberTopologyMessage(const std::string& channel);
+        ~CyberTopologyMessage();
 
-  void Render(const Screen* s, int key) override;
-  RenderableMessage* Child(int index) const override;
+        void Render(const Screen* s, int key) override;
+        RenderableMessage* Child(int index) const override;
 
-  void TopologyChanged(const apollo::cyber::proto::ChangeMsg& change_msg);
-  void AddReaderWriter(const apollo::cyber::proto::RoleAttributes& role,
-                       bool isWriter);
+        void TopologyChanged(const apollo::cyber::proto::ChangeMsg& change_msg);
+        void AddReaderWriter(const apollo::cyber::proto::RoleAttributes& role, bool isWriter);
 
- private:
-  CyberTopologyMessage(const CyberTopologyMessage&) = delete;
-  CyberTopologyMessage& operator=(const CyberTopologyMessage&) = delete;
+private:
+        CyberTopologyMessage(const CyberTopologyMessage&) = delete;
+        CyberTopologyMessage& operator=(const CyberTopologyMessage&) = delete;
 
-  void ChangeState(const Screen* s, int key);
-  bool isFromHere(const std::string& nodeName);
+        void ChangeState(const Screen* s, int key);
+        bool isFromHere(const std::string& nodeName);
 
-  std::map<std::string, GeneralChannelMessage*>::const_iterator findChild(
-      int index) const;
+        std::map<std::string, GeneralChannelMessage*>::const_iterator findChild(int index) const;
 
-  enum class SecondColumnType { MessageType, MessageFrameRatio };
-  SecondColumnType second_column_;
+        enum class SecondColumnType { MessageType, MessageFrameRatio };
+        SecondColumnType second_column_;
 
-  int pid_;
-  int col1_width_;
-  const std::string& specified_channel_;
-  std::map<std::string, GeneralChannelMessage*> all_channels_map_;
+        int pid_;
+        int col1_width_;
+        const std::string& specified_channel_;
+        std::map<std::string, GeneralChannelMessage*> all_channels_map_;
 };
 
 #endif  // TOOLS_CVT_MONITOR_CYBER_TOPOLOGY_MESSAGE_H_
