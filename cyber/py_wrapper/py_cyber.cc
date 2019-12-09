@@ -863,59 +863,58 @@ PyObject *cyber_PyServiceUtils_get_service_attr(PyObject *self, PyObject *args)
 /////////////////////////////////////////////////////////////////////
 static PyMethodDef _cyber_methods[] = 
 {
-    // PyInit fun
-    {"py_init", cyber_py_init, METH_VARARGS, ""},
-    {"py_ok", cyber_py_ok, METH_NOARGS, ""},
-    {"py_shutdown", cyber_py_shutdown, METH_NOARGS, ""},
-    {"py_is_shutdown", cyber_py_is_shutdown, METH_NOARGS, ""},
-    {"py_waitforshutdown", cyber_py_waitforshutdown, METH_NOARGS, ""},
+        // PyInit fun
+        {"py_init", cyber_py_init, METH_VARARGS, ""},
+        {"py_ok", cyber_py_ok, METH_NOARGS, ""},
+        {"py_shutdown", cyber_py_shutdown, METH_NOARGS, ""},
+        {"py_is_shutdown", cyber_py_is_shutdown, METH_NOARGS, ""},
+        {"py_waitforshutdown", cyber_py_waitforshutdown, METH_NOARGS, ""},
 
-    // PyWriter fun
-    {"new_PyWriter", cyber_new_PyWriter, METH_VARARGS, ""},
-    {"delete_PyWriter", cyber_delete_PyWriter, METH_VARARGS, ""},
-    {"PyWriter_write", cyber_PyWriter_write, METH_VARARGS, ""},
+        // PyWriter fun
+        {"new_PyWriter", cyber_new_PyWriter, METH_VARARGS, ""},
+        {"delete_PyWriter", cyber_delete_PyWriter, METH_VARARGS, ""},
+        {"PyWriter_write", cyber_PyWriter_write, METH_VARARGS, ""},
 
-    // PyReader fun
-    {"new_PyReader", cyber_new_PyReader, METH_VARARGS, ""},
-    {"delete_PyReader", cyber_delete_PyReader, METH_VARARGS, ""},
-    {"PyReader_register_func", cyber_PyReader_register_func, METH_VARARGS, ""},
-    {"PyReader_read", cyber_PyReader_read, METH_VARARGS, ""},
+        // PyReader fun
+        {"new_PyReader", cyber_new_PyReader, METH_VARARGS, ""},
+        {"delete_PyReader", cyber_delete_PyReader, METH_VARARGS, ""},
+        {"PyReader_register_func", cyber_PyReader_register_func, METH_VARARGS, ""},
+        {"PyReader_read", cyber_PyReader_read, METH_VARARGS, ""},
 
-    // PyClient fun
-    {"new_PyClient", cyber_new_PyClient, METH_VARARGS, ""},
-    {"delete_PyClient", cyber_delete_PyClient, METH_VARARGS, ""},
-    {"PyClient_send_request", cyber_PyClient_send_request, METH_VARARGS, ""},
-    // PyService fun
-    {"new_PyService", cyber_new_PyService, METH_VARARGS, ""},
-    {"delete_PyService", cyber_delete_PyService, METH_VARARGS, ""},
-    {"PyService_register_func", cyber_PyService_register_func, METH_VARARGS,
-     ""},
-    {"PyService_read", cyber_PyService_read, METH_VARARGS, ""},
-    {"PyService_write", cyber_PyService_write, METH_VARARGS, ""},
-    // PyNode fun
-    {"new_PyNode", cyber_new_PyNode, METH_VARARGS, ""},
-    {"delete_PyNode", cyber_delete_PyNode, METH_VARARGS, ""},
-    {"PyNode_shutdown", cyber_PyNode_shutdown, METH_VARARGS, ""},
-    {"PyNode_create_writer", cyber_PyNode_create_writer, METH_VARARGS, ""},
-    {"PyNode_register_message", cyber_PyNode_register_message, METH_VARARGS, ""},
-    {"PyNode_create_reader", cyber_PyNode_create_reader, METH_VARARGS, ""},
-    {"PyNode_create_client", cyber_PyNode_create_client, METH_VARARGS, ""},
-    {"PyNode_create_service", cyber_PyNode_create_service, METH_VARARGS, ""},
+        // PyClient fun
+        {"new_PyClient", cyber_new_PyClient, METH_VARARGS, ""},
+        {"delete_PyClient", cyber_delete_PyClient, METH_VARARGS, ""},
+        {"PyClient_send_request", cyber_PyClient_send_request, METH_VARARGS, ""},
+        // PyService fun
+        {"new_PyService", cyber_new_PyService, METH_VARARGS, ""},
+        {"delete_PyService", cyber_delete_PyService, METH_VARARGS, ""},
+        {"PyService_register_func", cyber_PyService_register_func, METH_VARARGS, ""},
+        {"PyService_read", cyber_PyService_read, METH_VARARGS, ""},
+        {"PyService_write", cyber_PyService_write, METH_VARARGS, ""},
+        // PyNode fun
+        {"new_PyNode", cyber_new_PyNode, METH_VARARGS, ""},
+        {"delete_PyNode", cyber_delete_PyNode, METH_VARARGS, ""},
+        {"PyNode_shutdown", cyber_PyNode_shutdown, METH_VARARGS, ""},
+        {"PyNode_create_writer", cyber_PyNode_create_writer, METH_VARARGS, ""},
+        {"PyNode_register_message", cyber_PyNode_register_message, METH_VARARGS, ""},
+        {"PyNode_create_reader", cyber_PyNode_create_reader, METH_VARARGS, ""},
+        {"PyNode_create_client", cyber_PyNode_create_client, METH_VARARGS, ""},
+        {"PyNode_create_service", cyber_PyNode_create_service, METH_VARARGS, ""},
 
-    {"PyChannelUtils_get_msg_type", cyber_PyChannelUtils_get_msg_type, METH_VARARGS, ""},
-    {"PyChannelUtils_get_debugstring_by_msgtype_rawmsgdata", cyber_PyChannelUtils_get_debugstring_by_msgtype_rawmsgdata, METH_VARARGS, ""},
-    {"PyChannelUtils_get_active_channels", cyber_PyChannelUtils_get_active_channels, METH_VARARGS, ""},
-    {"PyChannelUtils_get_channels_info", cyber_PyChannelUtils_get_channels_info, METH_VARARGS, ""},
+        {"PyChannelUtils_get_msg_type", cyber_PyChannelUtils_get_msg_type, METH_VARARGS, ""},
+        {"PyChannelUtils_get_debugstring_by_msgtype_rawmsgdata", cyber_PyChannelUtils_get_debugstring_by_msgtype_rawmsgdata, METH_VARARGS, ""},
+        {"PyChannelUtils_get_active_channels", cyber_PyChannelUtils_get_active_channels, METH_VARARGS, ""},
+        {"PyChannelUtils_get_channels_info", cyber_PyChannelUtils_get_channels_info, METH_VARARGS, ""},
 
-    {"PyNodeUtils_get_active_nodes", cyber_PyNodeUtils_get_active_nodes, METH_VARARGS, ""},
-    {"PyNodeUtils_get_node_attr", cyber_PyNodeUtils_get_node_attr, METH_VARARGS, ""},
-    {"PyNodeUtils_get_readersofnode", cyber_PyNodeUtils_get_readersofnode, METH_VARARGS, ""},
-    {"PyNodeUtils_get_writersofnode", cyber_PyNodeUtils_get_writersofnode, METH_VARARGS, ""},
+        {"PyNodeUtils_get_active_nodes", cyber_PyNodeUtils_get_active_nodes, METH_VARARGS, ""},
+        {"PyNodeUtils_get_node_attr", cyber_PyNodeUtils_get_node_attr, METH_VARARGS, ""},
+        {"PyNodeUtils_get_readersofnode", cyber_PyNodeUtils_get_readersofnode, METH_VARARGS, ""},
+        {"PyNodeUtils_get_writersofnode", cyber_PyNodeUtils_get_writersofnode, METH_VARARGS, ""},
 
-    {"PyServiceUtils_get_active_services", cyber_PyServiceUtils_get_active_services, METH_VARARGS, ""},
-    {"PyServiceUtils_get_service_attr", cyber_PyServiceUtils_get_service_attr, METH_VARARGS, ""},
+        {"PyServiceUtils_get_active_services", cyber_PyServiceUtils_get_active_services, METH_VARARGS, ""},
+        {"PyServiceUtils_get_service_attr", cyber_PyServiceUtils_get_service_attr, METH_VARARGS, ""},
 
-    {nullptr, nullptr, 0, nullptr} /* sentinel */
+        {nullptr, nullptr, 0, nullptr} /* sentinel */
 };
 
 /// Init function of this module
