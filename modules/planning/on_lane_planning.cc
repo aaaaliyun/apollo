@@ -46,6 +46,7 @@
 namespace apollo {
 namespace planning {
 
+using apollo::canbus::Chassis;
 using apollo::common::EngageAdvice;
 using apollo::common::ErrorCode;
 using apollo::common::Status;
@@ -461,6 +462,7 @@ Status OnLanePlanning::Plan(
       EgoInfo::Instance()->front_clear_distance());
 
   if (frame_->open_space_info().is_on_open_space_trajectory()) {
+    frame_->mutable_open_space_info()->sync_debug_instance();
     const auto& publishable_trajectory =
         frame_->open_space_info().publishable_trajectory_data().first;
     const auto& publishable_trajectory_gear =
@@ -470,9 +472,17 @@ Status OnLanePlanning::Plan(
 
     // TODO(QiL): refine engage advice in open space trajectory optimizer.
     auto* engage_advice = ptr_trajectory_pb->mutable_engage_advice();
-    engage_advice->set_advice(EngageAdvice::KEEP_ENGAGED);
-    engage_advice->set_reason("Keep engage while in parking");
 
+    // enable start auto from open_space planner.
+    if (VehicleStateProvider::Instance()->vehicle_state().driving_mode() !=
+        Chassis::DrivingMode::Chassis_DrivingMode_COMPLETE_AUTO_DRIVE) {
+      engage_advice->set_advice(EngageAdvice::READY_TO_ENGAGE);
+      engage_advice->set_reason(
+          "Ready to engage when staring with OPEN_SPACE_PLANNER");
+    } else {
+      engage_advice->set_advice(EngageAdvice::KEEP_ENGAGED);
+      engage_advice->set_reason("Keep engage while in parking");
+    }
     // TODO(QiL): refine the export decision in open space info
     ptr_trajectory_pb->mutable_decision()
         ->mutable_main_decision()

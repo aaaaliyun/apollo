@@ -40,21 +40,17 @@ ObstaclesContainer::ObstaclesContainer()
 
 ObstaclesContainer::ObstaclesContainer(const SubmoduleOutput& submodule_output)
     : ptr_obstacles_(FLAGS_max_num_obstacles) {
-  for (Obstacle obstacle : submodule_output.curr_frame_obstacles()) {
+  for (const Obstacle& obstacle : submodule_output.curr_frame_obstacles()) {
     // Deep copy of obstacle is needed for modification
     std::unique_ptr<Obstacle> ptr_obstacle(new Obstacle(obstacle));
     ptr_obstacles_.Put(obstacle.id(), std::move(ptr_obstacle));
   }
 
   Obstacle ego_vehicle = submodule_output.GetEgoVehicle();
-  std::unique_ptr<Obstacle> ptr_ego_vehicle(new Obstacle(ego_vehicle));
+  std::unique_ptr<Obstacle> ptr_ego_vehicle(
+      new Obstacle(std::move(ego_vehicle)));
   ptr_obstacles_.Put(ego_vehicle.id(), std::move(ptr_ego_vehicle));
 
-  for (const auto& perception_obstacle :
-       submodule_output.curr_frame_perception_obstacles()) {
-    int id = perception_obstacle.id();
-    curr_frame_id_perception_obstacle_map_[id] = perception_obstacle;
-  }
   curr_frame_movable_obstacle_ids_ =
       submodule_output.curr_frame_movable_obstacle_ids();
   curr_frame_unmovable_obstacle_ids_ =
@@ -68,7 +64,6 @@ void ObstaclesContainer::CleanUp() {
   curr_frame_movable_obstacle_ids_.clear();
   curr_frame_unmovable_obstacle_ids_.clear();
   curr_frame_considered_obstacle_ids_.clear();
-  curr_frame_id_perception_obstacle_map_.clear();
 }
 
 // This is called by Perception module at every frame to insert all
@@ -184,13 +179,6 @@ void ObstaclesContainer::Clear() {
   timestamp_ = -1.0;
 }
 
-const PerceptionObstacle& ObstaclesContainer::GetPerceptionObstacle(
-    const int id) {
-  CHECK(curr_frame_id_perception_obstacle_map_.find(id) !=
-        curr_frame_id_perception_obstacle_map_.end());
-  return curr_frame_id_perception_obstacle_map_[id];
-}
-
 const std::vector<int>& ObstaclesContainer::curr_frame_movable_obstacle_ids() {
   return curr_frame_movable_obstacle_ids_;
 }
@@ -237,7 +225,6 @@ void ObstaclesContainer::InsertPerceptionObstacle(
     AERROR << "Invalid ID [" << id << "]";
     return;
   }
-  curr_frame_id_perception_obstacle_map_[id] = perception_obstacle;
   if (!IsMovable(perception_obstacle)) {
     ADEBUG << "Perception obstacle [" << perception_obstacle.id()
            << "] is unmovable.";
@@ -348,23 +335,23 @@ bool ObstaclesContainer::IsMovable(
 
 double ObstaclesContainer::timestamp() const { return timestamp_; }
 
-SubmoduleOutput ObstaclesContainer::GetSubmoduleOutput() {
+SubmoduleOutput ObstaclesContainer::GetSubmoduleOutput(
+    const size_t history_size, const absl::Time& frame_start_time) {
   SubmoduleOutput container_output;
-  for (const auto& perception_obstacle_pair :
-       curr_frame_id_perception_obstacle_map_) {
-    int id = perception_obstacle_pair.first;
-    container_output.InsertPerceptionObstacle(perception_obstacle_pair.second);
+  for (int id : curr_frame_considered_obstacle_ids_) {
     Obstacle* obstacle = GetObstacle(id);
     if (obstacle == nullptr) {
       AERROR << "Nullptr found for obstacle [" << id << "]";
       continue;
     }
-    container_output.InsertObstacle(*obstacle);
+    obstacle->TrimHistory(history_size);
+    obstacle->ClearOldInformation();
+    container_output.InsertObstacle(std::move(*obstacle));
   }
 
   Obstacle* ego_obstacle = GetObstacle(FLAGS_ego_vehicle_id);
   if (ego_obstacle != nullptr) {
-    container_output.InsertEgoVehicle(*ego_obstacle);
+    container_output.InsertEgoVehicle(std::move(*ego_obstacle));
   }
 
   container_output.set_curr_frame_movable_obstacle_ids(
@@ -373,6 +360,7 @@ SubmoduleOutput ObstaclesContainer::GetSubmoduleOutput() {
       curr_frame_unmovable_obstacle_ids_);
   container_output.set_curr_frame_considered_obstacle_ids(
       curr_frame_considered_obstacle_ids_);
+  container_output.set_frame_start_time(frame_start_time);
 
   return container_output;
 }

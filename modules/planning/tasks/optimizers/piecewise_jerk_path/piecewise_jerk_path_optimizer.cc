@@ -36,6 +36,7 @@ namespace planning {
 
 using apollo::common::ErrorCode;
 using apollo::common::Status;
+using apollo::common::VehicleConfigHelper;
 
 PiecewiseJerkPathOptimizer::PiecewiseJerkPathOptimizer(const TaskConfig& config)
     : PathOptimizer(config) {
@@ -53,7 +54,17 @@ common::Status PiecewiseJerkPathOptimizer::Process(
                                           ->reused_path()) {
     return Status::OK();
   }
-  const auto init_frenet_state = reference_line.ToFrenetFrame(init_point);
+  ADEBUG << "Plan at the starting point: x = "
+         << init_point.path_point().x() << ", y = "
+         << init_point.path_point().y() << ", and angle = "
+         << init_point.path_point().theta();
+  common::TrajectoryPoint planning_start_point = init_point;
+  if (FLAGS_use_front_axe_center_in_path_planning) {
+    planning_start_point = InferFrontAxeCenterFromRearAxeCenter(
+        planning_start_point);
+  }
+  const auto init_frenet_state = reference_line.ToFrenetFrame(
+      planning_start_point);
 
   // Choose lane_change_path_config for lane-change cases
   // Otherwise, choose default_path_config for normal path planning
@@ -107,9 +118,7 @@ common::Status PiecewiseJerkPathOptimizer::Process(
           pull_over_status.position().has_y() &&
           path_boundary.label().find("pullover") != std::string::npos) {
         common::SLPoint pull_over_sl;
-        reference_line.XYToSL(
-            {pull_over_status.position().x(), pull_over_status.position().y()},
-            &pull_over_sl);
+        reference_line.XYToSL(pull_over_status.position(), &pull_over_sl);
         end_state[0] = pull_over_sl.l();
       }
     }
@@ -146,6 +155,13 @@ common::Status PiecewiseJerkPathOptimizer::Process(
       PathData path_data = *final_path_data;
       path_data.SetReferenceLine(&reference_line);
       path_data.SetFrenetPath(std::move(frenet_frame_path));
+      if (FLAGS_use_front_axe_center_in_path_planning) {
+        auto discretized_path = DiscretizedPath(
+            ConvertPathPointRefFromFrontAxeToRearAxe(path_data));
+        path_data = *final_path_data;
+        path_data.SetReferenceLine(&reference_line);
+        path_data.SetDiscretizedPath(discretized_path);
+      }
       path_data.set_path_label(path_boundary.label());
       path_data.set_blocking_obstacle_id(path_boundary.blocking_obstacle_id());
       candidate_path_data.push_back(std::move(path_data));
@@ -157,6 +173,38 @@ common::Status PiecewiseJerkPathOptimizer::Process(
   }
   reference_line_info_->SetCandidatePathData(std::move(candidate_path_data));
   return Status::OK();
+}
+
+common::TrajectoryPoint
+PiecewiseJerkPathOptimizer::InferFrontAxeCenterFromRearAxeCenter(
+      const common::TrajectoryPoint& traj_point) {
+  double front_to_rear_axe_distance =
+      VehicleConfigHelper::GetConfig().vehicle_param().wheel_base();
+  common::TrajectoryPoint ret = traj_point;
+  ret.mutable_path_point()->set_x(
+      traj_point.path_point().x() +
+      front_to_rear_axe_distance * std::cos(traj_point.path_point().theta()));
+  ret.mutable_path_point()->set_y(
+      traj_point.path_point().y() +
+      front_to_rear_axe_distance * std::sin(traj_point.path_point().theta()));
+  return ret;
+}
+
+std::vector<common::PathPoint>
+PiecewiseJerkPathOptimizer::ConvertPathPointRefFromFrontAxeToRearAxe(
+    const PathData& path_data) {
+  std::vector<common::PathPoint> ret;
+  double front_to_rear_axe_distance =
+      VehicleConfigHelper::GetConfig().vehicle_param().wheel_base();
+  for (auto path_point : path_data.discretized_path()) {
+    common::PathPoint new_path_point = path_point;
+    new_path_point.set_x(path_point.x() -
+        front_to_rear_axe_distance * std::cos(path_point.theta()));
+    new_path_point.set_y(path_point.y() -
+        front_to_rear_axe_distance * std::sin(path_point.theta()));
+    ret.push_back(new_path_point);
+  }
+  return ret;
 }
 
 bool PiecewiseJerkPathOptimizer::OptimizePath(

@@ -323,7 +323,7 @@ ADCTrajectory::RightOfWayStatus ReferenceLineInfo::GetRightOfWayStatus() const {
 
 const hdmap::RouteSegments& ReferenceLineInfo::Lanes() const { return lanes_; }
 
-const std::list<hdmap::Id> ReferenceLineInfo::TargetLaneId() const {
+std::list<hdmap::Id> ReferenceLineInfo::TargetLaneId() const {
   std::list<hdmap::Id> lane_ids;
   for (const auto& lane_seg : lanes_) {
     lane_ids.push_back(lane_seg.lane->id());
@@ -722,7 +722,7 @@ int ReferenceLineInfo::MakeMainStopDecision(
 
     apollo::common::PointENU stop_point = object_decision.stop().stop_point();
     common::SLPoint stop_line_sl;
-    reference_line_.XYToSL({stop_point.x(), stop_point.y()}, &stop_line_sl);
+    reference_line_.XYToSL(stop_point, &stop_line_sl);
 
     double stop_line_s = stop_line_sl.s();
     if (stop_line_s < 0 || stop_line_s > reference_line_.Length()) {
@@ -790,17 +790,14 @@ void ReferenceLineInfo::ExportEngageAdvice(EngageAdvice* engage_advice) const {
   if (!prev_advice->has_advice()) {
     prev_advice->set_advice(EngageAdvice::DISALLOW_ENGAGE);
   }
+
   if (!IsDrivable()) {
-    if (prev_advice->advice() == EngageAdvice::DISALLOW_ENGAGE) {
-      prev_advice->set_advice(EngageAdvice::DISALLOW_ENGAGE);
-    } else {
+    if (prev_advice->advice() != EngageAdvice::DISALLOW_ENGAGE) {
       prev_advice->set_advice(EngageAdvice::PREPARE_DISENGAGE);
     }
     prev_advice->set_reason("Reference line not drivable");
-  } else if (!is_on_reference_line_) {
-    if (prev_advice->advice() == EngageAdvice::DISALLOW_ENGAGE) {
-      prev_advice->set_advice(EngageAdvice::DISALLOW_ENGAGE);
-    } else {
+  } else if (!is_on_reference_line_ && !FLAGS_enable_start_auto_from_off_lane) {
+    if (prev_advice->advice() != EngageAdvice::DISALLOW_ENGAGE) {
       prev_advice->set_advice(EngageAdvice::PREPARE_DISENGAGE);
     }
     prev_advice->set_reason("Not on reference line");
@@ -810,7 +807,7 @@ void ReferenceLineInfo::ExportEngageAdvice(EngageAdvice* engage_advice) const {
         reference_line_.GetReferencePoint(adc_sl_boundary_.end_s());
     if (common::math::AngleDiff(vehicle_state_.heading(), ref_point.heading()) >
         kMaxAngleDiff) {
-      if (prev_advice->advice() == EngageAdvice::DISALLOW_ENGAGE) {
+      if (prev_advice->advice() != EngageAdvice::DISALLOW_ENGAGE) {
         prev_advice->set_advice(EngageAdvice::DISALLOW_ENGAGE);
       } else {
         prev_advice->set_advice(EngageAdvice::PREPARE_DISENGAGE);
@@ -850,8 +847,7 @@ void ReferenceLineInfo::MakeEStopDecision(
   }
 }
 
-const hdmap::Lane::LaneTurn ReferenceLineInfo::GetPathTurnType(
-    const double s) const {
+hdmap::Lane::LaneTurn ReferenceLineInfo::GetPathTurnType(const double s) const {
   const double forward_buffer = 20.0;
   double route_s = 0.0;
   for (const auto& seg : Lanes()) {
@@ -873,7 +869,7 @@ const hdmap::Lane::LaneTurn ReferenceLineInfo::GetPathTurnType(
   return hdmap::Lane::NO_TURN;
 }
 
-const bool ReferenceLineInfo::GetIntersectionRightofWayStatus(
+bool ReferenceLineInfo::GetIntersectionRightofWayStatus(
     const hdmap::PathOverlap& pnc_junction_overlap) const {
   if (GetPathTurnType(pnc_junction_overlap.start_s) != hdmap::Lane::NO_TURN) {
     return false;
@@ -914,7 +910,7 @@ std::vector<common::SLPoint> ReferenceLineInfo::GetAllStopDecisionSLPoint()
     }
     apollo::common::PointENU stop_point = object_decision.stop().stop_point();
     common::SLPoint stop_line_sl;
-    reference_line_.XYToSL({stop_point.x(), stop_point.y()}, &stop_line_sl);
+    reference_line_.XYToSL(stop_point, &stop_line_sl);
     if (stop_line_sl.s() <= 0 || stop_line_sl.s() >= reference_line_.Length()) {
       continue;
     }
