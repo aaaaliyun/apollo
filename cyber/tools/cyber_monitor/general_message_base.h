@@ -25,47 +25,50 @@
 
 class Screen;
 
-class GeneralMessageBase : public RenderableMessage {
- protected:
-  static void PrintMessage(GeneralMessageBase* baseMsg,
+class GeneralMessageBase : public RenderableMessage 
+{
+protected:
+        static void PrintMessage(GeneralMessageBase* baseMsg,
                            const google::protobuf::Message& msg, int& jumpLines,
                            const Screen* s, unsigned& lineNo, int indent);
-  static void PrintField(GeneralMessageBase* baseMsg,
+        static void PrintField(GeneralMessageBase* baseMsg,
                          const google::protobuf::Message& msg, int& jumpLines,
                          const Screen* s, unsigned& lineNo, int indent,
                          const google::protobuf::Reflection* ref,
                          const google::protobuf::FieldDescriptor* field,
                          int index);
 
-  static int lineCount(const google::protobuf::Message& msg, int screenWidth);
-  static int lineCountOfField(const google::protobuf::Message& msg,
+        static int lineCount(const google::protobuf::Message& msg, int screenWidth);
+        static int lineCountOfField(const google::protobuf::Message& msg,
                               int screenWidth,
                               const google::protobuf::FieldDescriptor* field,
                               const google::protobuf::Reflection* reflection,
                               bool is_folded = true);
 
-  void insertRepeatedMessage(int lineNo, GeneralMessageBase* item) {
-    children_map_.insert(std::make_pair(lineNo, item));
-  }
+        void insertRepeatedMessage(int lineNo, GeneralMessageBase* item) 
+        {
+                children_map_.insert(std::make_pair(lineNo, item));
+        }
 
-  RenderableMessage* Child(int lineNo) const override;
+        RenderableMessage* Child(int lineNo) const override;
 
-  explicit GeneralMessageBase(RenderableMessage* parent = nullptr)
-      : RenderableMessage(parent), children_map_() {}
-  ~GeneralMessageBase(void) { clear(); }
+        explicit GeneralMessageBase(RenderableMessage* parent = nullptr) : RenderableMessage(parent), children_map_() {}
+        ~GeneralMessageBase(void) { clear(); }
 
-  void clear(void) {
-    for (auto& iter : children_map_) {
-      delete iter.second;
-    }
+        void clear(void) 
+        {
+                for (auto& iter : children_map_) 
+                {
+                        delete iter.second;
+                }
 
-    children_map_.clear();
-  }
+                children_map_.clear();
+        }
 
-  GeneralMessageBase(const GeneralMessageBase&) = delete;
-  GeneralMessageBase& operator=(const GeneralMessageBase&) = delete;
+        GeneralMessageBase(const GeneralMessageBase&) = delete;
+        GeneralMessageBase& operator=(const GeneralMessageBase&) = delete;
 
-  std::map<const int, GeneralMessageBase*> children_map_;
+        std::map<const int, GeneralMessageBase*> children_map_;
 };
 
 #endif  // TOOLS_CVT_MONITOR_GENERAL_MESSAGE_BASE_H_
