@@ -19,6 +19,7 @@
 #include <sched.h>
 #include <sys/resource.h>
 #include <sys/syscall.h>
+#include <sys/prctl.h>
 #include <chrono>
 
 #include "cyber/common/global_data.h"
@@ -38,6 +39,7 @@ Processor::~Processor() { Stop(); }
 
 void Processor::Run() 
 {
+	prctl(PR_SET_NAME, "Processor::Run", 0, 0, 0);
         tid_.store(static_cast<int>(syscall(SYS_gettid)));
         AINFO << "processor_tid: " << tid_;
         snap_shot_->processor_id.store(tid_);

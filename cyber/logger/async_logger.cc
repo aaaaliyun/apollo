@@ -17,6 +17,7 @@
 #include "cyber/logger/async_logger.h"
 
 #include <stdlib.h>
+#include <sys/prctl.h>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -102,6 +103,7 @@ uint32_t AsyncLogger::LogSize() { return wrapped_->LogSize(); }
 
 void AsyncLogger::RunThread() 
 {
+        prctl(PR_SET_NAME, "AsyncLogger::RunThread", 0, 0, 0);
         while (state_ == RUNNING) 
         {
                 while (flag_.test_and_set(std::memory_order_acquire)) 

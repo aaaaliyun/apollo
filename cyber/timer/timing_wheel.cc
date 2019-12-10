@@ -14,6 +14,7 @@
  * limitations under the License.
  *****************************************************************************/
 
+#include <sys/prctl.h>
 #include "cyber/timer/timing_wheel.h"
 #include "cyber/task/task.h"
 
@@ -133,6 +134,7 @@ void TimingWheel::Cascade(const uint64_t assistant_wheel_index)
 
 void TimingWheel::TickFunc() 
 {
+	prctl(PR_SET_NAME, "TimingWheel::TickFunc", 0, 0, 0);
         Rate rate(TIMER_RESOLUTION_MS * 1000000);  // ms to ns
         while (running_) 
         {
