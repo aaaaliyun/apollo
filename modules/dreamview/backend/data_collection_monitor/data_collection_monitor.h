@@ -47,80 +47,76 @@ typedef std::vector<Range> Category;
  * @brief A module that monitor data collection progress for calibration
  * purpose.
  */
-class DataCollectionMonitor {
- public:
-  /**
-   * @brief Constructor of DataCollectionMonitor.
-   */
-  DataCollectionMonitor();
-  ~DataCollectionMonitor();
+class DataCollectionMonitor 
+{
+public:
+        /**
+        * @brief Constructor of DataCollectionMonitor.
+        */
+        DataCollectionMonitor();
+        ~DataCollectionMonitor();
 
-  bool IsEnabled() const { return enabled_; }
+        bool IsEnabled() const { return enabled_; }
 
-  /**
-   * @brief start monitoring collection progress
-   */
-  void Start();
+        /**
+        * @brief start monitoring collection progress
+        */
+        void Start();
 
-  /**
-   * @brief stop monitoring collection progress
-   */
-  void Stop();
+        /**
+        * @brief stop monitoring collection progress
+        */
+        void Stop();
 
-  /**
-   * @brief restart monitoring collection progress
-   */
-  void Restart();
+        /**
+        * @brief restart monitoring collection progress
+        */
+        void Restart();
 
-  /**
-   * @brief return collection progress of categories and overall as json
-   */
-  nlohmann::json GetProgressAsJson();
+        /**
+        * @brief return collection progress of categories and overall as json
+        */
+        nlohmann::json GetProgressAsJson();
 
  private:
-  void InitReaders();
-  void LoadConfiguration();
-  void ConstructCategories();
-  void ConstructCategoriesHelper(const std::string& scenario_name,
+        void InitReaders();
+        void LoadConfiguration();
+        void ConstructCategories();
+        void ConstructCategoriesHelper(const std::string& scenario_name,
                                  const Scenario& scenario, int feature_idx,
                                  std::string current_category_name,
                                  const Category& current_category);
-  void OnChassis(const std::shared_ptr<apollo::canbus::Chassis>& chassis);
-  bool IsCompliedWithCriteria(
-      const std::shared_ptr<apollo::canbus::Chassis>& chassis,
-      const Category& category);
+        void OnChassis(const std::shared_ptr<apollo::canbus::Chassis>& chassis);
+        bool IsCompliedWithCriteria(const std::shared_ptr<apollo::canbus::Chassis>& chassis, const Category& category);
 
-  std::unique_ptr<cyber::Node> node_;
+        std::unique_ptr<cyber::Node> node_;
 
-  // Whether the calibration monitor is enabled.
-  bool enabled_ = false;
+        // Whether the calibration monitor is enabled.
+        bool enabled_ = false;
 
-  // The table defines data collection requirements for calibration
-  DataCollectionTable data_collection_table_;
+        // The table defines data collection requirements for calibration
+        DataCollectionTable data_collection_table_;
 
-  // A map from scenario to its categories. Categories are collections
-  // of ranges from all possible combination of Feature x Range in a Scenario.
-  std::unordered_map<std::string, std::unordered_map<std::string, Category>>
-      scenario_to_categories_;
+        // A map from scenario to its categories. Categories are collections
+        // of ranges from all possible combination of Feature x Range in a Scenario.
+        std::unordered_map<std::string, std::unordered_map<std::string, Category>> scenario_to_categories_;
 
-  // Number of frames that has been collected for each (scenario, category)
-  std::unordered_map<std::string, std::unordered_map<std::string, size_t>>
-      category_frame_count_;
+        // Number of frames that has been collected for each (scenario, category)
+        std::unordered_map<std::string, std::unordered_map<std::string, size_t>> category_frame_count_;
 
-  // Number of consecutive frames that has been collected for each (scenario,
-  // category).
-  std::unordered_map<std::string, std::unordered_map<std::string, size_t>>
-      category_consecutive_frame_count_;
+        // Number of consecutive frames that has been collected for each (scenario,
+        // category).
+        std::unordered_map<std::string, std::unordered_map<std::string, size_t>> category_consecutive_frame_count_;
 
-  // Store overall and each category progress in percentage
-  nlohmann::json current_progress_json_;
+        // Store overall and each category progress in percentage
+        nlohmann::json current_progress_json_;
 
-  // Mutex to protect concurrent access to current_progress_json_.
-  // NOTE: Use boost until we have std version of rwlock support.
-  boost::shared_mutex mutex_;
+        // Mutex to protect concurrent access to current_progress_json_.
+        // NOTE: Use boost until we have std version of rwlock support.
+        boost::shared_mutex mutex_;
 
-  FRIEND_TEST(DataCollectionMonitorTest, UpdateCollectionProgress);
-  FRIEND_TEST(DataCollectionMonitorTest, ConstructCategories);
+        FRIEND_TEST(DataCollectionMonitorTest, UpdateCollectionProgress);
+        FRIEND_TEST(DataCollectionMonitorTest, ConstructCategories);
 };
 
 }  // namespace dreamview

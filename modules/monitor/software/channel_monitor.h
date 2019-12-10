@@ -22,15 +22,14 @@
 namespace apollo {
 namespace monitor {
 
-class ChannelMonitor : public RecurrentRunner {
- public:
-  ChannelMonitor();
-  void RunOnce(const double current_time) override;
+class ChannelMonitor : public RecurrentRunner 
+{
+public:
+        ChannelMonitor();
+        void RunOnce(const double current_time) override;
 
- private:
-  static void UpdateStatus(
-      const apollo::dreamview::ChannelMonitorConfig& config,
-      ComponentStatus* status);
+private:
+        static void UpdateStatus(const apollo::dreamview::ChannelMonitorConfig& config, ComponentStatus* status);
 };
 
 }  // namespace monitor

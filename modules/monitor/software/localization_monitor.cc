@@ -41,63 +41,51 @@ LocalizationMonitor::LocalizationMonitor()
     : RecurrentRunner(FLAGS_localization_monitor_name,
                       FLAGS_localization_monitor_interval) {}
 
-void LocalizationMonitor::RunOnce(const double current_time) {
-  auto manager = MonitorManager::Instance();
-  auto* component = apollo::common::util::FindOrNull(
-      *manager->GetStatus()->mutable_components(),
-      FLAGS_localization_component_name);
-  if (component == nullptr) {
-    // localization is not monitored in current mode, skip.
-    return;
-  }
+void LocalizationMonitor::RunOnce(const double current_time) 
+{
+        auto manager = MonitorManager::Instance();
+        auto* component = apollo::common::util::FindOrNull(*manager->GetStatus()->mutable_components(), FLAGS_localization_component_name);
+        if (component == nullptr) 
+        {
+                // localization is not monitored in current mode, skip.
+                return;
+        }
 
-  static auto reader =
-      manager->CreateReader<LocalizationStatus>(FLAGS_localization_msf_status);
-  reader->Observe();
-  const auto status = reader->GetLatestObserved();
+        static auto reader = manager->CreateReader<LocalizationStatus>(FLAGS_localization_msf_status);
+        reader->Observe();
+        const auto status = reader->GetLatestObserved();
 
-  ComponentStatus* component_status = component->mutable_other_status();
-  component_status->clear_status();
-  if (status == nullptr) {
-    SummaryMonitor::EscalateStatus(ComponentStatus::ERROR,
-                                   "No LocalizationStatus received",
-                                   component_status);
-    return;
-  }
+        ComponentStatus* component_status = component->mutable_other_status();
+        component_status->clear_status();
+        if (status == nullptr) 
+        {
+                SummaryMonitor::EscalateStatus(ComponentStatus::ERROR, "No LocalizationStatus received", component_status);
+                return;
+        }
 
-  // Translate LocalizationStatus to ComponentStatus. Note that ERROR and FATAL
-  // will trigger safety mode in current settings.
-  switch (status->fusion_status()) {
-    case MeasureState::OK:
-      SummaryMonitor::EscalateStatus(ComponentStatus::OK, "", component_status);
-      break;
-    case MeasureState::WARNNING:
-      SummaryMonitor::EscalateStatus(
-          ComponentStatus::WARN,
-          absl::StrCat("WARNNING: ", status->state_message()),
-          component_status);
-      break;
-    case MeasureState::ERROR:
-      SummaryMonitor::EscalateStatus(
-          ComponentStatus::WARN,
-          absl::StrCat("ERROR: ", status->state_message()), component_status);
-      break;
-    case MeasureState::CRITICAL_ERROR:
-      SummaryMonitor::EscalateStatus(
-          ComponentStatus::ERROR,
-          absl::StrCat("CRITICAL_ERROR: ", status->state_message()),
-          component_status);
-      break;
-    case MeasureState::FATAL_ERROR:
-      SummaryMonitor::EscalateStatus(
-          ComponentStatus::FATAL,
-          absl::StrCat("FATAL_ERROR: ", status->state_message()),
-          component_status);
-      break;
-    default:
-      AFATAL << "Unknown fusion_status: " << status->fusion_status();
-      break;
-  }
+        // Translate LocalizationStatus to ComponentStatus. Note that ERROR and FATAL
+        // will trigger safety mode in current settings.
+        switch (status->fusion_status()) 
+        {
+                case MeasureState::OK:
+                        SummaryMonitor::EscalateStatus(ComponentStatus::OK, "", component_status);
+                        break;
+                case MeasureState::WARNNING:
+                        SummaryMonitor::EscalateStatus(ComponentStatus::WARN, absl::StrCat("WARNNING: ", status->state_message()), component_status);
+                        break;
+                case MeasureState::ERROR:
+                        SummaryMonitor::EscalateStatus(ComponentStatus::WARN, absl::StrCat("ERROR: ", status->state_message()), component_status);
+                        break;
+                case MeasureState::CRITICAL_ERROR:
+                        SummaryMonitor::EscalateStatus(ComponentStatus::ERROR, absl::StrCat("CRITICAL_ERROR: ", status->state_message()), component_status);
+                        break;
+                case MeasureState::FATAL_ERROR:
+                        SummaryMonitor::EscalateStatus(ComponentStatus::FATAL, absl::StrCat("FATAL_ERROR: ", status->state_message()), component_status);
+                        break;
+                default:
+                        AFATAL << "Unknown fusion_status: " << status->fusion_status();
+                        break;
+        }
 }
 
 }  // namespace monitor

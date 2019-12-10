@@ -101,7 +101,7 @@ auto Transport::CreateTransmitter(const RoleAttributes& attr, const OptionalMode
                 break;
 
         case OptionalMode::RTPS:
-                transmitter = td::make_shared<RtpsTransmitter<M>>(modified_attr, participant());
+                transmitter = std::make_shared<RtpsTransmitter<M>>(modified_attr, participant());
                 break;    
 
         default:

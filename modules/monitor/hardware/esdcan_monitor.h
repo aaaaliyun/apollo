@@ -20,10 +20,11 @@
 namespace apollo {
 namespace monitor {
 
-class EsdCanMonitor : public RecurrentRunner {
- public:
-  EsdCanMonitor();
-  void RunOnce(const double current_time) override;
+class EsdCanMonitor : public RecurrentRunner 
+{
+public:
+        EsdCanMonitor();
+        void RunOnce(const double current_time) override;
 };
 
 }  // namespace monitor

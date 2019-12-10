@@ -42,35 +42,36 @@
 namespace apollo {
 namespace dreamview {
 
-class Dreamview {
- public:
-  ~Dreamview();
+class Dreamview 
+{
+public:
+        ~Dreamview();
 
-  apollo::common::Status Init();
-  apollo::common::Status Start();
-  void Stop();
+        apollo::common::Status Init();
+        apollo::common::Status Start();
+        void Stop();
 
- private:
-  void TerminateProfilingMode();
+private:
+        void TerminateProfilingMode();
 
-  std::unique_ptr<cyber::Timer> exit_timer_;
+        std::unique_ptr<cyber::Timer> exit_timer_;
 
-  std::unique_ptr<SimulationWorldUpdater> sim_world_updater_;
-  std::unique_ptr<PointCloudUpdater> point_cloud_updater_;
-  std::unique_ptr<SimControl> sim_control_;
-  std::unique_ptr<CivetServer> server_;
-  std::unique_ptr<WebSocketHandler> websocket_;
-  std::unique_ptr<WebSocketHandler> map_ws_;
-  std::unique_ptr<WebSocketHandler> point_cloud_ws_;
-  std::unique_ptr<WebSocketHandler> camera_ws_;
-  std::unique_ptr<ImageHandler> image_;
-  std::unique_ptr<MapService> map_service_;
-  std::unique_ptr<HMI> hmi_;
-  std::unique_ptr<DataCollectionMonitor> data_collection_monitor_;
-  std::unique_ptr<PerceptionCameraUpdater> perception_camera_updater_;
+        std::unique_ptr<SimulationWorldUpdater> sim_world_updater_;
+        std::unique_ptr<PointCloudUpdater> point_cloud_updater_;
+        std::unique_ptr<SimControl> sim_control_;
+        std::unique_ptr<CivetServer> server_;
+        std::unique_ptr<WebSocketHandler> websocket_;
+        std::unique_ptr<WebSocketHandler> map_ws_;
+        std::unique_ptr<WebSocketHandler> point_cloud_ws_;
+        std::unique_ptr<WebSocketHandler> camera_ws_;
+        std::unique_ptr<ImageHandler> image_;
+        std::unique_ptr<MapService> map_service_;
+        std::unique_ptr<HMI> hmi_;
+        std::unique_ptr<DataCollectionMonitor> data_collection_monitor_;
+        std::unique_ptr<PerceptionCameraUpdater> perception_camera_updater_;
 #ifdef TELEOP
-  std::unique_ptr<TeleopService> teleop_;
-  std::unique_ptr<WebSocketHandler> teleop_ws_;
+        std::unique_ptr<TeleopService> teleop_;
+        std::unique_ptr<WebSocketHandler> teleop_ws_;
 #endif
 };
 

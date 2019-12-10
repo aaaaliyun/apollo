@@ -34,79 +34,65 @@
 namespace apollo {
 namespace dreamview {
 
-class TeleopService {
- public:
-  TeleopService(WebSocketHandler *websocket);
+class TeleopService 
+{
+public:
+        TeleopService(WebSocketHandler *websocket);
 
-  void Start();
+        void Start();
 
- private:
-  void RegisterMessageHandlers();
-  void SendStatus(WebSocketHandler::Connection *conn);
-
-#ifdef TELEOP
-  // send a command to the remote daemon to start or stop
-  // video encoders and voip encoders
-  void SendAudioStreamCmd(bool start_stop);
-  void SendMicStreamCmd(bool start_stop);
-  void SendVideoStreamCmd(bool start_stop);
-  // planner commands
-  void SendEstopCmd();
-  void SendPullOverCmd();
-  void SendResumeCruiseCmd();
-
-  void UpdateModemInfo(
-      const std::shared_ptr<modules::teleop::network::ModemInfo> &modem_info);
-#endif
-
-  std::unique_ptr<cyber::Node> node_;
-
-  WebSocketHandler *websocket_;
+private:
+        void RegisterMessageHandlers();
+        void SendStatus(WebSocketHandler::Connection *conn);
 
 #ifdef TELEOP
-  // modem info readers and callback
-  std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>>
-      modem0_info_reader_;
-  std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>>
-      modem1_info_reader_;
-  std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>>
-      modem2_info_reader_;
-  // modem info callback
-  void UpdateModem(
-      const std::string &modem_id,
-      const std::shared_ptr<modules::teleop::network::ModemInfo> &modem_info);
-  // planning message reader
-  std::shared_ptr<cyber::Reader<apollo::planning::ADCTrajectory>>
-      planning_reader_;
+        // send a command to the remote daemon to start or stop
+        // video encoders and voip encoders
+        void SendAudioStreamCmd(bool start_stop);
+        void SendMicStreamCmd(bool start_stop);
+        void SendVideoStreamCmd(bool start_stop);
+        // planner commands
+        void SendEstopCmd();
+        void SendPullOverCmd();
+        void SendResumeCruiseCmd();
 
-  // daemon report readers and callback
-  void UpdateCarDaemonRpt(
-      const std::shared_ptr<modules::teleop::teleop::DaemonServiceRpt> &rpt);
-  void UpdateOperatorDaemonRpt(
-      const std::shared_ptr<modules::teleop::teleop::DaemonServiceRpt> &rpt);
-  std::shared_ptr<cyber::Reader<modules::teleop::teleop::DaemonServiceRpt>>
-      remote_daemon_rpt_reader_;
-  std::shared_ptr<cyber::Reader<modules::teleop::teleop::DaemonServiceRpt>>
-      local_daemon_rpt_reader_;
-  // daemon commands writers
-  std::shared_ptr<cyber::Writer<modules::teleop::teleop::DaemonServiceCmd>>
-      remote_daemon_cmd_writer_;
-  std::shared_ptr<cyber::Writer<modules::teleop::teleop::DaemonServiceCmd>>
-      local_daemon_cmd_writer_;
-
-  // planning driving actions  and feedback
-  std::shared_ptr<cyber::Writer<apollo::planning::PadMessage>>
-      pad_message_writer_;
-  void UpdatePlanning(
-      const std::shared_ptr<apollo::planning::ADCTrajectory> &msg);
+        void UpdateModemInfo(const std::shared_ptr<modules::teleop::network::ModemInfo> &modem_info);
 #endif
 
-  // Store teleop status
-  nlohmann::json teleop_status_;
+        std::unique_ptr<cyber::Node> node_;
 
-  // Mutex to protect concurrent access to teleop_status_.
-  // NOTE: Use boost until we upgrade to std version with rwlock support.
-  boost::shared_mutex mutex_;
+        WebSocketHandler *websocket_;
+
+#ifdef TELEOP
+        // modem info readers and callback
+        std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>> modem0_info_reader_;
+        std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>> modem1_info_reader_;
+        std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>> modem2_info_reader_;
+        // modem info callback
+        void UpdateModem(const std::string &modem_id, const std::shared_ptr<modules::teleop::network::ModemInfo> &modem_info);
+        // planning message reader
+        std::shared_ptr<cyber::Reader<apollo::planning::ADCTrajectory>> planning_reader_;
+
+        // daemon report readers and callback
+        void UpdateCarDaemonRpt(const std::shared_ptr<modules::teleop::teleop::DaemonServiceRpt> &rpt);
+        void UpdateOperatorDaemonRpt(const std::shared_ptr<modules::teleop::teleop::DaemonServiceRpt> &rpt);
+        std::shared_ptr<cyber::Reader<modules::teleop::teleop::DaemonServiceRpt>> remote_daemon_rpt_reader_;
+        std::shared_ptr<cyber::Reader<modules::teleop::teleop::DaemonServiceRpt>> local_daemon_rpt_reader_;
+        // daemon commands writers
+        std::shared_ptr<cyber::Writer<modules::teleop::teleop::DaemonServiceCmd>> remote_daemon_cmd_writer_;
+        std::shared_ptr<cyber::Writer<modules::teleop::teleop::DaemonServiceCmd>> local_daemon_cmd_writer_;
+
+        // planning driving actions  and feedback
+        std::shared_ptr<cyber::Writer<apollo::planning::PadMessage>> pad_message_writer_;
+        void UpdatePlanning(const std::shared_ptr<apollo::planning::ADCTrajectory> &msg);
+#endif
+
+        // Store teleop status
+        nlohmann::json teleop_status_;
+
+        // Mutex to protect concurrent access to teleop_status_.
+        // NOTE: Use boost until we upgrade to std version with rwlock support.
+        boost::shared_mutex mutex_;
 };
 
 }  // namespace dreamview

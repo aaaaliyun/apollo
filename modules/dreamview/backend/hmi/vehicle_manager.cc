@@ -31,43 +31,45 @@ namespace dreamview {
 
 using cyber::common::GetProtoFromFile;
 
-VehicleManager::VehicleManager() {
-  CHECK(GetProtoFromFile(FLAGS_vehicle_data_config_filename, &vehicle_data_))
-      << "Unable to parse VehicleData config file "
-      << FLAGS_vehicle_data_config_filename;
+VehicleManager::VehicleManager() 
+{
+        CHECK(GetProtoFromFile(FLAGS_vehicle_data_config_filename, &vehicle_data_))
+                << "Unable to parse VehicleData config file "
+                << FLAGS_vehicle_data_config_filename;
 }
 
-const std::string &VehicleManager::GetVehicleDataPath() const {
-  return vehicle_data_path_;
+const std::string &VehicleManager::GetVehicleDataPath() const 
+{
+        return vehicle_data_path_;
 }
 
-bool VehicleManager::UseVehicle(const std::string &vehicle_data_path) {
-  if (!cyber::common::DirectoryExists(vehicle_data_path)) {
-    AERROR << "Cannot find vehicle data: " << vehicle_data_path;
-    return false;
-  }
-  vehicle_data_path_ = vehicle_data_path;
+bool VehicleManager::UseVehicle(const std::string &vehicle_data_path) 
+{
+        if (!cyber::common::DirectoryExists(vehicle_data_path)) 
+        {
+                AERROR << "Cannot find vehicle data: " << vehicle_data_path;
+                return false;
+        }
+        vehicle_data_path_ = vehicle_data_path;
 
-  for (const auto &data_file : vehicle_data_.data_files()) {
-    const auto source_path =
-        absl::StrCat(vehicle_data_path, "/", data_file.source_path());
-    const auto &dest_path = data_file.dest_path();
+        for (const auto &data_file : vehicle_data_.data_files()) 
+        {
+                const auto source_path = absl::StrCat(vehicle_data_path, "/", data_file.source_path());
+                const auto &dest_path = data_file.dest_path();
 
-    const bool ret = cyber::common::Copy(source_path, dest_path);
-    AINFO_IF(ret) << "Copied " << source_path << " to " << dest_path;
-  }
+                const bool ret = cyber::common::Copy(source_path, dest_path);
+                AINFO_IF(ret) << "Copied " << source_path << " to " << dest_path;
+        }
 
-  // Reload vehicle config for current process.
-  apollo::common::VehicleConfigHelper::Init();
+        // Reload vehicle config for current process.
+        apollo::common::VehicleConfigHelper::Init();
 
-  // Broadcast new extrinsics.
-  static const std::string kBroadcastExtrinsicsCmd =
-      "bash /apollo/scripts/broadcast_extrinsics.sh";
-  const int ret = std::system(kBroadcastExtrinsicsCmd.c_str());
-  AERROR_IF(ret != 0) << "Command returns " << ret << ": "
-                      << kBroadcastExtrinsicsCmd;
+        // Broadcast new extrinsics.
+        static const std::string kBroadcastExtrinsicsCmd = "bash /apollo/scripts/broadcast_extrinsics.sh";
+        const int ret = std::system(kBroadcastExtrinsicsCmd.c_str());
+        AERROR_IF(ret != 0) << "Command returns " << ret << ": " << kBroadcastExtrinsicsCmd;
 
-  return true;
+        return true;
 }
 
 }  // namespace dreamview

@@ -47,64 +47,61 @@ namespace dreamview {
  * @brief A wrapper around WebSocketHandler to keep pushing PointCloud to
  * frontend via websocket while handling the response from frontend.
  */
-class PointCloudUpdater {
- public:
-  /**
-   * @brief Constructor with the websocket handler.
-   * @param websocket Pointer of the websocket handler that has been attached to
-   * the server.
-   */
-  explicit PointCloudUpdater(WebSocketHandler *websocket);
-  ~PointCloudUpdater();
+class PointCloudUpdater 
+{
+public:
+        /**
+        * @brief Constructor with the websocket handler.
+        * @param websocket Pointer of the websocket handler that has been attached to
+        * the server.
+        */
+        explicit PointCloudUpdater(WebSocketHandler *websocket);
+        ~PointCloudUpdater();
 
-  static void LoadLidarHeight(const std::string &file_path);
+        static void LoadLidarHeight(const std::string &file_path);
 
-  /**
-   * @brief Starts to push PointCloud to frontend.
-   */
-  void Start();
-  void Stop();
+        /**
+        * @brief Starts to push PointCloud to frontend.
+        */
+        void Start();
+        void Stop();
 
-  // The height of lidar w.r.t the ground.
-  static float lidar_height_;
+        // The height of lidar w.r.t the ground.
+        static float lidar_height_;
 
-  // Mutex to protect concurrent access to point_cloud_str_ and lidar_height_.
-  // NOTE: Use boost until we have std version of rwlock support.
-  static boost::shared_mutex mutex_;
+        // Mutex to protect concurrent access to point_cloud_str_ and lidar_height_.
+        // NOTE: Use boost until we have std version of rwlock support.
+        static boost::shared_mutex mutex_;
 
- private:
-  void RegisterMessageHandlers();
+private:
+        void RegisterMessageHandlers();
 
-  void UpdatePointCloud(
-      const std::shared_ptr<drivers::PointCloud> &point_cloud);
+        void UpdatePointCloud(const std::shared_ptr<drivers::PointCloud> &point_cloud);
 
-  void FilterPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_ptr);
+        void FilterPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_ptr);
 
-  void UpdateLocalizationTime(
-      const std::shared_ptr<apollo::localization::LocalizationEstimate>
-          &localization);
+        void UpdateLocalizationTime(const std::shared_ptr<apollo::localization::LocalizationEstimate> &localization);
 
-  constexpr static float kDefaultLidarHeight = 1.91f;
+        constexpr static float kDefaultLidarHeight = 1.91f;
 
-  std::unique_ptr<cyber::Node> node_;
+        std::unique_ptr<cyber::Node> node_;
 
-  WebSocketHandler *websocket_;
+        WebSocketHandler *websocket_;
 
-  bool enabled_ = false;
+        bool enabled_ = false;
 
-  // The PointCloud to be pushed to frontend.
-  std::string point_cloud_str_;
+        // The PointCloud to be pushed to frontend.
+        std::string point_cloud_str_;
 
-  std::future<void> async_future_;
-  std::atomic<bool> future_ready_;
+        std::future<void> async_future_;
+        std::atomic<bool> future_ready_;
 
-  // Cyber messsage readers.
-  std::shared_ptr<cyber::Reader<apollo::localization::LocalizationEstimate>>
-      localization_reader_;
-  std::shared_ptr<cyber::Reader<drivers::PointCloud>> point_cloud_reader_;
+        // Cyber messsage readers.
+        std::shared_ptr<cyber::Reader<apollo::localization::LocalizationEstimate>> localization_reader_;
+        std::shared_ptr<cyber::Reader<drivers::PointCloud>> point_cloud_reader_;
 
-  double last_point_cloud_time_ = 0.0;
-  double last_localization_time_ = 0.0;
+        double last_point_cloud_time_ = 0.0;
+        double last_localization_time_ = 0.0;
 };
 
 }  // namespace dreamview

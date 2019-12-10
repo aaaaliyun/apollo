@@ -25,16 +25,14 @@
 namespace apollo {
 namespace monitor {
 
-class ProcessMonitor : public RecurrentRunner {
- public:
-  ProcessMonitor();
-  void RunOnce(const double current_time) override;
+class ProcessMonitor : public RecurrentRunner 
+{
+public:
+        ProcessMonitor();
+        void RunOnce(const double current_time) override;
 
- private:
-  static void UpdateStatus(
-      const std::vector<std::string>& running_processes,
-      const apollo::dreamview::ProcessMonitorConfig& config,
-      ComponentStatus* status);
+private:
+        static void UpdateStatus(const std::vector<std::string>& running_processes, const apollo::dreamview::ProcessMonitorConfig& config, ComponentStatus* status);
 };
 
 }  // namespace monitor

@@ -24,13 +24,14 @@ namespace monitor {
 // Check if we need to switch to safe mode, and then
 // 1. Notify driver to take action.
 // 2. Trigger Guardian if no proper action was taken.
-class FunctionalSafetyMonitor : public RecurrentRunner {
- public:
-  FunctionalSafetyMonitor();
-  void RunOnce(const double current_time);
+class FunctionalSafetyMonitor : public RecurrentRunner 
+{
+public:
+        FunctionalSafetyMonitor();
+        void RunOnce(const double current_time);
 
- private:
-  bool CheckSafety();
+private:
+        bool CheckSafety();
 };
 
 }  // namespace monitor

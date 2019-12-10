@@ -43,61 +43,65 @@ namespace monitor {
 namespace {
 
 // Test Socket CAN on an open handler.
-bool SocketCanHandlerTest(const int dev_handler, std::string* message) {
-  // init config and state
-  // 1. set receive message_id filter, ie white list
-  struct can_filter filter[1];
-  filter[0].can_id = 0x000;
-  filter[0].can_mask = CAN_SFF_MASK;
+bool SocketCanHandlerTest(const int dev_handler, std::string* message) 
+{
+        // init config and state
+        // 1. set receive message_id filter, ie white list
+        struct can_filter filter[1];
+        filter[0].can_id = 0x000;
+        filter[0].can_mask = CAN_SFF_MASK;
 
-  int ret = setsockopt(dev_handler, SOL_CAN_RAW, CAN_RAW_FILTER, &filter,
-                       sizeof(filter));
-  if (ret < 0) {
-    *message = "set message filter failed";
-    return false;
-  }
+        int ret = setsockopt(dev_handler, SOL_CAN_RAW, CAN_RAW_FILTER, &filter, sizeof(filter));
+        if (ret < 0) 
+        {
+                *message = "set message filter failed";
+                return false;
+        }
 
-  // 2. enable reception of can frames.
-  const int enable = 1;
-  ret = setsockopt(dev_handler, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &enable,
-                   sizeof(enable));
-  if (ret < 0) {
-    *message = "Enable reception of can frames failed";
-    return false;
-  }
+        // 2. enable reception of can frames.
+        const int enable = 1;
+        ret = setsockopt(dev_handler, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &enable, sizeof(enable));
+        if (ret < 0) 
+        {
+                *message = "Enable reception of can frames failed";
+                return false;
+        }
 
-  struct ifreq ifr;
-  std::strncpy(ifr.ifr_name, "can0", IFNAMSIZ);
-  if (ioctl(dev_handler, SIOCGIFINDEX, &ifr) < 0) {
-    *message = "ioctl failed";
-    return false;
-  }
+        struct ifreq ifr;
+        std::strncpy(ifr.ifr_name, "can0", IFNAMSIZ);
+        if (ioctl(dev_handler, SIOCGIFINDEX, &ifr) < 0) 
+        {
+                *message = "ioctl failed";
+                return false;
+        }
 
-  // bind socket to network interface
-  struct sockaddr_can addr;
-  addr.can_family = AF_CAN;
-  addr.can_ifindex = ifr.ifr_ifindex;
-  ret = bind(dev_handler, reinterpret_cast<struct sockaddr*>(&addr),
-             sizeof(addr));
+        // bind socket to network interface
+        struct sockaddr_can addr;
+        addr.can_family = AF_CAN;
+        addr.can_ifindex = ifr.ifr_ifindex;
+        ret = bind(dev_handler, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
 
-  if (ret < 0) {
-    *message = "bind socket can failed";
-    return false;
-  }
+        if (ret < 0) 
+        {
+                *message = "bind socket can failed";
+                return false;
+        }
 
-  return true;
+        return true;
 }
 
 // Open a Socket CAN handler and test.
-bool SocketCanTest(std::string* message) {
-  const int dev_handler = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-  if (dev_handler < 0) {
-    *message = "Open can device failed";
-    return false;
-  }
-  const bool ret = SocketCanHandlerTest(dev_handler, message);
-  close(dev_handler);
-  return ret;
+bool SocketCanTest(std::string* message) 
+{
+        const int dev_handler = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+        if (dev_handler < 0) 
+        {
+                *message = "Open can device failed";
+                return false;
+        }
+        const bool ret = SocketCanHandlerTest(dev_handler, message);
+        close(dev_handler);
+        return ret;
 }
 
 }  // namespace
@@ -106,22 +110,21 @@ SocketCanMonitor::SocketCanMonitor()
     : RecurrentRunner(FLAGS_socket_can_monitor_name,
                       FLAGS_socket_can_monitor_interval) {}
 
-void SocketCanMonitor::RunOnce(const double current_time) {
-  auto manager = MonitorManager::Instance();
-  Component* component = apollo::common::util::FindOrNull(
-      *manager->GetStatus()->mutable_components(),
-      FLAGS_socket_can_component_name);
-  if (component == nullptr) {
-    // Canbus is not monitored in current mode, skip.
-    return;
-  }
-  auto* status = component->mutable_other_status();
-  status->clear_status();
+void SocketCanMonitor::RunOnce(const double current_time) 
+{
+        auto manager = MonitorManager::Instance();
+        Component* component = apollo::common::util::FindOrNull(*manager->GetStatus()->mutable_components(), FLAGS_socket_can_component_name);
+        if (component == nullptr) 
+        {
+                // Canbus is not monitored in current mode, skip.
+                return;
+        }
+        auto* status = component->mutable_other_status();
+        status->clear_status();
 
-  std::string message;
-  const bool ret = SocketCanTest(&message);
-  SummaryMonitor::EscalateStatus(
-      ret ? ComponentStatus::OK : ComponentStatus::ERROR, message, status);
+        std::string message;
+        const bool ret = SocketCanTest(&message);
+        SummaryMonitor::EscalateStatus(ret ? ComponentStatus::OK : ComponentStatus::ERROR, message, status);
 }
 
 }  // namespace monitor

@@ -41,31 +41,31 @@ namespace dreamview {
  * @brief The ImageHandler, built on top of CivetHandler, converts the received
  * ROS image message to an image stream, wrapped by MJPEG Streaming Protocol.
  */
-class ImageHandler : public CivetHandler {
- public:
-  // The scale used to resize images sent to frontend
-  static constexpr double kImageScale = 0.2;
+class ImageHandler : public CivetHandler 
+{
+public:
+        // The scale used to resize images sent to frontend
+        static constexpr double kImageScale = 0.2;
 
-  ImageHandler();
+        ImageHandler();
 
-  bool handleGet(CivetServer *server, struct mg_connection *conn);
+        bool handleGet(CivetServer *server, struct mg_connection *conn);
 
- private:
-  template <typename SensorMsgsImage>
-  void OnImage(const std::shared_ptr<SensorMsgsImage> &image);
+private:
+        template <typename SensorMsgsImage>
+        void OnImage(const std::shared_ptr<SensorMsgsImage> &image);
 
-  void OnImageFront(const std::shared_ptr<apollo::drivers::Image> &image);
-  void OnImageShort(
-      const std::shared_ptr<apollo::drivers::CompressedImage> &image);
+        void OnImageFront(const std::shared_ptr<apollo::drivers::Image> &image);
+        void OnImageShort(const std::shared_ptr<apollo::drivers::CompressedImage> &image);
 
-  std::vector<uint8_t> send_buffer_;
-  std::atomic<int> requests_;
+        std::vector<uint8_t> send_buffer_;
+        std::atomic<int> requests_;
 
-  // mutex lock and condition variable to protect the received image
-  std::mutex mutex_;
-  std::condition_variable cvar_;
+        // mutex lock and condition variable to protect the received image
+        std::mutex mutex_;
+        std::condition_variable cvar_;
 
-  std::unique_ptr<cyber::Node> node_;
+        std::unique_ptr<cyber::Node> node_;
 };
 
 }  // namespace dreamview

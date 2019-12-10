@@ -20,23 +20,26 @@
 
 apollo::cyber::PyReader *pr = nullptr;
 
-int cbfun(const char *channel_name) {
-  AINFO << "recv->[ " << channel_name << " ]";
-  if (pr) {
-    AINFO << "read->[ " << pr->read() << " ]";
-  }
-  return 1;
+int cbfun(const char *channel_name) 
+{
+        AINFO << "recv->[ " << channel_name << " ]";
+        if (pr) 
+        {
+                AINFO << "read->[ " << pr->read() << " ]";
+        }
+        return 1;
 }
 
-int main(int argc, char *argv[]) {
-  apollo::cyber::Init("cyber_python");
-  apollo::cyber::proto::Chatter chat;
-  apollo::cyber::PyNode node("listener");
-  pr = node.create_reader("channel/chatter", chat.GetTypeName());
-  pr->register_func(cbfun);
+int main(int argc, char *argv[]) 
+{
+        apollo::cyber::Init("cyber_python");
+        apollo::cyber::proto::Chatter chat;
+        apollo::cyber::PyNode node("listener");
+        pr = node.create_reader("channel/chatter", chat.GetTypeName());
+        pr->register_func(cbfun);
 
-  apollo::cyber::WaitForShutdown();
-  delete pr;
+        apollo::cyber::WaitForShutdown();
+        delete pr;
 
-  return 0;
+        return 0;
 }

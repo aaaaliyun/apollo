@@ -22,27 +22,18 @@
 namespace apollo {
 namespace monitor {
 
-class ResourceMonitor : public RecurrentRunner {
- public:
-  ResourceMonitor();
-  void RunOnce(const double current_time) override;
+class ResourceMonitor : public RecurrentRunner 
+{
+public:
+        ResourceMonitor();
+        void RunOnce(const double current_time) override;
 
- private:
-  static void UpdateStatus(
-      const apollo::dreamview::ResourceMonitorConfig& config,
-      ComponentStatus* status);
-  static void CheckDiskSpace(
-      const apollo::dreamview::ResourceMonitorConfig& config,
-      ComponentStatus* status);
-  static void CheckCPUUsage(
-      const apollo::dreamview::ResourceMonitorConfig& config,
-      ComponentStatus* status);
-  static void CheckMemoryUsage(
-      const apollo::dreamview::ResourceMonitorConfig& config,
-      ComponentStatus* status);
-  static void CheckDiskLoads(
-      const apollo::dreamview::ResourceMonitorConfig& config,
-      ComponentStatus* status);
+private:
+        static void UpdateStatus(const apollo::dreamview::ResourceMonitorConfig& config, ComponentStatus* status);
+        static void CheckDiskSpace(const apollo::dreamview::ResourceMonitorConfig& config, ComponentStatus* status);
+        static void CheckCPUUsage(const apollo::dreamview::ResourceMonitorConfig& config, ComponentStatus* status);
+        static void CheckMemoryUsage(const apollo::dreamview::ResourceMonitorConfig& config, ComponentStatus* status);
+        static void CheckDiskLoads(const apollo::dreamview::ResourceMonitorConfig& config, ComponentStatus* status);
 };
 
 }  // namespace monitor

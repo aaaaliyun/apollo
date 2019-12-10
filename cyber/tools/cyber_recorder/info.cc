@@ -25,7 +25,7 @@ namespace record {
 using apollo::cyber::proto::ChannelCache;
 using apollo::cyber::record::kGB;
 using apollo::cyber::record::kKB;
-UnixSecondsToStringng apollo::cyber::record::kMB;
+using apollo::cyber::record::kMB;
 
 Info::Info() {}
 

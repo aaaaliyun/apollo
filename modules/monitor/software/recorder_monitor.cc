@@ -40,50 +40,44 @@ RecorderMonitor::RecorderMonitor()
     : RecurrentRunner(FLAGS_smart_recorder_monitor_name,
                       FLAGS_smart_recorder_monitor_interval) {}
 
-void RecorderMonitor::RunOnce(const double current_time) {
-  auto manager = MonitorManager::Instance();
-  auto* component = apollo::common::util::FindOrNull(
-      *manager->GetStatus()->mutable_components(),
-      FLAGS_smart_recorder_component_name);
-  if (component == nullptr) {
-    // SmartRecorder is not monitored in current mode, skip.
-    return;
-  }
+void RecorderMonitor::RunOnce(const double current_time) 
+{
+        auto manager = MonitorManager::Instance();
+        auto* component = apollo::common::util::FindOrNull(*manager->GetStatus()->mutable_components(), FLAGS_smart_recorder_component_name);
+        if (component == nullptr) 
+        {
+                // SmartRecorder is not monitored in current mode, skip.
+                return;
+        }
 
-  static auto reader =
-      manager->CreateReader<SmartRecorderStatus>(FLAGS_recorder_status_topic);
-  reader->Observe();
-  const auto status = reader->GetLatestObserved();
+        static auto reader = manager->CreateReader<SmartRecorderStatus>(FLAGS_recorder_status_topic);
+        reader->Observe();
+        const auto status = reader->GetLatestObserved();
 
-  ComponentStatus* component_status = component->mutable_other_status();
-  component_status->clear_status();
-  if (status == nullptr) {
-    SummaryMonitor::EscalateStatus(ComponentStatus::ERROR,
-                                   "No SmartRecorderStatus received",
-                                   component_status);
-    return;
-  }
+        ComponentStatus* component_status = component->mutable_other_status();
+        component_status->clear_status();
+        if (status == nullptr) 
+        {
+                SummaryMonitor::EscalateStatus(ComponentStatus::ERROR, "No SmartRecorderStatus received", component_status);
+                return;
+        }
 
-  // Translate SmartRecorderStatus to ComponentStatus. Note that ERROR and FATAL
-  // will trigger safety mode in current settings.
-  switch (status->recording_state()) {
-    case RecordingState::RECORDING:
-      SummaryMonitor::EscalateStatus(ComponentStatus::OK, "", component_status);
-      break;
-    case RecordingState::TERMINATING:
-      SummaryMonitor::EscalateStatus(
-          ComponentStatus::WARN,
-          absl::StrCat("WARNNING: ", status->state_message()),
-          component_status);
-      break;
-    case RecordingState::STOPPED:
-      SummaryMonitor::EscalateStatus(
-          ComponentStatus::OK,
-          absl::StrCat("STOPPED: ", status->state_message()), component_status);
-      break;
-    default:
-      AFATAL << "Unknown recording status: " << status->recording_state();
-      break;
+        // Translate SmartRecorderStatus to ComponentStatus. Note that ERROR and FATAL
+        // will trigger safety mode in current settings.
+        switch (status->recording_state()) 
+        {
+        case RecordingState::RECORDING:
+                SummaryMonitor::EscalateStatus(ComponentStatus::OK, "", component_status);
+                break;
+        case RecordingState::TERMINATING:
+                SummaryMonitor::EscalateStatus(ComponentStatus::WARN, absl::StrCat("WARNNING: ", status->state_message()), component_status);
+                break;
+        case RecordingState::STOPPED:
+                SummaryMonitor::EscalateStatus(ComponentStatus::OK, absl::StrCat("STOPPED: ", status->state_message()), component_status);
+                break;
+        default:
+                AFATAL << "Unknown recording status: " << status->recording_state();
+                break;
   }
 }
 

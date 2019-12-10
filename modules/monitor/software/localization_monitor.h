@@ -20,10 +20,11 @@
 namespace apollo {
 namespace monitor {
 
-class LocalizationMonitor : public RecurrentRunner {
- public:
-  LocalizationMonitor();
-  void RunOnce(const double current_time) override;
+class LocalizationMonitor : public RecurrentRunner 
+{
+public:
+        LocalizationMonitor();
+        void RunOnce(const double current_time) override;
 };
 
 }  // namespace monitor

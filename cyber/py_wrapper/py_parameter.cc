@@ -319,8 +319,8 @@ PyObject* cyber_delete_PyParameterClient(PyObject* self, PyObject* args)
 }
 
 // <<<<<<< HEAD
-PyObject* cyber_PyParameter_clt_set_parameter(PyObject* self, PyObject* args) 
-{
+// PyObject* cyber_PyParameter_clt_set_parameter(PyObject* self, PyObject* args) 
+// {
 //         PyObject* pyobj_param_clt = nullptr;
 //         PyObject* pyobj_param = nullptr;
 //         if (!PyArg_ParseTuple(args, const_cast<char*>("OO:cyber_PyParameter_set_parameter"), &pyobj_param_clt, &pyobj_param)) 
@@ -516,8 +516,8 @@ PyObject* cyber_delete_PyParameterServer(PyObject* self, PyObject* args)
 }
 
 // <<<<<<< HEAD
-PyObject* cyber_PyParameter_srv_set_parameter(PyObject* self, PyObject* args) 
-{
+// PyObject* cyber_PyParameter_srv_set_parameter(PyObject* self, PyObject* args) 
+// {
 //         PyObject* pyobj_param_srv = nullptr;
 //         PyObject* pyobj_param = nullptr;
 //         if (!PyArg_ParseTuple(args, const_cast<char*>("OO:cyber_PyParameter_set_parameter"), &pyobj_param_srv, &pyobj_param)) 

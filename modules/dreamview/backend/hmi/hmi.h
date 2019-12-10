@@ -31,27 +31,27 @@
 namespace apollo {
 namespace dreamview {
 
-class HMI {
- public:
-  HMI(WebSocketHandler *websocket, MapService *map_service,
-      DataCollectionMonitor *data_collection_monitor_);
-  void Start();
-  void Stop();
+class HMI 
+{
+public:
+        HMI(WebSocketHandler *websocket, MapService *map_service, DataCollectionMonitor *data_collection_monitor_);
+        void Start();
+        void Stop();
 
- private:
-  // Send VehicleParam to the given conn, or broadcast if conn is null.
-  void SendVehicleParam(WebSocketHandler::Connection *conn = nullptr);
-  void SendStatus(WebSocketHandler::Connection *conn = nullptr);
+private:
+        // Send VehicleParam to the given conn, or broadcast if conn is null.
+        void SendVehicleParam(WebSocketHandler::Connection *conn = nullptr);
+        void SendStatus(WebSocketHandler::Connection *conn = nullptr);
 
-  void RegisterMessageHandlers();
+        void RegisterMessageHandlers();
 
-  std::unique_ptr<HMIWorker> hmi_worker_;
-  apollo::common::monitor::MonitorLogBuffer monitor_log_buffer_;
+        std::unique_ptr<HMIWorker> hmi_worker_;
+        apollo::common::monitor::MonitorLogBuffer monitor_log_buffer_;
 
-  // No ownership.
-  WebSocketHandler *websocket_;
-  MapService *map_service_;
-  DataCollectionMonitor *data_collection_monitor_;
+        // No ownership.
+        WebSocketHandler *websocket_;
+        MapService *map_service_;
+        DataCollectionMonitor *data_collection_monitor_;
 };
 
 }  // namespace dreamview

@@ -20,10 +20,11 @@
 namespace apollo {
 namespace monitor {
 
-class GpsMonitor : public RecurrentRunner {
- public:
-  GpsMonitor();
-  void RunOnce(const double current_time) override;
+class GpsMonitor : public RecurrentRunner 
+{
+public:
+        GpsMonitor();
+        void RunOnce(const double current_time) override;
 };
 
 }  // namespace monitor

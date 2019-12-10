@@ -20,10 +20,11 @@
 namespace apollo {
 namespace monitor {
 
-class SocketCanMonitor : public RecurrentRunner {
- public:
-  SocketCanMonitor();
-  void RunOnce(const double current_time) override;
+class SocketCanMonitor : public RecurrentRunner 
+{
+public:
+        SocketCanMonitor();
+        void RunOnce(const double current_time) override;
 };
 
 }  // namespace monitor

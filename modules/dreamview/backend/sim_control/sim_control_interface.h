@@ -28,34 +28,34 @@ namespace dreamview {
  *
  * @brief Interface of simulated control algorithm
  */
-class SimControlInterface {
- public:
-  /**
-   * @brief Main logic of the simulated control algorithm.
-   */
-  virtual void RunOnce() = 0;
+class SimControlInterface 
+{
+public:
+        /**
+        * @brief Main logic of the simulated control algorithm.
+        */
+        virtual void RunOnce() = 0;
 
-  /**
-   * @brief Initialization.
-   */
-  virtual void Init(bool set_start_point, double start_velocity = 0.0,
-                    double start_acceleration = 0.0) = 0;
+        /**
+        * @brief Initialization.
+        */
+        virtual void Init(bool set_start_point, double start_velocity = 0.0, double start_acceleration = 0.0) = 0;
 
-  /**
-   * @brief Starts running the simulated control algorithm, e.g., publish
-   * simulated localization and chassis messages triggered by timer.
-   */
-  virtual void Start() = 0;
+        /**
+        * @brief Starts running the simulated control algorithm, e.g., publish
+        * simulated localization and chassis messages triggered by timer.
+        */
+        virtual void Start() = 0;
 
-  /**
-   * @brief Stops the algorithm.
-   */
-  virtual void Stop() = 0;
+        /**
+        * @brief Stops the algorithm.
+        */
+        virtual void Stop() = 0;
 
-  /**
-   * @brief Resets the internal state.
-   */
-  virtual void Reset() = 0;
+        /**
+        * @brief Resets the internal state.
+        */
+        virtual void Reset() = 0;
 };
 
 }  // namespace dreamview

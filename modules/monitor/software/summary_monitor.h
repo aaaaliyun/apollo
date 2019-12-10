@@ -25,20 +25,21 @@ namespace monitor {
 
 // A monitor which summarize other monitors' result and publish the whole status
 // if it has changed.
-class SummaryMonitor : public RecurrentRunner {
- public:
-  SummaryMonitor();
-  void RunOnce(const double current_time) override;
+class SummaryMonitor : public RecurrentRunner 
+{
+public:
+        SummaryMonitor();
+        void RunOnce(const double current_time) override;
 
-  // Escalate the status to a higher priority new status:
-  //    FATAL > ERROR > WARN > OK > UNKNOWN.
-  static void EscalateStatus(const ComponentStatus::Status new_status,
+        // Escalate the status to a higher priority new status:
+        //    FATAL > ERROR > WARN > OK > UNKNOWN.
+        static void EscalateStatus(const ComponentStatus::Status new_status,
                              const std::string& message,
                              ComponentStatus* current_status);
 
- private:
-  size_t system_status_fp_ = 0;
-  double last_broadcast_ = 0;
+private:
+        size_t system_status_fp_ = 0;
+        double last_broadcast_ = 0;
 };
 
 }  // namespace monitor

@@ -18,20 +18,22 @@
 #include "cyber/init.h"
 #include "modules/dreamview/backend/dreamview.h"
 
-int main(int argc, char *argv[]) {
-  google::ParseCommandLineFlags(&argc, &argv, true);
-  // add by caros for dv performance improve
-  apollo::cyber::GlobalData::Instance()->SetProcessGroup("dreamview_sched");
-  apollo::cyber::Init(argv[0]);
+int main(int argc, char *argv[]) 
+{
+        google::ParseCommandLineFlags(&argc, &argv, true);
+        // add by caros for dv performance improve
+        apollo::cyber::GlobalData::Instance()->SetProcessGroup("dreamview_sched");
+        apollo::cyber::Init(argv[0]);
 
-  apollo::dreamview::Dreamview dreamview;
-  const bool init_success = dreamview.Init().ok() && dreamview.Start().ok();
-  if (!init_success) {
-    AERROR << "Failed to initialize dreamview server";
-    return -1;
-  }
-  apollo::cyber::WaitForShutdown();
-  dreamview.Stop();
-  apollo::cyber::Clear();
-  return 0;
+        apollo::dreamview::Dreamview dreamview;
+        const bool init_success = dreamview.Init().ok() && dreamview.Start().ok();
+        if (!init_success) 
+        {
+                AERROR << "Failed to initialize dreamview server";
+                return -1;
+        }
+        apollo::cyber::WaitForShutdown();
+        dreamview.Stop();
+        apollo::cyber::Clear();
+        return 0;
 }
