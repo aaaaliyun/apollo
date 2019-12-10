@@ -31,24 +31,27 @@ PlayTask::PlayTask(const MessagePtr& msg, const WriterPtr& writer,
       msg_real_time_ns_(msg_real_time_ns),
       msg_play_time_ns_(msg_play_time_ns) {}
 
-void PlayTask::Play() {
-  if (writer_ == nullptr) {
-    AERROR << "writer is nullptr, can't write message.";
-    return;
-  }
+void PlayTask::Play() 
+{
+        if (writer_ == nullptr) 
+        {
+                AERROR << "writer is nullptr, can't write message.";
+                return;
+        }
 
-  if (!writer_->Write(msg_)) {
-    AERROR << "write message failed, played num: " << played_msg_num_.load()
-           << ", real time: " << msg_real_time_ns_
-           << ", play time: " << msg_play_time_ns_;
-    return;
-  }
+        if (!writer_->Write(msg_)) 
+        {
+                AERROR << "write message failed, played num: " << played_msg_num_.load()
+                       << ", real time: " << msg_real_time_ns_
+                       << ", play time: " << msg_play_time_ns_;
+                return;
+        }
 
-  played_msg_num_.fetch_add(1);
+        played_msg_num_.fetch_add(1);
 
-  ADEBUG << "write message succ, played num: " << played_msg_num_.load()
-         << ", real time: " << msg_real_time_ns_
-         << ", play time: " << msg_play_time_ns_;
+        ADEBUG << "write message succ, played num: " << played_msg_num_.load()
+               << ", real time: " << msg_real_time_ns_
+               << ", play time: " << msg_play_time_ns_;
 }
 
 }  // namespace record

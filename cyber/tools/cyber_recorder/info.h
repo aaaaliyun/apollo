@@ -31,11 +31,12 @@ namespace apollo {
 namespace cyber {
 namespace record {
 
-class Info {
- public:
-  Info();
-  ~Info();
-  bool Display(const std::string& file);
+class Info 
+{
+public:
+        Info();
+        ~Info();
+        bool Display(const std::string& file);
 };
 
 }  // namespace record

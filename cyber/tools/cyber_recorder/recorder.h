@@ -44,48 +44,48 @@ namespace apollo {
 namespace cyber {
 namespace record {
 
-class Recorder : public std::enable_shared_from_this<Recorder> {
- public:
-  Recorder(const std::string& output, bool all_channels,
-           const std::vector<std::string>& channel_vec);
-  Recorder(const std::string& output, bool all_channels,
-           const std::vector<std::string>& channel_vec,
-           const proto::Header& header);
-  ~Recorder();
-  bool Start();
-  bool Stop();
+class Recorder : public std::enable_shared_from_this<Recorder> 
+{
+public:
+        Recorder(const std::string& output, bool all_channels,
+                 const std::vector<std::string>& channel_vec);
+        Recorder(const std::string& output, bool all_channels,
+                 const std::vector<std::string>& channel_vec,
+                 const proto::Header& header);
+        ~Recorder();
+        bool Start();
+        bool Stop();
 
- private:
-  bool is_started_ = false;
-  bool is_stopping_ = false;
-  std::shared_ptr<Node> node_ = nullptr;
-  std::shared_ptr<RecordWriter> writer_ = nullptr;
-  std::shared_ptr<std::thread> display_thread_ = nullptr;
-  Connection<const ChangeMsg&> change_conn_;
-  std::string output_;
-  bool all_channels_ = true;
-  std::vector<std::string> channel_vec_;
-  proto::Header header_;
-  std::unordered_map<std::string, std::shared_ptr<ReaderBase>>
-      channel_reader_map_;
-  uint64_t message_count_;
-  uint64_t message_time_;
+private:
+        bool is_started_ = false;
+        bool is_stopping_ = false;
+        std::shared_ptr<Node> node_ = nullptr;
+        std::shared_ptr<RecordWriter> writer_ = nullptr;
+        std::shared_ptr<std::thread> display_thread_ = nullptr;
+        Connection<const ChangeMsg&> change_conn_;
+        std::string output_;
+        bool all_channels_ = true;
+        std::vector<std::string> channel_vec_;
+        proto::Header header_;
+        std::unordered_map<std::string, std::shared_ptr<ReaderBase>> channel_reader_map_;
+        uint64_t message_count_;
+        uint64_t message_time_;
 
-  bool InitReadersImpl();
+        bool InitReadersImpl();
 
-  bool FreeReadersImpl();
+        bool FreeReadersImpl();
 
-  bool InitReaderImpl(const std::string& channel_name,
-                      const std::string& message_type);
+        bool InitReaderImpl(const std::string& channel_name,
+                            const std::string& message_type);
 
-  void TopologyCallback(const ChangeMsg& msg);
+        void TopologyCallback(const ChangeMsg& msg);
 
-  void ReaderCallback(const std::shared_ptr<RawMessage>& message,
-                      const std::string& channel_name);
+        void ReaderCallback(const std::shared_ptr<RawMessage>& message,
+                            const std::string& channel_name);
 
-  void FindNewChannel(const RoleAttributes& role_attr);
+        void FindNewChannel(const RoleAttributes& role_attr);
 
-  void ShowProgress();
+        void ShowProgress();
 };
 
 }  // namespace record

@@ -1,4 +1,4 @@
-/******************************************************************************
+        /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,18 +36,19 @@ namespace apollo {
 namespace cyber {
 namespace record {
 
-class Recoverer {
- public:
-  Recoverer(const std::string& input_file, const std::string& output_file);
-  virtual ~Recoverer();
-  bool Proc();
+class Recoverer 
+{
+public:
+        Recoverer(const std::string& input_file, const std::string& output_file);
+        virtual ~Recoverer();
+        bool Proc();
 
- private:
-  RecordFileReader reader_;
-  RecordFileWriter writer_;
-  std::string input_file_;
-  std::string output_file_;
-  std::vector<std::string> channel_vec_;
+private:
+        RecordFileReader reader_;
+        RecordFileWriter writer_;
+        std::string input_file_;
+        std::string output_file_;
+        std::vector<std::string> channel_vec_;
 };
 
 }  // namespace record
