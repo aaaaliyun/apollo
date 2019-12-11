@@ -24,9 +24,9 @@ cc_library(
     deps = [
         ":config_gflags",
         "//cyber/common:file",
-        "//modules/common",
-        "//modules/common/configs/proto:vehicle_config_proto",
+        "//cyber/common:macros",
         "//modules/common/util",
+        "//modules/common/configs/proto:vehicle_config_proto",
         "@glog",
     ],
 )

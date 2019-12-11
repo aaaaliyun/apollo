@@ -7,15 +7,9 @@ cc_library(
     srcs = ["util.cc"],
     hdrs = ["util.h"],
     deps = [
-        ":future",
-        ":json_util",
-        ":lru_cache",
-        ":message_util",
-        ":points_downsampler",
-        ":string_util",
+        "//cyber/common:types",
         "//modules/common/math",
         "//modules/common/proto:pnc_point_proto",
-        "//modules/common/time",
     ],
 )
 
@@ -126,7 +120,6 @@ cc_test(
     srcs = ["factory_test.cc"],
     deps = [
         ":factory",
-        "//modules/common",
         "@gtest//:main",
     ],
 )
