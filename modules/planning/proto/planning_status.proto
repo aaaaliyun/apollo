@@ -93,10 +93,6 @@ message PathReuseDeciderStatus {
   optional int32 lane_change_failure_counter = 2;
 }
 
-message PedestrianStatus {
-  repeated StopTime stop_time = 1;
-}
-
 message PullOverStatus {
   enum PullOverType {
     PULL_OVER = 1;            // pull-over upon destination arrival
@@ -118,19 +114,9 @@ message ReroutingStatus {
   optional apollo.routing.RoutingRequest routing_request = 3;
 }
 
-message RightOfWayStatus {
-  // whether the vehicle has right of way in junction
-  map<string, bool> junction = 1;
-}
-
 message ScenarioStatus {
   optional ScenarioConfig.ScenarioType scenario_type = 1;
   optional ScenarioConfig.StageType stage_type = 2;
-}
-
-message SidePassStatus {
-  optional apollo.common.PathPoint change_lane_stop_path_point = 1;
-  optional bool check_clear_flag = 2;
 }
 
 message StopSignStatus {
@@ -150,6 +136,7 @@ message YieldSignStatus {
   repeated string wait_for_obstacle_id = 3;
 }
 
+// note: please keep this one as minimal as possible. do NOT polute it.
 message PlanningStatus {
   optional BareIntersectionStatus bare_intersection = 1;
   optional ChangeLaneStatus change_lane = 2;
@@ -157,16 +144,13 @@ message PlanningStatus {
   optional DestinationStatus destination = 4;
   optional EmergencyStopStatus emergency_stop = 5;
   optional OpenSpaceStatus open_space = 6;
-  optional PedestrianStatus pedestrian = 7;
-  optional ParkAndGoStatus park_and_go = 8;
-  optional PathDeciderStatus path_decider = 9;
-  optional PathReuseDeciderStatus path_reuse_decider = 10;
-  optional PullOverStatus pull_over = 11;
-  optional ReroutingStatus rerouting = 12;
-  optional RightOfWayStatus right_of_way = 13;
-  optional ScenarioStatus scenario = 14;
-  optional SidePassStatus side_pass = 15;
-  optional StopSignStatus stop_sign = 16;
-  optional TrafficLightStatus traffic_light = 17;
-  optional YieldSignStatus yield_sign = 18;
+  optional ParkAndGoStatus park_and_go = 7;
+  optional PathDeciderStatus path_decider = 8;
+  optional PathReuseDeciderStatus path_reuse_decider = 9;
+  optional PullOverStatus pull_over = 10;
+  optional ReroutingStatus rerouting = 11;
+  optional ScenarioStatus scenario = 12;
+  optional StopSignStatus stop_sign = 13;
+  optional TrafficLightStatus traffic_light = 14;
+  optional YieldSignStatus yield_sign = 15;
 }

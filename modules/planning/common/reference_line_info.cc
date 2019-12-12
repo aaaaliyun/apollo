@@ -46,6 +46,9 @@ using apollo::common::math::Box2d;
 using apollo::common::math::Vec2d;
 using apollo::common::util::PointFactory;
 
+std::unordered_map<std::string, bool>
+ReferenceLineInfo::junction_right_of_way_map_;
+
 ReferenceLineInfo::ReferenceLineInfo(const common::VehicleState& vehicle_state,
                                      const TrajectoryPoint& adc_planning_point,
                                      const ReferenceLine& reference_line,
@@ -293,27 +296,19 @@ bool WithinOverlap(const hdmap::PathOverlap& overlap, double s) {
 
 void ReferenceLineInfo::SetJunctionRightOfWay(const double junction_s,
                                               const bool is_protected) const {
-  auto* right_of_way = PlanningContext::Instance()
-                           ->mutable_planning_status()
-                           ->mutable_right_of_way();
-  auto* junction_right_of_way = right_of_way->mutable_junction();
   for (const auto& overlap : reference_line_.map_path().junction_overlaps()) {
     if (WithinOverlap(overlap, junction_s)) {
-      (*junction_right_of_way)[overlap.object_id] = is_protected;
+      junction_right_of_way_map_[overlap.object_id] = is_protected;
     }
   }
 }
 
 ADCTrajectory::RightOfWayStatus ReferenceLineInfo::GetRightOfWayStatus() const {
-  auto* right_of_way = PlanningContext::Instance()
-                           ->mutable_planning_status()
-                           ->mutable_right_of_way();
-  auto* junction_right_of_way = right_of_way->mutable_junction();
   for (const auto& overlap : reference_line_.map_path().junction_overlaps()) {
     if (overlap.end_s < adc_sl_boundary_.start_s()) {
-      junction_right_of_way->erase(overlap.object_id);
+      junction_right_of_way_map_.erase(overlap.object_id);
     } else if (WithinOverlap(overlap, adc_sl_boundary_.end_s())) {
-      auto is_protected = (*junction_right_of_way)[overlap.object_id];
+      auto is_protected = junction_right_of_way_map_[overlap.object_id];
       if (is_protected) {
         return ADCTrajectory::PROTECTED;
       }
@@ -795,9 +790,10 @@ void ReferenceLineInfo::ExportEngageAdvice(EngageAdvice* engage_advice) const {
                                                            .scenario()
                                                            .scenario_type();
     if (scenario_type == ScenarioConfig::PARK_AND_GO || IsChangeLanePath()) {
-      // note: when NOT is_on_reference_line_
+      // note: when is_on_reference_line_ is FALSE
       //   (1) always engage while in PARK_AND_GO scenario
-      //   (2) engage since "ChangeLanePath" is most likely NOT on ref line
+      //   (2) engage when "ChangeLanePath" is picked as Drivable ref line
+      //       where most likely ADC not OnLane yet
       engage = true;
     } else {
       prev_advice.set_reason("Not on reference line");
@@ -815,13 +811,13 @@ void ReferenceLineInfo::ExportEngageAdvice(EngageAdvice* engage_advice) const {
   }
 
   if (engage) {
-    if (vehicle_state_.driving_mode() ==
+    if (vehicle_state_.driving_mode() !=
         Chassis::DrivingMode::Chassis_DrivingMode_COMPLETE_AUTO_DRIVE) {
-      // KEEP_ENGAGED when in auto mode
-      prev_advice.set_advice(EngageAdvice::KEEP_ENGAGED);
-    } else {
-      // READY_TO_ENGAGE when in manual mode
+      // READY_TO_ENGAGE when in non-AUTO mode
       prev_advice.set_advice(EngageAdvice::READY_TO_ENGAGE);
+    } else {
+      // KEEP_ENGAGED when in AUTO mode
+      prev_advice.set_advice(EngageAdvice::KEEP_ENGAGED);
     }
     prev_advice.clear_reason();
   } else {

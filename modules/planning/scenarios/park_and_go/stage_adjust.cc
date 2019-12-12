@@ -21,6 +21,7 @@
 
 #include "cyber/common/log.h"
 
+#include "modules/common/vehicle_state/vehicle_state_provider.h"
 #include "modules/planning/common/frame.h"
 #include "modules/planning/common/planning_context.h"
 #include "modules/planning/common/util/common.h"
@@ -49,15 +50,37 @@ Stage::StageStatus ParkAndGoStageAdjust::Process(
   }
   const bool ready_to_cruise =
       scenario::util::CheckADCReadyToCruise(frame, scenario_config_);
-  if (ready_to_cruise) {
-    return FinishStage();
+
+  if (!ready_to_cruise) {
+    return StageStatus::RUNNING;
   }
-  return StageStatus::RUNNING;
+  return FinishStage();
 }
 
 Stage::StageStatus ParkAndGoStageAdjust::FinishStage() {
-  next_stage_ = ScenarioConfig::PARK_AND_GO_CRUISE;
+  const auto vehicle_status = common::VehicleStateProvider::Instance();
+  ADEBUG << vehicle_status->steering_percentage();
+  if (std::fabs(vehicle_status->steering_percentage()) <
+      scenario_config_.max_steering_percentage_when_cruise()) {
+    next_stage_ = ScenarioConfig::PARK_AND_GO_CRUISE;
+  } else {
+    ResetInitPostion();
+    next_stage_ = ScenarioConfig::PARK_AND_GO_PRE_CRUISE;
+  }
   return Stage::FINISHED;
+}
+
+void ParkAndGoStageAdjust::ResetInitPostion() {
+  auto* park_and_go_status = PlanningContext::Instance()
+                                 ->mutable_planning_status()
+                                 ->mutable_park_and_go();
+  park_and_go_status->mutable_adc_init_position()->set_x(
+      common::VehicleStateProvider::Instance()->x());
+  park_and_go_status->mutable_adc_init_position()->set_y(
+      common::VehicleStateProvider::Instance()->y());
+  park_and_go_status->mutable_adc_init_position()->set_z(0.0);
+  park_and_go_status->set_adc_init_heading(
+      common::VehicleStateProvider::Instance()->heading());
 }
 
 }  // namespace park_and_go
