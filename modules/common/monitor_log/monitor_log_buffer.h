@@ -57,58 +57,58 @@ namespace monitor {
  * The messages can be published automatically when the MonitorBuffer object's
  * destructor is called, or can be published by calling function Publish().
  */
-class MonitorLogBuffer {
- public:
-  /**
-   * @brief The constructor of MonitorBuffer.
-   * @param a Monitor instance pointer;
-   */
-  explicit MonitorLogBuffer(const MonitorMessageItem::MessageSource &source);
+class MonitorLogBuffer 
+{
+public:
+        /**
+        * @brief The constructor of MonitorBuffer.
+        * @param a Monitor instance pointer;
+        */
+        explicit MonitorLogBuffer(const MonitorMessageItem::MessageSource &source);
 
-  virtual ~MonitorLogBuffer();
+        virtual ~MonitorLogBuffer();
 
-  /**
-   * @brief record an INFO type message
-   */
-  REG_MSG_TYPE(INFO);
+        /**
+        * @brief record an INFO type message
+        */
+        REG_MSG_TYPE(INFO);
 
-  /**
-   * @brief record a WARN type message
-   */
-  REG_MSG_TYPE(WARN);
+        /**
+        * @brief record a WARN type message
+        */
+        REG_MSG_TYPE(WARN);
 
-  /**
-   * @brief record an ERROR type message
-   */
-  REG_MSG_TYPE(ERROR);
+        /**
+        * @brief record an ERROR type message
+        */
+        REG_MSG_TYPE(ERROR);
 
-  /**
-   * @brief record a FATAL type message
-   */
-  REG_MSG_TYPE(FATAL);
+        /**
+        * @brief record a FATAL type message
+        */
+        REG_MSG_TYPE(FATAL);
 
-  /**
-   * @brief Add monitor message with MonitorMessageItem::LogLevel
-   * @param log_level defined in modules/common/monitor/proto/monitor.proto
-   * @param msg the string to send to monitor
-   */
-  void AddMonitorMsgItem(const MonitorMessageItem::LogLevel log_level,
-                         const std::string &msg);
+        /**
+        * @brief Add monitor message with MonitorMessageItem::LogLevel
+        * @param log_level defined in modules/common/monitor/proto/monitor.proto
+        * @param msg the string to send to monitor
+        */
+        void AddMonitorMsgItem(const MonitorMessageItem::LogLevel log_level, const std::string &msg);
 
-  /**
-   * @brief publish the monitor messages
-   */
-  void Publish();
+        /**
+        * @brief publish the monitor messages
+        */
+        void Publish();
 
- private:
-  MonitorLogger *logger_ = MonitorLogger::Instance();
-  MonitorMessageItem::LogLevel level_ = MonitorMessageItem::INFO;
-  std::vector<MessageItem> monitor_msg_items_;
-  MonitorMessageItem::MessageSource source_;
+private:
+        MonitorLogger *logger_ = MonitorLogger::Instance();
+        MonitorMessageItem::LogLevel level_ = MonitorMessageItem::INFO;
+        std::vector<MessageItem> monitor_msg_items_;
+        MonitorMessageItem::MessageSource source_;
 
-  FRIEND_TEST(MonitorBufferTest, RegisterMacro);
-  FRIEND_TEST(MonitorBufferTest, AddMonitorMsgItem);
-  FRIEND_TEST(MonitorBufferTest, Operator);
+        FRIEND_TEST(MonitorBufferTest, RegisterMacro);
+        FRIEND_TEST(MonitorBufferTest, AddMonitorMsgItem);
+        FRIEND_TEST(MonitorBufferTest, Operator);
 };
 
 }  // namespace monitor

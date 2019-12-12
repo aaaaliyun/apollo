@@ -40,46 +40,50 @@ namespace util {
 template <typename T, typename std::enable_if<
                           std::is_base_of<google::protobuf::Message, T>::value,
                           int>::type = 0>
-static void FillHeader(const std::string& module_name, T* msg) {
-  static std::atomic<uint64_t> sequence_num = {0};
-  auto* header = msg->mutable_header();
-  double timestamp = apollo::common::time::Clock::NowInSeconds();
-  header->set_module_name(module_name);
-  header->set_timestamp_sec(timestamp);
-  header->set_sequence_num(
-      static_cast<unsigned int>(sequence_num.fetch_add(1)));
+static void FillHeader(const std::string& module_name, T* msg) 
+{
+        static std::atomic<uint64_t> sequence_num = {0};
+        auto* header = msg->mutable_header();
+        double timestamp = apollo::common::time::Clock::NowInSeconds();
+        header->set_module_name(module_name);
+        header->set_timestamp_sec(timestamp);
+        header->set_sequence_num(static_cast<unsigned int>(sequence_num.fetch_add(1)));
 }
 
 template <typename T, typename std::enable_if<
                           std::is_base_of<google::protobuf::Message, T>::value,
                           int>::type = 0>
 bool DumpMessage(const std::shared_ptr<T>& msg,
-                 const std::string& dump_dir = "/tmp") {
-  if (!msg) {
-    AWARN << "Message to be dumped is nullptr!";
-  }
+                 const std::string& dump_dir = "/tmp") 
+{
+        if (!msg) 
+        {
+                AWARN << "Message to be dumped is nullptr!";
+        }
 
-  auto type_name = T::descriptor()->full_name();
-  std::string dump_path = dump_dir + "/" + type_name;
-  if (!cyber::common::DirectoryExists(dump_path)) {
-    if (!cyber::common::EnsureDirectory(dump_path)) {
-      AERROR << "Cannot enable dumping for '" << type_name
-             << "' because the path " << dump_path
-             << " cannot be created or is not a directory.";
-      return false;
-    }
-  }
+        auto type_name = T::descriptor()->full_name();
+        std::string dump_path = dump_dir + "/" + type_name;
+        if (!cyber::common::DirectoryExists(dump_path)) 
+        {
+                if (!cyber::common::EnsureDirectory(dump_path)) 
+                {
+                        AERROR << "Cannot enable dumping for '" << type_name
+                               << "' because the path " << dump_path
+                               << " cannot be created or is not a directory.";
+                        return false;
+                }
+        }
 
-  auto sequence_num = msg->header().sequence_num();
-  return cyber::common::SetProtoToASCIIFile(
-      *msg, absl::StrCat(dump_path, "/", sequence_num, ".pb.txt"));
+        auto sequence_num = msg->header().sequence_num();
+        return cyber::common::SetProtoToASCIIFile(*msg, absl::StrCat(dump_path, "/", sequence_num, ".pb.txt"));
 }
 
-inline size_t MessageFingerprint(const google::protobuf::Message& message) {
-  static std::hash<std::string> hash_fn;
-  std::string proto_bytes;
-  message.SerializeToString(&proto_bytes);
-  return hash_fn(proto_bytes);
+inline size_t MessageFingerprint(const google::protobuf::Message& message) 
+{
+        static std::hash<std::string> hash_fn;
+        std::string proto_bytes;
+        message.SerializeToString(&proto_bytes);
+        return hash_fn(proto_bytes);
 }
 
 }  // namespace util

@@ -23,39 +23,43 @@ namespace apollo {
 namespace common {
 namespace monitor {
 
-MonitorLogger::MonitorLogger() {
-  const std::string node_name =
-      absl::StrCat("monitor_logger", cyber::Time::Now().ToNanosecond());
-  node_ = cyber::CreateNode(node_name);
-  if (node_ != nullptr) {
-    monitor_msg_writer_ =
-        node_->CreateWriter<MonitorMessage>("/apollo/monitor");
-  }
+MonitorLogger::MonitorLogger() 
+{
+        const std::string node_name = absl::StrCat("monitor_logger", cyber::Time::Now().ToNanosecond());
+        node_ = cyber::CreateNode(node_name);
+        if (node_ != nullptr) 
+        {
+                monitor_msg_writer_ = node_->CreateWriter<MonitorMessage>("/apollo/monitor");
+        }
 }
 
 void MonitorLogger::Publish(const MonitorMessageItem::MessageSource &source,
-                            const std::vector<MessageItem> &messages) const {
-  // compose a monitor message
-  if (messages.empty()) {
-    return;
-  }
-  MonitorMessage monitor_msg;
+                            const std::vector<MessageItem> &messages) const 
+{
+        // compose a monitor message
+        if (messages.empty()) 
+        {
+                return;
+        }
+        MonitorMessage monitor_msg;
 
-  for (const auto &msg_item : messages) {
-    MonitorMessageItem *monitor_msg_item = monitor_msg.add_item();
-    monitor_msg_item->set_source(source);
-    monitor_msg_item->set_log_level(msg_item.first);
-    monitor_msg_item->set_msg(msg_item.second);
-  }
+        for (const auto &msg_item : messages) 
+        {
+                MonitorMessageItem *monitor_msg_item = monitor_msg.add_item();
+                monitor_msg_item->set_source(source);
+                monitor_msg_item->set_log_level(msg_item.first);
+                monitor_msg_item->set_msg(msg_item.second);
+        }
 
-  // publish monitor messages
-  DoPublish(&monitor_msg);
+        // publish monitor messages
+        DoPublish(&monitor_msg);
 }
 
-void MonitorLogger::DoPublish(MonitorMessage *message) const {
-  RETURN_IF_NULL(monitor_msg_writer_);
-  common::util::FillHeader("monitor", message);
-  monitor_msg_writer_->Write(*message);
+void MonitorLogger::DoPublish(MonitorMessage *message) const 
+{
+        RETURN_IF_NULL(monitor_msg_writer_);
+        common::util::FillHeader("monitor", message);
+        monitor_msg_writer_->Write(*message);
 }
 
 }  // namespace monitor

@@ -45,15 +45,16 @@ namespace math {
  * @return Interpolated point.
  */
 template <typename T>
-T lerp(const T &x0, const double t0, const T &x1, const double t1,
-       const double t) {
-  if (std::abs(t1 - t0) <= 1.0e-6) {
-    AERROR << "input time difference is too small";
-    return x0;
-  }
-  const double r = (t - t0) / (t1 - t0);
-  const T x = x0 + r * (x1 - x0);
-  return x;
+T lerp(const T &x0, const double t0, const T &x1, const double t1, const double t) 
+{
+        if (std::abs(t1 - t0) <= 1.0e-6) 
+        {
+                AERROR << "input time difference is too small";
+                return x0;
+        }
+        const double r = (t - t0) / (t1 - t0);
+        const T x = x0 + r * (x1 - x0);
+        return x;
 }
 
 /**
@@ -67,8 +68,7 @@ T lerp(const T &x0, const double t0, const T &x1, const double t1,
  * @param a The value of the spherically interpolated angle.
  * @return Interpolated angle.
  */
-double slerp(const double a0, const double t0, const double a1, const double t1,
-             const double t);
+double slerp(const double a0, const double t0, const double a1, const double t1, const double t);
 
 SLPoint InterpolateUsingLinearApproximation(const SLPoint &p0,
                                             const SLPoint &p1, const double w);

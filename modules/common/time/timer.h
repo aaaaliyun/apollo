@@ -25,37 +25,39 @@ namespace apollo {
 namespace common {
 namespace time {
 
-class Timer {
- public:
-  Timer() = default;
+class Timer 
+{
+public:
+        Timer() = default;
 
-  // no-thread safe.
-  void Start();
+        // no-thread safe.
+        void Start();
 
-  // return the elapsed time,
-  // also output msg and time in glog.
-  // automatically start a new timer.
-  // no-thread safe.
-  int64_t End(const std::string &msg);
+        // return the elapsed time,
+        // also output msg and time in glog.
+        // automatically start a new timer.
+        // no-thread safe.
+        int64_t End(const std::string &msg);
 
- private:
-  absl::Time start_time_;
-  absl::Time end_time_;
+private:
+        absl::Time start_time_;
+        absl::Time end_time_;
 
-  DISALLOW_COPY_AND_ASSIGN(Timer);
+        DISALLOW_COPY_AND_ASSIGN(Timer);
 };
 
-class TimerWrapper {
- public:
-  explicit TimerWrapper(const std::string &msg) : msg_(msg) { timer_.Start(); }
+class TimerWrapper 
+{
+public:
+        explicit TimerWrapper(const std::string &msg) : msg_(msg) { timer_.Start(); }
 
-  ~TimerWrapper() { timer_.End(msg_); }
+        ~TimerWrapper() { timer_.End(msg_); }
 
- private:
-  Timer timer_;
-  std::string msg_;
+private:
+        Timer timer_;
+        std::string msg_;
 
-  DISALLOW_COPY_AND_ASSIGN(TimerWrapper);
+        DISALLOW_COPY_AND_ASSIGN(TimerWrapper);
 };
 
 }  // namespace time

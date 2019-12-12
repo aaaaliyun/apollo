@@ -27,26 +27,36 @@ DEFINE_string(value, "", "The value to query.");
 
 using apollo::common::KVDB;
 
-int main(int32_t argc, char **argv) {
-  google::InitGoogleLogging(argv[0]);
-  google::ParseCommandLineFlags(&argc, &argv, true);
+int main(int32_t argc, char **argv) 
+{
+        google::InitGoogleLogging(argv[0]);
+        google::ParseCommandLineFlags(&argc, &argv, true);
 
-  if (FLAGS_key.empty()) {
-    AFATAL << "Please specify --key.";
-  }
+        if (FLAGS_key.empty()) 
+        {
+                AFATAL << "Please specify --key.";
+        }
 
-  if (FLAGS_op == "get") {
-    std::cout << KVDB::Get(FLAGS_key).value() << std::endl;
-  } else if (FLAGS_op == "put") {
-    if (FLAGS_value.empty()) {
-      AFATAL << "Please specify --value.";
-    }
-    std::cout << KVDB::Put(FLAGS_key, FLAGS_value) << std::endl;
-  } else if (FLAGS_op == "del") {
-    std::cout << KVDB::Delete(FLAGS_key) << std::endl;
-  } else {
-    AFATAL << "Unknown op: " << FLAGS_op;
-  }
+        if (FLAGS_op == "get") 
+        {
+                std::cout << KVDB::Get(FLAGS_key).value() << std::endl;
+        } 
+        else if (FLAGS_op == "put") 
+        {
+                if (FLAGS_value.empty()) 
+                {
+                        AFATAL << "Please specify --value.";
+                }
+                std::cout << KVDB::Put(FLAGS_key, FLAGS_value) << std::endl;
+        } 
+        else if (FLAGS_op == "del") 
+        {
+                std::cout << KVDB::Delete(FLAGS_key) << std::endl;
+        } 
+        else 
+        {
+                AFATAL << "Unknown op: " << FLAGS_op;
+        }
 
-  return 0;
+        return 0;
 }

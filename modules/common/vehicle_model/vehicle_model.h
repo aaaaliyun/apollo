@@ -23,19 +23,18 @@
 namespace apollo {
 namespace common {
 
-class VehicleModel {
- public:
-  VehicleModel() = delete;
+class VehicleModel 
+{
+public:
+        VehicleModel() = delete;
 
-  static VehicleState Predict(const double predicted_time_horizon,
-                              const VehicleState& cur_vehicle_state);
+        static VehicleState Predict(const double predicted_time_horizon, const VehicleState& cur_vehicle_state);
 
- private:
-  static void RearCenteredKinematicBicycleModel(
-      const VehicleModelConfig& vehicle_model_config,
-      const double predicted_time_horizon,
-      const VehicleState& cur_vehicle_state,
-      VehicleState* predicted_vehicle_state);
+private:
+        static void RearCenteredKinematicBicycleModel(const VehicleModelConfig& vehicle_model_config,
+                                                      const double predicted_time_horizon,
+                                                      const VehicleState& cur_vehicle_state,
+                                                      VehicleState* predicted_vehicle_state);
 };
 
 }  // namespace common

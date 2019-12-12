@@ -48,25 +48,25 @@ using MessageItem = std::pair<MonitorMessageItem::LogLevel, std::string>;
  * `MONITOR(log_level, log_msg)` to record messages, and call
  * Publish to broadcast the message to other modules.
  */
-class MonitorLogger {
- public:
-  virtual ~MonitorLogger() = default;
+class MonitorLogger 
+{
+public:
+        virtual ~MonitorLogger() = default;
 
-  /**
-   * @brief Publish the messages.
-   * @param messages a list of messages for
-   */
-  virtual void Publish(const MonitorMessageItem::MessageSource &source,
-                       const std::vector<MessageItem> &messages) const;
+        /**
+        * @brief Publish the messages.
+        * @param messages a list of messages for
+        */
+        virtual void Publish(const MonitorMessageItem::MessageSource &source, const std::vector<MessageItem> &messages) const;
 
- private:
-  virtual void DoPublish(MonitorMessage *message) const;
+private:
+        virtual void DoPublish(MonitorMessage *message) const;
 
-  MonitorMessageItem::MessageSource source_;
-  std::unique_ptr<cyber::Node> node_;
-  std::shared_ptr<cyber::Writer<MonitorMessage>> monitor_msg_writer_;
+        MonitorMessageItem::MessageSource source_;
+        std::unique_ptr<cyber::Node> node_;
+        std::shared_ptr<cyber::Writer<MonitorMessage>> monitor_msg_writer_;
 
-  DECLARE_SINGLETON(MonitorLogger)
+        DECLARE_SINGLETON(MonitorLogger)
 };
 
 }  // namespace monitor

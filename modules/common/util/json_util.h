@@ -28,56 +28,54 @@ namespace apollo {
 namespace common {
 namespace util {
 
-class JsonUtil {
- public:
-  /**
-   * @brief Convert proto to a json string.
-   * @return A json with two fields: {type:<json_type>, data:<proto_to_json>}.
-   */
-  static nlohmann::json ProtoToTypedJson(
-      const std::string &json_type, const google::protobuf::Message &proto);
+class JsonUtil 
+{
+public:
+        /**
+        * @brief Convert proto to a json string.
+        * @return A json with two fields: {type:<json_type>, data:<proto_to_json>}.
+        */
+        static nlohmann::json ProtoToTypedJson(const std::string &json_type, const google::protobuf::Message &proto);
 
-  /**
-   * @brief Get a string value from the given json[key].
-   * @return Whether the field exists and is a valid string.
-   */
-  static bool GetString(const nlohmann::json &json, const std::string &key,
-                        std::string *value);
+        /**
+        * @brief Get a string value from the given json[key].
+        * @return Whether the field exists and is a valid string.
+        */
+        static bool GetString(const nlohmann::json &json, const std::string &key, std::string *value);
 
-  /**
-   * @brief Get a number value from the given json[key].
-   * @return Whether the field exists and is a valid number.
-   */
-  template <class T>
-  static bool GetNumber(const nlohmann::json &json, const std::string &key,
-                        T *value) {
-    const auto iter = json.find(key);
-    if (iter == json.end()) {
-      AERROR << "The json has no such key: " << key;
-      return false;
-    }
-    if (!iter->is_number()) {
-      AERROR << "The value of json[" << key << "] is not a number";
-      return false;
-    }
-    *value = *iter;
-    return true;
-  }
+        /**
+        * @brief Get a number value from the given json[key].
+        * @return Whether the field exists and is a valid number.
+        */
+        template <class T>
+        static bool GetNumber(const nlohmann::json &json, const std::string &key, T *value) 
+        {
+                const auto iter = json.find(key);
+                if (iter == json.end()) 
+                {
+                        AERROR << "The json has no such key: " << key;
+                        return false;
+                }
+                if (!iter->is_number()) 
+                {
+                        AERROR << "The value of json[" << key << "] is not a number";
+                        return false;
+                }
+                *value = *iter;
+                return true;
+        }
 
-  /**
-   * @brief Get a boolean value from the given json[key].
-   * @return Whether the field exists and is a valid boolean.
-   */
-  static bool GetBoolean(const nlohmann::json &json, const std::string &key,
-                         bool *value);
+        /**
+        * @brief Get a boolean value from the given json[key].
+        * @return Whether the field exists and is a valid boolean.
+        */
+        static bool GetBoolean(const nlohmann::json &json, const std::string &key, bool *value);
 
-  /**
-   * @brief Get a string vector from the given json[key].
-   * @return Whether the field exists and is a valid string vector.
-   */
-  static bool GetStringVector(const nlohmann::json &json,
-                              const std::string &key,
-                              std::vector<std::string> *value);
+        /**
+        * @brief Get a string vector from the given json[key].
+        * @return Whether the field exists and is a valid string vector.
+        */
+        static bool GetStringVector(const nlohmann::json &json, const std::string &key, std::vector<std::string> *value);
 };
 
 }  // namespace util

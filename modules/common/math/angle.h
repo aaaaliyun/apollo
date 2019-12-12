@@ -55,118 +55,122 @@ namespace math {
  * @param T signed integer type
 */
 template <typename T>
-class Angle {
- public:
-  static_assert(std::numeric_limits<T>::is_integer &&
-                    std::numeric_limits<T>::is_signed,
-                "T must be a signed integer type");
+class Angle 
+{
+public:
+        static_assert(std::numeric_limits<T>::is_integer && std::numeric_limits<T>::is_signed, "T must be a signed integer type");
 
-  /**
-   * @brief Constructs an Angle object from an angle in degrees (factory).
-   * @param value Angle in degrees
-   * @return Angle object
-   */
-  static Angle from_deg(const double value) {
-    return Angle(static_cast<T>(std::lround(value * DEG_TO_RAW)));
-  }
+        /**
+        * @brief Constructs an Angle object from an angle in degrees (factory).
+        * @param value Angle in degrees
+        * @return Angle object
+        */
+        static Angle from_deg(const double value) 
+        {
+                return Angle(static_cast<T>(std::lround(value * DEG_TO_RAW)));
+        }
 
-  /**
-   * @brief Constructs an Angle object from an angle in radians (factory).
-   * @param value Angle in radians
-   * @return Angle object
-   */
-  static Angle from_rad(const double value) {
-    return Angle(static_cast<T>(std::lround(value * RAD_TO_RAW)));
-  }
+        /**
+        * @brief Constructs an Angle object from an angle in radians (factory).
+        * @param value Angle in radians
+        * @return Angle object
+        */
+        static Angle from_rad(const double value) 
+        {
+                return Angle(static_cast<T>(std::lround(value * RAD_TO_RAW)));
+        }
 
-  /**
-   * @brief Constructs an Angle object from raw internal value.
-   * @param value Angle in degrees
-   * @return Angle object
-   */
-  explicit Angle(const T value = 0) : value_(value) {}
+        /**
+        * @brief Constructs an Angle object from raw internal value.
+        * @param value Angle in degrees
+        * @return Angle object
+        */
+        explicit Angle(const T value = 0) : value_(value) {}
 
-  /// Internal representation of pi
-  static constexpr T RAW_PI = std::numeric_limits<T>::min();
+        /// Internal representation of pi
+        static constexpr T RAW_PI = std::numeric_limits<T>::min();
 
-  /// Internal representation of pi/2
-  static constexpr T RAW_PI_2 =
-      static_cast<T>(-(std::numeric_limits<T>::min() >> 1));
+        /// Internal representation of pi/2
+        static constexpr T RAW_PI_2 = static_cast<T>(-(std::numeric_limits<T>::min() >> 1));
 
-  /// Used for converting angle units
-  static constexpr double DEG_TO_RAW = RAW_PI / -180.0;
+        /// Used for converting angle units
+        static constexpr double DEG_TO_RAW = RAW_PI / -180.0;
 
-  /// Used for converting angle units
-  static constexpr double RAD_TO_RAW = RAW_PI * -M_1_PI;
+        /// Used for converting angle units
+        static constexpr double RAD_TO_RAW = RAW_PI * -M_1_PI;
 
-  /// Used for converting angle units
-  static constexpr double RAW_TO_DEG = -180.0 / RAW_PI;
+        /// Used for converting angle units
+        static constexpr double RAW_TO_DEG = -180.0 / RAW_PI;
 
-  /// Used for converting angle units
-  static constexpr double RAW_TO_RAD = -M_PI / RAW_PI;
+        /// Used for converting angle units
+        static constexpr double RAW_TO_RAD = -M_PI / RAW_PI;
 
-  /**
-   * @brief Getter of value_.
-   * @return Internal unsigned integer representation of angle
-   */
-  T raw() const { return value_; }
+        /**
+        * @brief Getter of value_.
+        * @return Internal unsigned integer representation of angle
+        */
+        T raw() const { return value_; }
 
-  /**
-   * @brief Converts the internal representation to degrees.
-   * @return angle in degrees
-   */
-  double to_deg() const { return value_ * RAW_TO_DEG; }
+        /**
+        * @brief Converts the internal representation to degrees.
+        * @return angle in degrees
+        */
+        double to_deg() const { return value_ * RAW_TO_DEG; }
 
-  /**
-   * @brief Converts the internal representation to radians.
-   * @return angle in radians
-   */
-  double to_rad() const { return value_ * RAW_TO_RAD; }
+        /**
+        * @brief Converts the internal representation to radians.
+        * @return angle in radians
+        */
+        double to_rad() const { return value_ * RAW_TO_RAD; }
 
-  /**
-   * @brief Sums another angle to the current one.
-   * @param other Another Angle object
-   * @return Result of sum
-   */
-  Angle operator+=(Angle other) {
-    value_ = static_cast<T>(value_ + other.value_);
-    return *this;
-  }
+        /**
+        * @brief Sums another angle to the current one.
+        * @param other Another Angle object
+        * @return Result of sum
+        */
+        Angle operator+=(Angle other) 
+        {
+                value_ = static_cast<T>(value_ + other.value_);
+                return *this;
+        }
 
-  /**
-   * @brief Subtracts another angle from the current one.
-   * @param other Another Angle object
-   * @return Result of subtraction
-   */
-  Angle operator-=(Angle other) {
-    value_ = static_cast<T>(value_ - other.value_);
-    return *this;
-  }
+        /**
+        * @brief Subtracts another angle from the current one.
+        * @param other Another Angle object
+        * @return Result of subtraction
+        */
+        Angle operator-=(Angle other) 
+        {
+                value_ = static_cast<T>(value_ - other.value_);
+                return *this;
+        }
 
-  /**
-   * @brief Multiplies angle by scalar
-   * @param s A scalar
-   * @return Result of multiplication
-   */
-  template <typename Scalar>
-  Angle operator*=(Scalar s) {
-    value_ = static_cast<T>(std::lround(value_ * s));
-    return *this;
-  }
+        /**
+        * @brief Multiplies angle by scalar
+        * @param s A scalar
+        * @return Result of multiplication
+        */
+        template <typename Scalar>
+        Angle operator*=(Scalar s) 
+        {
+                value_ = static_cast<T>(std::lround(value_ * s));
+                return *this;
+        }
 
-  /**
-   * @brief Divides angle by scalar
-   * @param s A scalar
-   * @return Result of division
-   */
-  template <typename Scalar>
-  Angle operator/=(Scalar s) {
-    value_ = static_cast<T>(std::lround(value_ / s));
-    return *this;
-  }
+        /**
+        * @brief Divides angle by scalar
+        * @param s A scalar
+        * @return Result of division
+        */
+        template <typename Scalar>
+        Angle operator/=(Scalar s) 
+        {
+                value_ = static_cast<T>(std::lround(value_ / s));
+                return *this;
+        }
 
- private:
-  T value_;
+private:
+        T value_;
 };
 
 using Angle8 = Angle<int8_t>;
@@ -181,9 +185,10 @@ using Angle64 = Angle<int64_t>;
  * @return Result of addition
  */
 template <typename T>
-Angle<T> operator+(Angle<T> lhs, Angle<T> rhs) {
-  lhs += rhs;
-  return lhs;
+Angle<T> operator+(Angle<T> lhs, Angle<T> rhs) 
+{
+        lhs += rhs;
+        return lhs;
 }
 
 /**
@@ -193,9 +198,10 @@ Angle<T> operator+(Angle<T> lhs, Angle<T> rhs) {
  * @return Result of subtraction
  */
 template <typename T>
-Angle<T> operator-(Angle<T> lhs, Angle<T> rhs) {
-  lhs -= rhs;
-  return lhs;
+Angle<T> operator-(Angle<T> lhs, Angle<T> rhs) 
+{
+        lhs -= rhs;
+        return lhs;
 }
 
 /**
@@ -205,9 +211,10 @@ Angle<T> operator-(Angle<T> lhs, Angle<T> rhs) {
  * @return Result of multiplication
  */
 template <typename T, typename Scalar>
-Angle<T> operator*(Angle<T> lhs, Scalar rhs) {
-  lhs *= rhs;
-  return lhs;
+Angle<T> operator*(Angle<T> lhs, Scalar rhs) 
+{
+        lhs *= rhs;
+        return lhs;
 }
 
 /**
@@ -217,9 +224,10 @@ Angle<T> operator*(Angle<T> lhs, Scalar rhs) {
  * @return Result of multiplication
  */
 template <typename T, typename Scalar>
-Angle<T> operator*(Scalar lhs, Angle<T> rhs) {
-  rhs *= lhs;
-  return rhs;
+Angle<T> operator*(Scalar lhs, Angle<T> rhs) 
+{
+        rhs *= lhs;
+        return rhs;
 }
 
 /**
@@ -229,9 +237,10 @@ Angle<T> operator*(Scalar lhs, Angle<T> rhs) {
  * @return Result of division
  */
 template <typename T, typename Scalar>
-Angle<T> operator/(Angle<T> lhs, Scalar rhs) {
-  lhs /= rhs;
-  return lhs;
+Angle<T> operator/(Angle<T> lhs, Scalar rhs) 
+{
+        lhs /= rhs;
+        return lhs;
 }
 
 /**
@@ -241,8 +250,9 @@ Angle<T> operator/(Angle<T> lhs, Scalar rhs) {
  * @return Result of division
  */
 template <typename T>
-double operator/(Angle<T> lhs, Angle<T> rhs) {
-  return static_cast<double>(lhs.raw()) / rhs.raw();
+double operator/(Angle<T> lhs, Angle<T> rhs) 
+{
+        return static_cast<double>(lhs.raw()) / rhs.raw();
 }
 
 /**
@@ -252,8 +262,9 @@ double operator/(Angle<T> lhs, Angle<T> rhs) {
  * @return lhs == rhs
  */
 template <typename T>
-bool operator==(Angle<T> lhs, Angle<T> rhs) {
-  return lhs.raw() == rhs.raw();
+bool operator==(Angle<T> lhs, Angle<T> rhs) 
+{
+        return lhs.raw() == rhs.raw();
 }
 
 /**
@@ -263,8 +274,9 @@ bool operator==(Angle<T> lhs, Angle<T> rhs) {
  * @return lhs != rhs
  */
 template <typename T>
-bool operator!=(Angle<T> lhs, Angle<T> rhs) {
-  return !(lhs == rhs);
+bool operator!=(Angle<T> lhs, Angle<T> rhs) 
+{
+        return !(lhs == rhs);
 }
 
 // Fast trigonometric functions. Single precision is sufficient for Angle16 and

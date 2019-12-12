@@ -29,25 +29,23 @@
 namespace apollo {
 namespace common {
 
-class LatencyRecorder {
- public:
-  explicit LatencyRecorder(const std::string& module_name);
+class LatencyRecorder 
+{
+public:
+        explicit LatencyRecorder(const std::string& module_name);
 
-  void AppendLatencyRecord(const uint64_t message_id,
-                           const absl::Time& begin_time,
-                           const absl::Time& end_time);
+        void AppendLatencyRecord(const uint64_t message_id, const absl::Time& begin_time, const absl::Time& end_time);
 
- private:
-  LatencyRecorder() = default;
-  std::shared_ptr<apollo::cyber::Writer<LatencyRecordMap>> CreateWriter();
-  void PublishLatencyRecords(
-      const std::shared_ptr<apollo::cyber::Writer<LatencyRecordMap>>& writer);
+private:
+        LatencyRecorder() = default;
+        std::shared_ptr<apollo::cyber::Writer<LatencyRecordMap>> CreateWriter();
+        void PublishLatencyRecords(const std::shared_ptr<apollo::cyber::Writer<LatencyRecordMap>>& writer);
 
-  std::string module_name_;
-  std::mutex mutex_;
-  std::unique_ptr<LatencyRecordMap> records_;
-  absl::Time current_time_;
-  std::shared_ptr<apollo::cyber::Node> node_;
+        std::string module_name_;
+        std::mutex mutex_;
+        std::unique_ptr<LatencyRecordMap> records_;
+        absl::Time current_time_;
+        std::shared_ptr<apollo::cyber::Node> node_;
 };
 
 }  // namespace common

@@ -51,102 +51,107 @@ namespace time {
  * Mock clock is for testing purpose mainly. The mock clock related
  * methods are not thread-safe.
  */
-class Clock {
- public:
-  static constexpr int64_t PRECISION =
-      std::chrono::system_clock::duration::period::den /
-      std::chrono::system_clock::duration::period::num;
+class Clock 
+{
+public:
+        static constexpr int64_t PRECISION = std::chrono::system_clock::duration::period::den / std::chrono::system_clock::duration::period::num;
 
-  /// PRECISION >= 1000000 means the precision is at least 1us.
-  static_assert(PRECISION >= 1000000,
-                "The precision of the system clock should be at least 1 "
-                "microsecond.");
+        /// PRECISION >= 1000000 means the precision is at least 1us.
+        static_assert(PRECISION >= 1000000, "The precision of the system clock should be at least 1 microsecond.");
 
-  // The clock mode can either be a system clock time, a user mocked time (for
-  // test only) or read from ROS.
-  enum ClockMode {
-    SYSTEM = 0,
-    MOCK = 1,
-    CYBER = 2,
-  };
+        // The clock mode can either be a system clock time, a user mocked time (for
+        // test only) or read from ROS.
+        enum ClockMode 
+        {
+                SYSTEM = 0,
+                MOCK = 1,
+                CYBER = 2,
+        };
 
-  /**
-   * @brief get current time.
-   * @return an absl::Time object representing the current time. Check
-   * https://abseil.io/docs/cpp/guides/time for usage.
-   */
-  static absl::Time Now() {
-    switch (mode()) {
-      case ClockMode::SYSTEM:
-        return absl::Now();
-      case ClockMode::MOCK:
-        return Instance()->mock_now_;
-      case ClockMode::CYBER:
-        break;
-      default:
-        AFATAL << "Unsupported clock mode: " << mode();
-    }
-    return absl::FromUnixNanos(cyber::Time::Now().ToNanosecond());
-  }
+        /**
+        * @brief get current time.
+        * @return an absl::Time object representing the current time. Check
+        * https://abseil.io/docs/cpp/guides/time for usage.
+        */
+        static absl::Time Now() 
+        {
+                switch (mode()) 
+                {
+                        case ClockMode::SYSTEM:
+                                return absl::Now();
+                        case ClockMode::MOCK:
+                                return Instance()->mock_now_;
+                        case ClockMode::CYBER:
+                                break;
+                        default:
+                                AFATAL << "Unsupported clock mode: " << mode();
+                }
+                return absl::FromUnixNanos(cyber::Time::Now().ToNanosecond());
+        }
 
-  /**
-   * @brief gets the current time in second.
-   * @return the current time in second.
-   */
-  static double NowInSeconds() {
-    return static_cast<double>(absl::ToUnixNanos(Now())) / 1e9;
-  }
+        /**
+        * @brief gets the current time in second.
+        * @return the current time in second.
+        */
+        static double NowInSeconds() 
+        {
+                return static_cast<double>(absl::ToUnixNanos(Now())) / 1e9;
+        }
 
-  /**
-   * @brief Set the behavior of the \class Clock.
-   * @param The new clock mode to be set.
-   */
-  static void SetMode(ClockMode mode) { Instance()->mode_ = mode; }
+        /**
+        * @brief Set the behavior of the \class Clock.
+        * @param The new clock mode to be set.
+        */
+        static void SetMode(ClockMode mode) { Instance()->mode_ = mode; }
 
-  /**
-   * @brief Gets the current clock mode.
-   * @return The current clock mode.
-   */
-  static ClockMode mode() { return Instance()->mode_; }
+        /**
+        * @brief Gets the current clock mode.
+        * @return The current clock mode.
+        */
+        static ClockMode mode() { return Instance()->mode_; }
 
-  /**
-   * @brief This is for mock clock mode only. It will set the timestamp
-   * for the mock clock.
-   */
-  static void SetNow(const absl::Time &now) {
-    auto clock = Instance();
-    if (clock->mode_ != ClockMode::MOCK) {
-      AFATAL << "Cannot set now when clock mode is not MOCK!";
-    }
-    clock->mock_now_ = now;
-  }
+        /**
+        * @brief This is for mock clock mode only. It will set the timestamp
+        * for the mock clock.
+        */
+        static void SetNow(const absl::Time &now) 
+        {
+                auto clock = Instance();
+                if (clock->mode_ != ClockMode::MOCK) 
+                {
+                        AFATAL << "Cannot set now when clock mode is not MOCK!";
+                }
+                clock->mock_now_ = now;
+        }
 
-  /**
-   * @brief This is for mock clock mode only. It will set the timestamp
-   * for the mock clock with UNIX timestamp in seconds.
-   */
-  static void SetNowInSeconds(const double seconds) {
-    SetNow(absl::FromUnixNanos(static_cast<int64_t>(seconds * 1e9)));
-  }
+        /**
+        * @brief This is for mock clock mode only. It will set the timestamp
+        * for the mock clock with UNIX timestamp in seconds.
+        */
+        static void SetNowInSeconds(const double seconds) 
+        {
+                SetNow(absl::FromUnixNanos(static_cast<int64_t>(seconds * 1e9)));
+        }
 
- private:
-  /// NOTE: Unless mode_ and mock_now_ are guarded by a
-  /// lock or become atomic, having multiple threads calling mock
-  /// clock related functions are STRICTLY PROHIBITED.
+private:
+        /// NOTE: Unless mode_ and mock_now_ are guarded by a
+        /// lock or become atomic, having multiple threads calling mock
+        /// clock related functions are STRICTLY PROHIBITED.
 
-  /// Indicates whether it is in the system clock mode or the mock
-  /// clock mode or the ROS time mode.
-  ClockMode mode_;
+        /// Indicates whether it is in the system clock mode or the mock
+        /// clock mode or the ROS time mode.
+        ClockMode mode_;
 
-  /// Stores the currently set timestamp, which serves mock clock queries.
-  absl::Time mock_now_;
+        /// Stores the currently set timestamp, which serves mock clock queries.
+        absl::Time mock_now_;
 
-  /// Explicitly disable default and move/copy constructors.
-  DECLARE_SINGLETON(Clock)
+        /// Explicitly disable default and move/copy constructors.
+        DECLARE_SINGLETON(Clock)
 };
 
-inline Clock::Clock() {
-  mode_ = FLAGS_use_cyber_time ? ClockMode::CYBER : ClockMode::SYSTEM;
+inline Clock::Clock() 
+{
+        mode_ = FLAGS_use_cyber_time ? ClockMode::CYBER : ClockMode::SYSTEM;
 }
 
 // Measure run time of a code block, mostly for debugging purpose.

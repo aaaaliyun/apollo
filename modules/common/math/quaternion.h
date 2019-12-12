@@ -85,10 +85,11 @@ inline T QuaternionToHeading(const Eigen::Quaternion<T> &q) {
  * @return Quaternion encoding rotation by given heading
  */
 template <typename T>
-inline Eigen::Quaternion<T> HeadingToQuaternion(T heading) {
-  // Note that heading is zero at East and yaw is zero at North.
-  EulerAnglesZXY<T> euler_angles(heading - M_PI_2);
-  return euler_angles.ToQuaternion();
+inline Eigen::Quaternion<T> HeadingToQuaternion(T heading) 
+{
+        // Note that heading is zero at East and yaw is zero at North.
+        EulerAnglesZXY<T> euler_angles(heading - M_PI_2);
+        return euler_angles.ToQuaternion();
 }
 
 /*
@@ -101,18 +102,17 @@ inline Eigen::Quaternion<T> HeadingToQuaternion(T heading) {
  * @return Rotated vector
  */
 inline Eigen::Vector3d QuaternionRotate(const Quaternion &orientation,
-                                        const Eigen::Vector3d &original) {
-  Eigen::Quaternion<double> quaternion(orientation.qw(), orientation.qx(),
-                                       orientation.qy(), orientation.qz());
-  return static_cast<Eigen::Vector3d>(quaternion.toRotationMatrix() * original);
+                                        const Eigen::Vector3d &original) 
+{
+        Eigen::Quaternion<double> quaternion(orientation.qw(), orientation.qx(), orientation.qy(), orientation.qz());
+        return static_cast<Eigen::Vector3d>(quaternion.toRotationMatrix() * original);
 }
 
 inline Eigen::Vector3d InverseQuaternionRotate(const Quaternion &orientation,
-                                               const Eigen::Vector3d &rotated) {
-  Eigen::Quaternion<double> quaternion(orientation.qw(), orientation.qx(),
-                                       orientation.qy(), orientation.qz());
-  return static_cast<Eigen::Vector3d>(quaternion.toRotationMatrix().inverse() *
-                                      rotated);
+                                               const Eigen::Vector3d &rotated) 
+{
+        Eigen::Quaternion<double> quaternion(orientation.qw(), orientation.qx(), orientation.qy(), orientation.qz());
+        return static_cast<Eigen::Vector3d>(quaternion.toRotationMatrix().inverse() * rotated);
 }
 
 }  // namespace math

@@ -136,8 +136,9 @@ double RandomDouble(const double s, const double t, unsigned int rand_seed = 1);
  * @return Squared value of the input value.
  */
 template <typename T>
-inline T Square(const T value) {
-  return value * value;
+inline T Square(const T value) 
+{
+        return value * value;
 }
 
 /**
@@ -150,17 +151,22 @@ inline T Square(const T value) {
  * @return The clamped value.
  */
 template <typename T>
-T Clamp(const T value, T bound1, T bound2) {
-  if (bound1 > bound2) {
-    std::swap(bound1, bound2);
-  }
+T Clamp(const T value, T bound1, T bound2) 
+{
+        if (bound1 > bound2) 
+        {
+                std::swap(bound1, bound2);
+        }
 
-  if (value < bound1) {
-    return bound1;
-  } else if (value > bound2) {
-    return bound2;
-  }
-  return value;
+        if (value < bound1) 
+        {
+                return bound1;
+        } 
+        else if (value > bound2) 
+        {
+                return bound2;
+        }
+        return value;
 }
 
 // Gaussian
@@ -171,34 +177,44 @@ inline double Sigmoid(const double x) { return 1.0 / (1.0 + std::exp(-x)); }
 // Rotate a 2d vector counter-clockwise by theta
 Eigen::Vector2d RotateVector2d(const Eigen::Vector2d &v_in, const double theta);
 
-inline std::pair<double, double> RFUToFLU(const double x, const double y) {
-  return std::make_pair(y, -x);
+inline std::pair<double, double> RFUToFLU(const double x, const double y) 
+{
+        return std::make_pair(y, -x);
 }
 
-inline std::pair<double, double> FLUToRFU(const double x, const double y) {
-  return std::make_pair(-y, x);
+inline std::pair<double, double> FLUToRFU(const double x, const double y) 
+{
+        return std::make_pair(-y, x);
 }
 
-inline void L2Norm(int feat_dim, float *feat_data) {
-  if (feat_dim == 0) {
-    return;
-  }
-  // feature normalization
-  float l2norm = 0.0f;
-  for (int i = 0; i < feat_dim; ++i) {
-    l2norm += feat_data[i] * feat_data[i];
-  }
-  if (l2norm == 0) {
-    float val = 1.f / std::sqrt(static_cast<float>(feat_dim));
-    for (int i = 0; i < feat_dim; ++i) {
-      feat_data[i] = val;
-    }
-  } else {
-    l2norm = std::sqrt(l2norm);
-    for (int i = 0; i < feat_dim; ++i) {
-      feat_data[i] /= l2norm;
-    }
-  }
+inline void L2Norm(int feat_dim, float *feat_data) 
+{
+        if (feat_dim == 0) 
+        {
+                return;
+        }
+        // feature normalization
+        float l2norm = 0.0f;
+        for (int i = 0; i < feat_dim; ++i) 
+        {
+                l2norm += feat_data[i] * feat_data[i];
+        }
+        if (l2norm == 0) 
+        {
+                float val = 1.f / std::sqrt(static_cast<float>(feat_dim));
+                for (int i = 0; i < feat_dim; ++i) 
+                {
+                        feat_data[i] = val;
+                }
+        } 
+        else 
+        {
+                l2norm = std::sqrt(l2norm);
+                for (int i = 0; i < feat_dim; ++i) 
+                {
+                        feat_data[i] /= l2norm;
+                }
+        }
 }
 
 // Cartesian coordinates to Polar coordinates
