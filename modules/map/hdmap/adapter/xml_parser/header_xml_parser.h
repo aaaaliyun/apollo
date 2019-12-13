@@ -23,9 +23,10 @@ namespace apollo {
 namespace hdmap {
 namespace adapter {
 
-class HeaderXmlParser {
- public:
-  static Status Parse(const tinyxml2::XMLElement& xml_node, PbHeader* header);
+class HeaderXmlParser 
+{
+public:
+        static Status Parse(const tinyxml2::XMLElement& xml_node, PbHeader* header);
 };
 
 }  // namespace adapter

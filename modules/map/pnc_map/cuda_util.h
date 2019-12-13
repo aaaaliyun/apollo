@@ -23,30 +23,31 @@
 namespace apollo {
 namespace pnc_map {
 
-struct CudaLineSegment2d {
-  double x1;
-  double y1;
-  double x2;
-  double y2;
+struct CudaLineSegment2d 
+{
+        double x1;
+        double y1;
+        double x2;
+        double y2;
 };
 
-class CudaNearestSegment {
- public:
-  CudaNearestSegment();
+class CudaNearestSegment 
+{
+public:
+        CudaNearestSegment();
 
-  bool UpdateLineSegment(
-      const std::vector<apollo::common::math::LineSegment2d>& segments);
+        bool UpdateLineSegment(const std::vector<apollo::common::math::LineSegment2d>& segments);
 
-  int FindNearestSegment(double x, double y);
+        int FindNearestSegment(double x, double y);
 
-  ~CudaNearestSegment();
+        ~CudaNearestSegment();
 
- private:
-  std::size_t size_ = 0;
-  CudaLineSegment2d* host_seg_;
-  double* dev_dist_;
-  CudaLineSegment2d* dev_seg_;
-  cublasHandle_t handle_;
+private:
+        std::size_t size_ = 0;
+        CudaLineSegment2d* host_seg_;
+        double* dev_dist_;
+        CudaLineSegment2d* dev_seg_;
+        cublasHandle_t handle_;
 };
 
 }  // namespace pnc_map

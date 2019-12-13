@@ -26,30 +26,20 @@ namespace apollo {
 namespace hdmap {
 namespace adapter {
 
-class ObjectsXmlParser {
- public:
-  static Status ParseCrosswalks(const tinyxml2::XMLElement& xml_node,
-                                std::vector<PbCrosswalk>* crosswalks);
-  static Status ParseClearAreas(const tinyxml2::XMLElement& xml_node,
-                                std::vector<PbClearArea>* clear_areas);
-  static Status ParseSpeedBumps(const tinyxml2::XMLElement& xml_node,
-                                std::vector<PbSpeedBump>* speed_bumps);
-  static Status ParseStopLines(const tinyxml2::XMLElement& xml_node,
-                               std::vector<StopLineInternal>* stop_lines);
-  static Status ParseParkingSpaces(const tinyxml2::XMLElement& xml_node,
-                                   std::vector<PbParkingSpace>* parking_spaces);
-  static Status ParsePNCJunctions(const tinyxml2::XMLElement& xml_node,
-                                  std::vector<PbPNCJunction>* pnc_junctions);
-  static Status ParsePassageGroup(const tinyxml2::XMLElement& xml_node,
-                                  PbPNCJunction* pnc_junction);
+class ObjectsXmlParser 
+{
+public:
+        static Status ParseCrosswalks(const tinyxml2::XMLElement& xml_node, std::vector<PbCrosswalk>* crosswalks);
+        static Status ParseClearAreas(const tinyxml2::XMLElement& xml_node, std::vector<PbClearArea>* clear_areas);
+        static Status ParseSpeedBumps(const tinyxml2::XMLElement& xml_node, std::vector<PbSpeedBump>* speed_bumps);
+        static Status ParseStopLines(const tinyxml2::XMLElement& xml_node, std::vector<StopLineInternal>* stop_lines);
+        static Status ParseParkingSpaces(const tinyxml2::XMLElement& xml_node, std::vector<PbParkingSpace>* parking_spaces);
+        static Status ParsePNCJunctions(const tinyxml2::XMLElement& xml_node, std::vector<PbPNCJunction>* pnc_junctions);
+        static Status ParsePassageGroup(const tinyxml2::XMLElement& xml_node, PbPNCJunction* pnc_junction);
 
-  static Status ParsePassage(const tinyxml2::XMLElement& xml_node,
-                             PbPassageGroup* passage_group);
-  static Status ParsePassageIds(const tinyxml2::XMLElement& xml_node,
-                                const std::string& child_node_name,
-                                std::vector<std::string>* passage_node_ids);
-  static Status ToPassageType(const std::string& type,
-                              PbPassageType* passage_type);
+        static Status ParsePassage(const tinyxml2::XMLElement& xml_node, PbPassageGroup* passage_group);
+        static Status ParsePassageIds(const tinyxml2::XMLElement& xml_node, const std::string& child_node_name, std::vector<std::string>* passage_node_ids);
+        static Status ToPassageType(const std::string& type, PbPassageType* passage_type);
 };
 
 }  // namespace adapter
