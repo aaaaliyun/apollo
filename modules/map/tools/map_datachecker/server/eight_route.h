@@ -27,21 +27,22 @@
 namespace apollo {
 namespace hdmap {
 // TODO(yuanyijun): change EightRoute to FigureEight
-class EightRoute : public Alignment {
- public:
-  explicit EightRoute(std::shared_ptr<JSonConf> sp_conf);
-  ErrorCode Process(const std::vector<FramePose>& poses);
-  double GetProgress() const;
+class EightRoute : public Alignment 
+{
+public:
+        explicit EightRoute(std::shared_ptr<JSonConf> sp_conf);
+        ErrorCode Process(const std::vector<FramePose>& poses);
+        double GetProgress() const;
 
- private:
-  void Reset();
-  bool IsEightRoutePose(const std::vector<FramePose>& poses, int pose_index);
-  double GetGoodPoseDuring();
-  double GetEightRouteProgress(const std::vector<FramePose>& poses);
+private:
+        void Reset();
+        bool IsEightRoutePose(const std::vector<FramePose>& poses, int pose_index);
+        double GetGoodPoseDuring();
+        double GetEightRouteProgress(const std::vector<FramePose>& poses);
 
- private:
-  double progress_;
-  double last_yaw_;
+private:
+        double progress_;
+        double last_yaw_;
 };
 
 }  // namespace hdmap

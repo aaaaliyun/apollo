@@ -23,41 +23,48 @@
 namespace apollo {
 namespace hdmap {
 
-PJTransformer::PJTransformer(int zone_id) {
-  // init projPJ
-  std::stringstream stream;
-  stream << "+proj=utm +zone=" << zone_id << " +ellps=WGS84" << std::endl;
-  pj_utm_ = pj_init_plus(stream.str().c_str());
-  if (pj_utm_ == nullptr) {
-    AERROR << "proj4 init failed!" << stream.str() << std::endl;
-    return;
-  }
-  pj_latlong_ = pj_init_plus("+proj=latlong +ellps=WGS84");
-  if (pj_latlong_ == nullptr) {
-    AERROR << "proj4 pj_latlong init failed!";
-    return;
-  }
-  AINFO << "proj4 init success" << std::endl;
+PJTransformer::PJTransformer(int zone_id) 
+{
+        // init projPJ
+        std::stringstream stream;
+        stream << "+proj=utm +zone=" << zone_id << " +ellps=WGS84" << std::endl;
+        pj_utm_ = pj_init_plus(stream.str().c_str());
+        if (pj_utm_ == nullptr) 
+        {
+                AERROR << "proj4 init failed!" << stream.str() << std::endl;
+                return;
+        }
+        pj_latlong_ = pj_init_plus("+proj=latlong +ellps=WGS84");
+        if (pj_latlong_ == nullptr) 
+        {
+                AERROR << "proj4 pj_latlong init failed!";
+                return;
+        }
+        AINFO << "proj4 init success" << std::endl;
 }
 
-PJTransformer::~PJTransformer() {
-  if (pj_latlong_) {
-    pj_free(pj_latlong_);
-    pj_latlong_ = nullptr;
-  }
-  if (pj_utm_) {
-    pj_free(pj_utm_);
-    pj_utm_ = nullptr;
-  }
+PJTransformer::~PJTransformer() 
+{
+        if (pj_latlong_) 
+        {
+                pj_free(pj_latlong_);
+                pj_latlong_ = nullptr;
+        }
+        if (pj_utm_) 
+        {
+                pj_free(pj_utm_);
+                pj_utm_ = nullptr;
+        }
 }
-int PJTransformer::LatlongToUtm(int64_t point_count, int point_offset,
-                                double *x, double *y, double *z) {
-  if (!pj_latlong_ || !pj_utm_) {
-    AERROR << "pj_latlong_:" << pj_latlong_ << "pj_utm_:" << pj_utm_
-           << std::endl;
-    return -1;
-  }
-  return pj_transform(pj_latlong_, pj_utm_, point_count, point_offset, x, y, z);
+
+int PJTransformer::LatlongToUtm(int64_t point_count, int point_offset, double *x, double *y, double *z) 
+{
+        if (!pj_latlong_ || !pj_utm_) 
+        {
+                AERROR << "pj_latlong_:" << pj_latlong_ << "pj_utm_:" << pj_utm_ << std::endl;
+                return -1;
+        }
+        return pj_transform(pj_latlong_, pj_utm_, point_count, point_offset, x, y, z);
 }
 
 }  // namespace hdmap

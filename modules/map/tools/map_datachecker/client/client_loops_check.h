@@ -29,23 +29,24 @@
 namespace apollo {
 namespace hdmap {
 
-class LoopsChecker {
- public:
-  explicit LoopsChecker(const std::string& time_flag_file);
-  int SyncStart(bool* reached);
+class LoopsChecker 
+{
+public:
+        explicit LoopsChecker(const std::string& time_flag_file);
+        int SyncStart(bool* reached);
 
- private:
-  std::vector<std::pair<double, double>> GetTimeRanges();
-  int PeriodicCheck(bool* reached);
-  int GrpcStub(LoopsVerifyRequest* request, LoopsVerifyResponse* response);
-  int Start(const std::vector<std::pair<double, double>>& time_ranges);
-  int Check(double* progress, bool* reached);
-  int Stop();
+private:
+        std::vector<std::pair<double, double>> GetTimeRanges();
+        int PeriodicCheck(bool* reached);
+        int GrpcStub(LoopsVerifyRequest* request, LoopsVerifyResponse* response);
+        int Start(const std::vector<std::pair<double, double>>& time_ranges);
+        int Check(double* progress, bool* reached);
+        int Stop();
 
- private:
-  std::unique_ptr<CollectionCheckerService::Stub> service_stub_;
-  const std::string& time_flag_file_;
-  int check_period_;
+private:
+        std::unique_ptr<CollectionCheckerService::Stub> service_stub_;
+        const std::string& time_flag_file_;
+        int check_period_;
 };
 
 }  // namespace hdmap

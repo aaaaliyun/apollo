@@ -26,39 +26,40 @@
 namespace apollo {
 namespace hdmap {
 
-bool Mapdatachecker::Init() {
-  grpc_address_ = FLAGS_map_datachecker_host + ":" + FLAGS_map_datachecker_port;
-  return true;
+bool Mapdatachecker::Init() 
+{
+        grpc_address_ = FLAGS_map_datachecker_host + ":" + FLAGS_map_datachecker_port;
+        return true;
 }
 
-bool Mapdatachecker::Start() {
-  AINFO << "Mapdatachecker::Start";
-  Init();
+bool Mapdatachecker::Start() 
+{
+        AINFO << "Mapdatachecker::Start";
+        Init();
 
-  AINFO << "creating agent";
-  std::shared_ptr<MapDataCheckerAgent> agent =
-      std::make_shared<MapDataCheckerAgent>();
+        AINFO << "creating agent";
+        std::shared_ptr<MapDataCheckerAgent> agent = std::make_shared<MapDataCheckerAgent>();
 
-  AINFO << "creating node";
-  bool cyber_node_inited = false;
-  std::shared_ptr<MapDataCheckerCyberNode> cyber_node =
-      std::make_shared<MapDataCheckerCyberNode>(agent, &cyber_node_inited);
-  if (!cyber_node_inited) {
-    AFATAL << "Error in create MapDataCheckerCyberNode";
-    apollo::cyber::WaitForShutdown();
-    apollo::cyber::Clear();
-    return false;
-  }
+        AINFO << "creating node";
+        bool cyber_node_inited = false;
+        std::shared_ptr<MapDataCheckerCyberNode> cyber_node = std::make_shared<MapDataCheckerCyberNode>(agent, &cyber_node_inited);
+        if (!cyber_node_inited) 
+        {
+                AFATAL << "Error in create MapDataCheckerCyberNode";
+                apollo::cyber::WaitForShutdown();
+                apollo::cyber::Clear();
+                return false;
+        }
 
-  AINFO << "register service";
-  grpc::ServerBuilder builder;
-  builder.AddListeningPort(grpc_address_, grpc::InsecureServerCredentials());
-  builder.RegisterService(agent.get());
-  std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  AINFO << "Server listening on " << grpc_address_;
-  apollo::cyber::WaitForShutdown();
-  apollo::cyber::Clear();
-  return true;
+        AINFO << "register service";
+        grpc::ServerBuilder builder;
+        builder.AddListeningPort(grpc_address_, grpc::InsecureServerCredentials());
+        builder.RegisterService(agent.get());
+        std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+        AINFO << "Server listening on " << grpc_address_;
+        apollo::cyber::WaitForShutdown();
+        apollo::cyber::Clear();
+        return true;
 }
 
 bool Mapdatachecker::Stop() { return true; }

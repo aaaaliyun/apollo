@@ -21,18 +21,19 @@
 namespace apollo {
 namespace hdmap {
 
-class Mapdatachecker {
- public:
-  Mapdatachecker() {}
-  ~Mapdatachecker() {}
+class Mapdatachecker 
+{
+public:
+        Mapdatachecker() {}
+        ~Mapdatachecker() {}
 
-  bool Init();
-  bool Start();
-  bool Stop();
-  void Report();
+        bool Init();
+        bool Start();
+        bool Stop();
+        void Report();
 
- private:
-  std::string grpc_address_;
+private:
+        std::string grpc_address_;
 };
 
 }  // namespace hdmap

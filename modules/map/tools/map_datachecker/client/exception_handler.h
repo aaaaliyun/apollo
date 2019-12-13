@@ -19,9 +19,10 @@
 
 namespace apollo {
 namespace hdmap {
-class ExceptionHandler {
- public:
-  static int ExceptionHandlerFun(ErrorCode error_code);
+class ExceptionHandler 
+{
+public:
+        static int ExceptionHandlerFun(ErrorCode error_code);
 };
 
 }  // namespace hdmap

@@ -24,24 +24,25 @@
 namespace apollo {
 namespace hdmap {
 
-class ChannelChecker {
- public:
-  explicit ChannelChecker(const std::string& stop_flag_file);
-  int SyncStart(const std::string& record_path);
-  int SyncStop();
-  int PeriodicCheck();
-  int GrpcStub(ChannelVerifyRequest* request, ChannelVerifyResponse* response);
+class ChannelChecker 
+{
+public:
+        explicit ChannelChecker(const std::string& stop_flag_file);
+        int SyncStart(const std::string& record_path);
+        int SyncStop();
+        int PeriodicCheck();
+        int GrpcStub(ChannelVerifyRequest* request, ChannelVerifyResponse* response);
 
- private:
-  int Start(const std::string& record_path);
-  int Check();
-  int Stop();
-  int ProcessAbnormal(ChannelVerifyResponse* response);
+private:
+        int Start(const std::string& record_path);
+        int Check();
+        int Stop();
+        int ProcessAbnormal(ChannelVerifyResponse* response);
 
- private:
-  std::unique_ptr<CollectionCheckerService::Stub> service_stub_;
-  int check_period_;
-  const std::string& stop_flag_file_;
+private:
+        std::unique_ptr<CollectionCheckerService::Stub> service_stub_;
+        int check_period_;
+        const std::string& stop_flag_file_;
 };
 
 }  // namespace hdmap

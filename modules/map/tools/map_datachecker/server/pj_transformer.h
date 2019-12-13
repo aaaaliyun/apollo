@@ -21,15 +21,14 @@ namespace apollo {
 namespace hdmap {
 
 class PJTransformer {
- public:
-  explicit PJTransformer(int zone_id = 50);
-  ~PJTransformer();
-  int LatlongToUtm(int64_t point_count, int point_offset, double *x, double *y,
-                   double *z);
+public:
+        explicit PJTransformer(int zone_id = 50);
+        ~PJTransformer();
+        int LatlongToUtm(int64_t point_count, int point_offset, double *x, double *y, double *z);
 
- private:
-  projPJ pj_latlong_;
-  projPJ pj_utm_;
+private:
+        projPJ pj_latlong_;
+        projPJ pj_utm_;
 };
 
 }  // namespace hdmap

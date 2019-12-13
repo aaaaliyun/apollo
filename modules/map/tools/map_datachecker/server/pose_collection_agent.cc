@@ -23,65 +23,67 @@
 namespace apollo {
 namespace hdmap {
 
-PoseCollectionAgent::PoseCollectionAgent(std::shared_ptr<JSonConf> sp_conf) {
-  sp_pj_transformer_ = std::make_shared<PJTransformer>(50);
-  sp_conf_ = sp_conf;
-  Reset();
+PoseCollectionAgent::PoseCollectionAgent(std::shared_ptr<JSonConf> sp_conf) 
+{
+        sp_pj_transformer_ = std::make_shared<PJTransformer>(50);
+        sp_conf_ = sp_conf;
+        Reset();
 }
 
-void PoseCollectionAgent::Reset() {
-  sp_pose_collection_ = std::make_shared<PoseCollection>(sp_conf_);
+void PoseCollectionAgent::Reset() 
+{
+        sp_pose_collection_ = std::make_shared<PoseCollection>(sp_conf_);
 }
 
-void PoseCollectionAgent::OnBestgnssposCallback(
-    const std::shared_ptr<const apollo::drivers::gnss::GnssBestPose>
-        &bestgnsspos) {
-  if (sp_pose_collection_ == nullptr) {
-    sp_pose_collection_ = std::make_shared<PoseCollection>(sp_conf_);
-  }
+void PoseCollectionAgent::OnBestgnssposCallback(const std::shared_ptr<const apollo::drivers::gnss::GnssBestPose> &bestgnsspos) 
+{
+        if (sp_pose_collection_ == nullptr) 
+        {
+                sp_pose_collection_ = std::make_shared<PoseCollection>(sp_conf_);
+        }
 
-  double time_stamp = apollo::cyber::common::GpsToUnixSeconds(
-      bestgnsspos->measurement_time());  // in seconds
-  FramePose pose;
-  if (sp_conf_->use_system_time) {
-    pose.time_stamp = UnixtimeNow();
-    AINFO << "system time: " << pose.time_stamp;
-  } else {
-    pose.time_stamp = time_stamp;
-  }
-  pose.latitude = bestgnsspos->latitude();
-  pose.longitude = bestgnsspos->longitude();
-  pose.altitude = bestgnsspos->height_msl();
-  pose.solution_status = bestgnsspos->sol_status();
-  pose.position_type = bestgnsspos->sol_type();
-  pose.diff_age = bestgnsspos->differential_age();
-  double latitude_std = bestgnsspos->latitude_std_dev();
-  double longitude_std = bestgnsspos->longitude_std_dev();
-  double altitude_std = bestgnsspos->height_std_dev();
-  pose.local_std =
-      std::sqrt(latitude_std * latitude_std + longitude_std * longitude_std +
-                altitude_std * altitude_std);
-  pose.tx = pose.longitude * kDEGRESS_TO_RADIANS;
-  pose.ty = pose.latitude * kDEGRESS_TO_RADIANS;
-  pose.tz = pose.altitude;
-  sp_pj_transformer_->LatlongToUtm(1, 1, &pose.tx, &pose.ty, &pose.tz);
+        double time_stamp = apollo::cyber::common::GpsToUnixSeconds(bestgnsspos->measurement_time());  // in seconds
+        FramePose pose;
+        if (sp_conf_->use_system_time) 
+        {
+                pose.time_stamp = UnixtimeNow();
+                AINFO << "system time: " << pose.time_stamp;
+        } 
+        else 
+        {
+                pose.time_stamp = time_stamp;
+        }
+        pose.latitude = bestgnsspos->latitude();
+        pose.longitude = bestgnsspos->longitude();
+        pose.altitude = bestgnsspos->height_msl();
+        pose.solution_status = bestgnsspos->sol_status();
+        pose.position_type = bestgnsspos->sol_type();
+        pose.diff_age = bestgnsspos->differential_age();
+        double latitude_std = bestgnsspos->latitude_std_dev();
+        double longitude_std = bestgnsspos->longitude_std_dev();
+        double altitude_std = bestgnsspos->height_std_dev();
+        pose.local_std = std::sqrt(latitude_std * latitude_std + longitude_std * longitude_std + altitude_std * altitude_std);
+        pose.tx = pose.longitude * kDEGRESS_TO_RADIANS;
+        pose.ty = pose.latitude * kDEGRESS_TO_RADIANS;
+        pose.tz = pose.altitude;
+        sp_pj_transformer_->LatlongToUtm(1, 1, &pose.tx, &pose.ty, &pose.tz);
 
-  std::lock_guard<std::mutex> mutex_locker(mutex_);
-  static FILE *pose_file = fopen("poses.txt", "w");
-  static int count = 0;
-  fprintf(stderr, "%d:%lf %lf %lf %lf 0.0 0.0 0.0 0.0\n", ++count,
-          pose.time_stamp, pose.tx, pose.ty, pose.tz);
-  fprintf(pose_file, "%lf %lf %lf %lf 0.0 0.0 0.0 0.0\n", pose.time_stamp,
-          pose.tx, pose.ty, pose.tz);
-  fflush(pose_file);
-  sp_pose_collection_->Collect(pose);
+        std::lock_guard<std::mutex> mutex_locker(mutex_);
+        static FILE *pose_file = fopen("poses.txt", "w");
+        static int count = 0;
+        fprintf(stderr, "%d:%lf %lf %lf %lf 0.0 0.0 0.0 0.0\n", ++count, pose.time_stamp, pose.tx, pose.ty, pose.tz);
+        fprintf(pose_file, "%lf %lf %lf %lf 0.0 0.0 0.0 0.0\n", pose.time_stamp, pose.tx, pose.ty, pose.tz);
+        fflush(pose_file);
+        sp_pose_collection_->Collect(pose);
 }
 
-std::shared_ptr<std::vector<FramePose>> PoseCollectionAgent::GetPoses() const {
-  if (sp_pose_collection_ == nullptr) {
-    return nullptr;
-  }
-  return sp_pose_collection_->GetPoses();
+std::shared_ptr<std::vector<FramePose>> PoseCollectionAgent::GetPoses() const 
+{
+        if (sp_pose_collection_ == nullptr) 
+        {
+                return nullptr;
+        }
+        return sp_pose_collection_->GetPoses();
 }
 
 }  // namespace hdmap

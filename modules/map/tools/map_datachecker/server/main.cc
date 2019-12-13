@@ -16,25 +16,30 @@
 #include "cyber/cyber.h"
 #include "modules/map/tools/map_datachecker/server/worker.h"
 
-int main(int argc, char** argv) {
-  google::ParseCommandLineFlags(&argc, &argv, true);
+int main(int argc, char** argv) 
+{
+        google::ParseCommandLineFlags(&argc, &argv, true);
 
-  AINFO << "cyber init";
-  if (apollo::cyber::Init(argv[0])) {
-    AINFO << "init succeed";
-  } else {
-    AERROR << "init failed";
-  }
+        AINFO << "cyber init";
+        if (apollo::cyber::Init(argv[0])) 
+        {
+                AINFO << "init succeed";
+        } 
+        else 
+        {
+                AERROR << "init failed";
+        }
 
-  google::SetStderrLogging(FLAGS_minloglevel);
+        google::SetStderrLogging(FLAGS_minloglevel);
 
-  AINFO << "starting worker";
-  apollo::hdmap::Mapdatachecker worker;
-  if (!worker.Start()) {
-    AFATAL << "Start Mapdatachecker Failed!";
-    return -1;
-  }
+        AINFO << "starting worker";
+        apollo::hdmap::Mapdatachecker worker;
+        if (!worker.Start()) 
+        {
+                AFATAL << "Start Mapdatachecker Failed!";
+                return -1;
+        }
 
-  apollo::cyber::WaitForShutdown();
-  return 0;
+        apollo::cyber::WaitForShutdown();
+        return 0;
 }

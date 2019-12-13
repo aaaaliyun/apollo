@@ -26,24 +26,22 @@
 namespace apollo {
 namespace relative_map {
 
-class RelativeMapComponent final : public ::apollo::cyber::TimerComponent {
- public:
-  bool Init() override;
-  bool Proc() override;
+class RelativeMapComponent final : public ::apollo::cyber::TimerComponent 
+{
+public:
+        bool Init() override;
+        bool Proc() override;
 
- private:
-  bool InitReaders();
+private:
+        bool InitReaders();
 
-  std::shared_ptr<::apollo::cyber::Writer<MapMsg>> relative_map_writer_ =
-      nullptr;
-  std::shared_ptr<cyber::Reader<perception::PerceptionObstacles>>
-      perception_reader_ = nullptr;
-  std::shared_ptr<cyber::Reader<canbus::Chassis>> chassis_reader_ = nullptr;
-  std::shared_ptr<cyber::Reader<localization::LocalizationEstimate>>
-      localization_reader_ = nullptr;
-  std::shared_ptr<cyber::Reader<NavigationInfo>> navigation_reader_ = nullptr;
+        std::shared_ptr<::apollo::cyber::Writer<MapMsg>> relative_map_writer_ = nullptr;
+        std::shared_ptr<cyber::Reader<perception::PerceptionObstacles>> perception_reader_ = nullptr;
+        std::shared_ptr<cyber::Reader<canbus::Chassis>> chassis_reader_ = nullptr;
+        std::shared_ptr<cyber::Reader<localization::LocalizationEstimate>> localization_reader_ = nullptr;
+        std::shared_ptr<cyber::Reader<NavigationInfo>> navigation_reader_ = nullptr;
 
-  RelativeMap relative_map_;
+        RelativeMap relative_map_;
 };
 
 CYBER_REGISTER_COMPONENT(RelativeMapComponent)

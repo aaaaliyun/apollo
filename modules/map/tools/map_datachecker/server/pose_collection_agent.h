@@ -27,23 +27,22 @@
 namespace apollo {
 namespace hdmap {
 
-class PoseCollectionAgent {
- public:
-  explicit PoseCollectionAgent(std::shared_ptr<JSonConf> sp_conf);
+class PoseCollectionAgent 
+{
+public:
+        explicit PoseCollectionAgent(std::shared_ptr<JSonConf> sp_conf);
 
-  void OnBestgnssposCallback(
-      const std::shared_ptr<const apollo::drivers::gnss::GnssBestPose>
-          &bestgnsspos);
-  std::shared_ptr<std::vector<FramePose>> GetPoses() const;
+        void OnBestgnssposCallback(const std::shared_ptr<const apollo::drivers::gnss::GnssBestPose> &bestgnsspos);
+        std::shared_ptr<std::vector<FramePose>> GetPoses() const;
 
- private:
-  void Reset();
+private:
+        void Reset();
 
- private:
-  std::mutex mutex_;
-  std::shared_ptr<PoseCollection> sp_pose_collection_ = nullptr;
-  std::shared_ptr<JSonConf> sp_conf_ = nullptr;
-  std::shared_ptr<PJTransformer> sp_pj_transformer_ = nullptr;
+private:
+        std::mutex mutex_;
+        std::shared_ptr<PoseCollection> sp_pose_collection_ = nullptr;
+        std::shared_ptr<JSonConf> sp_conf_ = nullptr;
+        std::shared_ptr<PJTransformer> sp_pj_transformer_ = nullptr;
 };
 
 }  // namespace hdmap

@@ -27,41 +27,46 @@ constexpr double kDEGRESS_TO_RADIANS = M_PI / 180.0;
 namespace apollo {
 namespace hdmap {
 
-MapDataCheckerCyberNode::MapDataCheckerCyberNode(
-    std::shared_ptr<MapDataCheckerAgent> agent, bool *init_success) {
-  if (!agent) {
-    AFATAL << "MapDataCheckerAgent pointer is nullptr";
-    *init_success = false;
-    return;
-  }
+MapDataCheckerCyberNode::MapDataCheckerCyberNode(std::shared_ptr<MapDataCheckerAgent> agent, bool *init_success) 
+{
+        if (!agent) 
+        {
+                AFATAL << "MapDataCheckerAgent pointer is nullptr";
+                *init_success = false;
+                return;
+        }
 
-  agent_ = agent->GetWorkerAgent();
-  node_ = apollo::cyber::CreateNode(std::string("cybernode_map_datachecker"));
-  if (!node_) {
-    AFATAL << "Create cybertron node failed.";
-    *init_success = false;
-    return;
-  }
+        agent_ = agent->GetWorkerAgent();
+        node_ = apollo::cyber::CreateNode(std::string("cybernode_map_datachecker"));
+        if (!node_) 
+        {
+                AFATAL << "Create cybertron node failed.";
+                *init_success = false;
+                return;
+        }
 
-  // Readers
-  CreateChannelSubscriber();
+        // Readers
+        CreateChannelSubscriber();
 
-  *init_success = true;
-  AINFO << "map-datachecker cyber node create successfully";
+        *init_success = true;
+        AINFO << "map-datachecker cyber node create successfully";
 }
 
-int MapDataCheckerCyberNode::CreateChannelSubscriber() {
-  AINFO << "create bestgnsspos reader, topic: " << FLAGS_topic_bestgnsspos;
-  bestgnsspos_reader_ = node_->CreateReader<GnssBestPose_t>(
-      FLAGS_topic_bestgnsspos,
-      [this](const std::shared_ptr<const GnssBestPose_t> &msg) {
-        agent_->GetSpPoseCollectionAgent()->OnBestgnssposCallback(msg);
-      });
-  if (!bestgnsspos_reader_) {
-    AFATAL << "create bestgnsspos reader error";
-    return -1;
-  }
-  return 0;
+int MapDataCheckerCyberNode::CreateChannelSubscriber() 
+{
+        AINFO << "create bestgnsspos reader, topic: " << FLAGS_topic_bestgnsspos;
+        
+        bestgnsspos_reader_ = node_->CreateReader<GnssBestPose_t>(FLAGS_topic_bestgnsspos, [this](const std::shared_ptr<const GnssBestPose_t> &msg) 
+        {
+                        agent_->GetSpPoseCollectionAgent()->OnBestgnssposCallback(msg);
+        });
+
+        if (!bestgnsspos_reader_) 
+        {
+                AFATAL << "create bestgnsspos reader error";
+                return -1;
+        }
+        return 0;
 }
 
 }  // namespace hdmap

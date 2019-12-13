@@ -30,31 +30,31 @@ DEFINE_string(navigation_dummy_file,
               "modules/map/testdata/navigation_dummy/navigation_info.pb.txt",
               "Used for sending navigation result to relative_map node.");
 
-int main(int argc, char** argv) {
-  google::ParseCommandLineFlags(&argc, &argv, true);
-  // Init the cyber framework
-  apollo::cyber::Init(argv[0]);
-  FLAGS_alsologtostderr = true;
+int main(int argc, char** argv) 
+{
+        google::ParseCommandLineFlags(&argc, &argv, true);
+        // Init the cyber framework
+        apollo::cyber::Init(argv[0]);
+        FLAGS_alsologtostderr = true;
 
-  apollo::relative_map::NavigationInfo navigation_info;
-  if (!apollo::cyber::common::GetProtoFromFile(FLAGS_navigation_dummy_file,
-                                               &navigation_info)) {
-    AERROR << "failed to load file: " << FLAGS_navigation_dummy_file;
-    return -1;
-  }
+        apollo::relative_map::NavigationInfo navigation_info;
+        if (!apollo::cyber::common::GetProtoFromFile(FLAGS_navigation_dummy_file, &navigation_info)) 
+        {
+                AERROR << "failed to load file: " << FLAGS_navigation_dummy_file;
+                return -1;
+        }
 
-  std::shared_ptr<apollo::cyber::Node> node(
-      apollo::cyber::CreateNode("navigation_info"));
-  auto writer = node->CreateWriter<apollo::relative_map::NavigationInfo>(
-      FLAGS_navigation_topic);
-  Rate rate(0.3);
+        std::shared_ptr<apollo::cyber::Node> node(apollo::cyber::CreateNode("navigation_info"));
+        auto writer = node->CreateWriter<apollo::relative_map::NavigationInfo>(FLAGS_navigation_topic);
+        Rate rate(0.3);
 
-  while (apollo::cyber::OK()) {
-    apollo::common::util::FillHeader(node->Name(), &navigation_info);
-    writer->Write(navigation_info);
-    ADEBUG << "Sending navigation info:" << navigation_info.DebugString();
-    rate.Sleep();
-  }
+        while (apollo::cyber::OK()) 
+        {
+                apollo::common::util::FillHeader(node->Name(), &navigation_info);
+                writer->Write(navigation_info);
+                ADEBUG << "Sending navigation info:" << navigation_info.DebugString();
+                rate.Sleep();
+        }
 
-  return 0;
+        return 0;
 }

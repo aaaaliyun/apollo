@@ -19,7 +19,7 @@
 #include <string>
 
 #include "modules/map/relative_map/proto/navigation.pb.h"
-#include "modules/map/relative_map/proto/relative_map_config.pb.h"
+#include         "modules/map/relative_map/proto/relative_map_config.pb.h"
 #include "modules/perception/proto/perception_obstacle.pb.h"
 
 #include "modules/common/monitor_log/monitor_log_buffer.h"
@@ -29,60 +29,60 @@
 namespace apollo {
 namespace relative_map {
 
-class RelativeMap {
- public:
-  RelativeMap();
+class RelativeMap 
+{
+public:
+        RelativeMap();
 
-  /**
-   * @brief module name
-   */
-  std::string Name() const { return "RelativeMap"; }
+        /**
+        * @brief module name
+        */
+        std::string Name() const { return "RelativeMap"; }
 
-  /**
-   * @brief module initialization function
-   * @return initialization status
-   */
-  apollo::common::Status Init();
+        /**
+        * @brief module initialization function
+        * @return initialization status
+        */
+        apollo::common::Status Init();
 
-  /**
-   * @brief module start function
-   * @return start status
-   */
-  apollo::common::Status Start();
+        /**
+        * @brief module start function
+        * @return start status
+        */
+        apollo::common::Status Start();
 
-  /**
-   * @brief module stop function
-   */
-  void Stop();
+        /**
+        * @brief module stop function
+        */
+        void Stop();
 
-  /**
-   * @brief destructor
-   */
-  virtual ~RelativeMap() = default;
+        /**
+        * @brief destructor
+        */
+        virtual ~RelativeMap() = default;
 
-  /**
-   * @brief main logic of the relative_map module, runs periodically triggered
-   * by timer.
-   */
-  bool Process(MapMsg* const map_msg);
+        /**
+        * @brief main logic of the relative_map module, runs periodically triggered
+        * by timer.
+        */
+        bool Process(MapMsg* const map_msg);
 
-  void OnPerception(
-      const perception::PerceptionObstacles& perception_obstacles);
-  void OnChassis(const canbus::Chassis& chassis);
-  void OnLocalization(const localization::LocalizationEstimate& localization);
-  void OnNavigationInfo(const NavigationInfo& navigation_info);
+        void OnPerception(const perception::PerceptionObstacles& perception_obstacles);
+        void OnChassis(const canbus::Chassis& chassis);
+        void OnLocalization(const localization::LocalizationEstimate& localization);
+        void OnNavigationInfo(const NavigationInfo& navigation_info);
 
- private:
-  bool CreateMapFromNavigationLane(MapMsg* map_msg);
-  RelativeMapConfig config_;
-  apollo::common::monitor::MonitorLogBuffer monitor_logger_buffer_;
+private:
+        bool CreateMapFromNavigationLane(MapMsg* map_msg);
+        RelativeMapConfig config_;
+        apollo::common::monitor::MonitorLogBuffer monitor_logger_buffer_;
 
-  NavigationLane navigation_lane_;
-  perception::PerceptionObstacles perception_obstacles_;
-  canbus::Chassis chassis_;
-  localization::LocalizationEstimate localization_;
+        NavigationLane navigation_lane_;
+        perception::PerceptionObstacles perception_obstacles_;
+        canbus::Chassis chassis_;
+        localization::LocalizationEstimate localization_;
 
-  std::mutex navigation_lane_mutex_;
+        std::mutex navigation_lane_mutex_;
 };
 
 }  // namespace relative_map

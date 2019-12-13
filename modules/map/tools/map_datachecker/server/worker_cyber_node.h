@@ -25,27 +25,26 @@ namespace hdmap {
 
 class MapDataCheckerAgent;
 
-class MapDataCheckerCyberNode
-    : public std::enable_shared_from_this<MapDataCheckerCyberNode> {
- public:
-  using GnssBestPose_t = apollo::drivers::gnss::GnssBestPose;
+class MapDataCheckerCyberNode : public std::enable_shared_from_this<MapDataCheckerCyberNode> 
+{
+public:
+        using GnssBestPose_t = apollo::drivers::gnss::GnssBestPose;
 
- public:
-  MapDataCheckerCyberNode(std::shared_ptr<MapDataCheckerAgent> agent,
-                          bool *init_success);
+public:
+        MapDataCheckerCyberNode(std::shared_ptr<MapDataCheckerAgent> agent, bool *init_success);
 
-  inline std::shared_ptr<MapDataCheckerCyberNode> GetWorkerCyberNode() {
-    return shared_from_this();
-  }
+        inline std::shared_ptr<MapDataCheckerCyberNode> GetWorkerCyberNode() 
+        {
+                return shared_from_this();
+        }
 
- private:
-  int CreateChannelSubscriber();
+private:
+        int CreateChannelSubscriber();
 
- private:
-  std::shared_ptr<apollo::cyber::Node> node_ = nullptr;
-  std::shared_ptr<apollo::cyber::Reader<GnssBestPose_t>> bestgnsspos_reader_ =
-      nullptr;
-  std::shared_ptr<MapDataCheckerAgent> agent_ = nullptr;
+private:
+        std::shared_ptr<apollo::cyber::Node> node_ = nullptr;
+        std::shared_ptr<apollo::cyber::Reader<GnssBestPose_t>> bestgnsspos_reader_ = nullptr;
+        std::shared_ptr<MapDataCheckerAgent> agent_ = nullptr;
 };
 
 }  // namespace hdmap

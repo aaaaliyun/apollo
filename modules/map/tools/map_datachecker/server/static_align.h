@@ -24,41 +24,45 @@
 namespace apollo {
 namespace hdmap {
 
-enum class StaticAlignDetectMethod {
-  RANSAC,
-  DYNAMIC_CENTROID,
+enum class StaticAlignDetectMethod 
+{
+        RANSAC,
+        DYNAMIC_CENTROID,
 };
 
-typedef struct Point3d {
-  Point3d() : x(0.0), y(0.0), z(0.0) {}
-  double x, y, z;
+typedef struct Point3d 
+{
+        Point3d() : x(0.0), y(0.0), z(0.0) {}
+        double x, y, z;
 } Point3d;
 
-typedef struct Centroid3D {
-  Centroid3D() : count(0), start_time(0.0), end_time(0.0) {}
-  Point3d center;
-  int count;
-  double start_time, end_time;
+typedef struct Centroid3D 
+{
+        Centroid3D() : count(0), start_time(0.0), end_time(0.0) {}
+        Point3d center;
+        int count;
+        double start_time, end_time;
 } Centroid3D;
 
-class StaticAlign : public Alignment {
- public:
-  explicit StaticAlign(std::shared_ptr<JSonConf> sp_conf);
-  ErrorCode Process(const std::vector<FramePose>& poses);
+class StaticAlign : public Alignment 
+{
+public:
+        explicit StaticAlign(std::shared_ptr<JSonConf> sp_conf);
+        ErrorCode Process(const std::vector<FramePose>& poses);
 
- private:
-  void Reset();
-  double GetStaticAlignProgress(const std::vector<FramePose>& poses);
-  double StaticAlignRansac(const std::vector<FramePose>& poses);
-  double StaticAlignDynamicCentroid(const std::vector<FramePose>& poses);
-  double GetCentroidTimeDuring();
-  void UpdateDynamicCentroid(const FramePose& pose);
-  bool IsStaticPose(const FramePose& pose);
-  void UpdateGoodPoseInfo(const FramePose& pose);
+private:
+        void Reset();
+        double GetStaticAlignProgress(const std::vector<FramePose>& poses);
+        double StaticAlignRansac(const std::vector<FramePose>& poses);
+        double StaticAlignDynamicCentroid(const std::vector<FramePose>& poses);
+        double GetCentroidTimeDuring();
+        void UpdateDynamicCentroid(const FramePose& pose);
+        bool IsStaticPose(const FramePose& pose);
+        void UpdateGoodPoseInfo(const FramePose& pose);
 
- private:
-  StaticAlignDetectMethod static_align_detect_method_;
-  Centroid3D dynamic_centroid_;
+private:
+        StaticAlignDetectMethod static_align_detect_method_;
+        Centroid3D dynamic_centroid_;
 };
 
 }  // namespace hdmap

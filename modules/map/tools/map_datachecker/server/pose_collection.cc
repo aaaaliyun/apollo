@@ -18,24 +18,29 @@
 namespace apollo {
 namespace hdmap {
 
-PoseCollection::PoseCollection(std::shared_ptr<JSonConf> sp_conf) {
-  sp_conf_ = sp_conf;
-  Reset();
+PoseCollection::PoseCollection(std::shared_ptr<JSonConf> sp_conf) 
+{
+        sp_conf_ = sp_conf;
+        Reset();
 }
 
-void PoseCollection::Reset() {
-  sp_poses_ = std::make_shared<std::vector<FramePose>>();
+void PoseCollection::Reset() 
+{
+        sp_poses_ = std::make_shared<std::vector<FramePose>>();
 }
 
-void PoseCollection::Collect(const FramePose& pose) {
-  if (sp_poses_ == nullptr) {
-    sp_poses_ = std::make_shared<std::vector<FramePose>>();
-  }
-  sp_poses_->push_back(pose);
+void PoseCollection::Collect(const FramePose& pose) 
+{
+        if (sp_poses_ == nullptr) 
+        {
+                sp_poses_ = std::make_shared<std::vector<FramePose>>();
+        }
+        sp_poses_->push_back(pose);
 }
 
-std::shared_ptr<std::vector<FramePose>> PoseCollection::GetPoses() const {
-  return sp_poses_;
+std::shared_ptr<std::vector<FramePose>> PoseCollection::GetPoses() const 
+{
+        return sp_poses_;
 }
 
 }  // namespace hdmap

@@ -26,53 +26,53 @@
 namespace apollo {
 namespace hdmap {
 
-struct GridMeta {
-  double alpha;
-  std::vector<int> idxs;
+struct GridMeta 
+{
+        double alpha;
+        std::vector<int> idxs;
 };
+
 typedef std::vector<GridMeta> Grid;
 
-class LapsChecker {
- public:
-  explicit LapsChecker(const std::vector<FramePose>& poses, int laps_to_check,
-                       std::shared_ptr<JSonConf> sp_conf);
-  ErrorCode Check();
-  double GetProgress() const;
-  double GetConfidence();
-  size_t GetLap() const;
-  ErrorCode GetReturnState();
+class LapsChecker 
+{
+public:
+        explicit LapsChecker(const std::vector<FramePose>& poses, int laps_to_check, std::shared_ptr<JSonConf> sp_conf);
+        ErrorCode Check();
+        double GetProgress() const;
+        double GetConfidence();
+        size_t GetLap() const;
+        ErrorCode GetReturnState();
 
- private:
-  void DoCheck();
-  int SetupGridsMap();
-  int CheckLaps();
-  int CheckParams();
-  int GetMinMax();
-  int DoSetupGridsMap();
-  double CalcAlpha(int pose_index);
-  int PutPoseToGrid(int pose_index, int grid_y, int grid_x);
-  int PutPoseToNeighborGrid(int pose_index);
-  int GetPassedGrid(int pose_index, std::vector<int>* sp_grid_x,
-                    std::vector<int>* sp_grid_y);
-  double Slope(double x1, double y1, double x2, double y2);
-  int GatherTimestamps(std::vector<double>* sp_stamps, double alpha,
-                       int center_x, int center_y);
-  inline int SetProgress(double p);
+private:
+        void DoCheck();
+        int SetupGridsMap();
+        int CheckLaps();
+        int CheckParams();
+        int GetMinMax();
+        int DoSetupGridsMap();
+        double CalcAlpha(int pose_index);
+        int PutPoseToGrid(int pose_index, int grid_y, int grid_x);
+        int PutPoseToNeighborGrid(int pose_index);
+        int GetPassedGrid(int pose_index, std::vector<int>* sp_grid_x, std::vector<int>* sp_grid_y);
+        double Slope(double x1, double y1, double x2, double y2);
+        int GatherTimestamps(std::vector<double>* sp_stamps, double alpha, int center_x, int center_y);
+        inline int SetProgress(double p);
 
- public:
-  const std::vector<FramePose>& poses_;
-  double maxx_, maxy_, minx_, miny_;
-  std::vector<std::vector<Grid>> grids_map_;
-  bool finished_;
+public:
+        const std::vector<FramePose>& poses_;
+        double maxx_, maxy_, minx_, miny_;
+        std::vector<std::vector<Grid>> grids_map_;
+        bool finished_;
 
- private:
-  std::vector<double> confidence_;
-  double progress_;
-  size_t laps_to_check_;
-  size_t possible_max_laps_;
-  size_t lap_;
-  std::shared_ptr<JSonConf> sp_conf_;
-  ErrorCode return_state_;
+private:
+        std::vector<double> confidence_;
+        double progress_;
+        size_t laps_to_check_;
+        size_t possible_max_laps_;
+        size_t lap_;
+        std::shared_ptr<JSonConf> sp_conf_;
+        ErrorCode return_state_;
 };
 
 }  // namespace hdmap

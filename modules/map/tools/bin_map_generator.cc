@@ -27,26 +27,24 @@ limitations under the License.
 
 DEFINE_string(output_dir, "/tmp", "output map directory");
 
-int main(int argc, char **argv) {
-  google::InitGoogleLogging(argv[0]);
-  FLAGS_alsologtostderr = true;
+int main(int argc, char **argv) 
+{
+        google::InitGoogleLogging(argv[0]);
+        FLAGS_alsologtostderr = true;
 
-  google::ParseCommandLineFlags(&argc, &argv, true);
+        google::ParseCommandLineFlags(&argc, &argv, true);
 
-  const auto map_filename = FLAGS_map_dir + "/base_map.txt";
-  apollo::hdmap::Map pb_map;
-  CHECK(apollo::cyber::common::GetProtoFromFile(map_filename, &pb_map))
-      << "fail to load data from : " << map_filename;
+        const auto map_filename = FLAGS_map_dir + "/base_map.txt";
+        apollo::hdmap::Map pb_map;
+        CHECK(apollo::cyber::common::GetProtoFromFile(map_filename, &pb_map)) << "fail to load data from : " << map_filename;
 
-  const std::string output_bin_file = FLAGS_output_dir + "/base_map.bin";
-  CHECK(apollo::cyber::common::SetProtoToBinaryFile(pb_map, output_bin_file))
-      << "failed to output binary format base map";
+        const std::string output_bin_file = FLAGS_output_dir + "/base_map.bin";
+        CHECK(apollo::cyber::common::SetProtoToBinaryFile(pb_map, output_bin_file)) << "failed to output binary format base map";
 
-  pb_map.Clear();
-  CHECK(apollo::cyber::common::GetProtoFromFile(output_bin_file, &pb_map))
-      << "failed to load map,transform map failed";
+        pb_map.Clear();
+        CHECK(apollo::cyber::common::GetProtoFromFile(output_bin_file, &pb_map)) << "failed to load map,transform map failed";
 
-  AINFO << "transform map into .bin map success";
+        AINFO << "transform map into .bin map success";
 
-  return 0;
+        return 0;
 }

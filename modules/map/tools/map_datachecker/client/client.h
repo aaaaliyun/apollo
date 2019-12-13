@@ -22,22 +22,23 @@
 namespace apollo {
 namespace hdmap {
 
-class Client {
- public:
-  Client();
-  int Run();
+class Client 
+{
+public:
+        Client();
+        int Run();
 
- private:
-  int RecordCheckStage();
-  int StaticAlignStage();
-  int EightRouteStage();
-  int DataCollectStage();
-  int LoopsCheckStage();
-  int CleanStage();
+private:
+        int RecordCheckStage();
+        int StaticAlignStage();
+        int EightRouteStage();
+        int DataCollectStage();
+        int LoopsCheckStage();
+        int CleanStage();
 
- private:
-  std::string data_collect_time_flag_file_;
-  std::string channel_checker_stop_flag_file_;
+private:
+        std::string data_collect_time_flag_file_;
+        std::string channel_checker_stop_flag_file_;
 };
 
 }  // namespace hdmap

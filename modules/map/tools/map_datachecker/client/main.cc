@@ -17,23 +17,28 @@
 #include "modules/map/tools/map_datachecker/client/client.h"
 #include "modules/map/tools/map_datachecker/client/client_gflags.h"
 
-int main(int argc, char** argv) {
-  google::ParseCommandLineFlags(&argc, &argv, true);
+int main(int argc, char** argv) 
+{
+        google::ParseCommandLineFlags(&argc, &argv, true);
 
-  AINFO << "cyber init";
-  if (apollo::cyber::Init(argv[0])) {
-    AINFO << "init succeed";
-  } else {
-    AERROR << "init failed";
-  }
+        AINFO << "cyber init";
+        if (apollo::cyber::Init(argv[0])) 
+        {
+                AINFO << "init succeed";
+        } 
+        else 
+        {
+                AERROR << "init failed";
+        }
 
-  google::SetStderrLogging(FLAGS_minloglevel);
+        google::SetStderrLogging(FLAGS_minloglevel);
 
-  AINFO << "Starting Client";
-  apollo::hdmap::Client client;
-  if (client.Run() != 0) {
-    AFATAL << "Start Client Failed!";
-    return -1;
-  }
-  return 0;
+        AINFO << "Starting Client";
+        apollo::hdmap::Client client;
+        if (client.Run() != 0) 
+        {
+                AFATAL << "Start Client Failed!";
+                return -1;
+        }
+        return 0;
 }
