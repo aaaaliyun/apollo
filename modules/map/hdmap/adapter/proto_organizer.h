@@ -28,48 +28,40 @@ namespace apollo {
 namespace hdmap {
 namespace adapter {
 
-struct ProtoData {
-  PbHeader header;
-  std::unordered_map<std::string, PbLane> pb_lanes;
-  std::unordered_map<std::string, PbRoad> pb_roads;
-  std::unordered_map<std::string, PbCrosswalk> pb_crosswalks;
-  std::unordered_map<std::string, PbClearArea> pb_clear_areas;
-  std::unordered_map<std::string, PbSpeedBump> pb_speed_bumps;
-  std::unordered_map<std::string, PbJunction> pb_junction;
-  std::unordered_map<std::string, PbSignal> pb_signals;
-  std::unordered_map<std::string, PbStopSign> pb_stop_signs;
-  std::unordered_map<std::string, PbYieldSign> pb_yield_signs;
-  std::unordered_map<std::string, PbOverlap> pb_overlaps;
-  std::unordered_map<std::string, PbJunction> pb_junctions;
-  std::unordered_map<std::string, StopLineInternal> pb_stop_lines;
-  std::unordered_map<std::string, PbParkingSpace> pb_parking_spaces;
-  std::unordered_map<std::string, PbPNCJunction> pb_pnc_junctions;
+struct ProtoData 
+{
+        PbHeader header;
+        std::unordered_map<std::string, PbLane> pb_lanes;
+        std::unordered_map<std::string, PbRoad> pb_roads;
+        std::unordered_map<std::string, PbCrosswalk> pb_crosswalks;
+        std::unordered_map<std::string, PbClearArea> pb_clear_areas;
+        std::unordered_map<std::string, PbSpeedBump> pb_speed_bumps;
+        std::unordered_map<std::string, PbJunction> pb_junction;
+        std::unordered_map<std::string, PbSignal> pb_signals;
+        std::unordered_map<std::string, PbStopSign> pb_stop_signs;
+        std::unordered_map<std::string, PbYieldSign> pb_yield_signs;
+        std::unordered_map<std::string, PbOverlap> pb_overlaps;
+        std::unordered_map<std::string, PbJunction> pb_junctions;
+        std::unordered_map<std::string, StopLineInternal> pb_stop_lines;
+        std::unordered_map<std::string, PbParkingSpace> pb_parking_spaces;
+        std::unordered_map<std::string, PbPNCJunction> pb_pnc_junctions;
 };
 
-class ProtoOrganizer {
- public:
-  void GetRoadElements(std::vector<RoadInternal>* roads);
-  void GetJunctionElements(const std::vector<JunctionInternal>& junctions);
-  void GetOverlapElements(const std::vector<RoadInternal>& roads,
-                          const std::vector<JunctionInternal>& junctions);
-  void OutputData(apollo::hdmap::Map* pb_map);
+class ProtoOrganizer 
+{
+public:
+        void GetRoadElements(std::vector<RoadInternal>* roads);
+        void GetJunctionElements(const std::vector<JunctionInternal>& junctions);
+        void GetOverlapElements(const std::vector<RoadInternal>& roads, const std::vector<JunctionInternal>& junctions);
+        void OutputData(apollo::hdmap::Map* pb_map);
 
- private:
-  void GetLaneObjectOverlapElements(
-      const std::string& lane_id,
-      const std::vector<OverlapWithLane>& overlap_with_lanes);
-  void GetLaneSignalOverlapElements(
-      const std::string& lane_id,
-      const std::vector<OverlapWithLane>& overlap_with_lanes);
-  void GetLaneJunctionOverlapElements(
-      const std::string& lane_id,
-      const std::vector<OverlapWithLane>& overlap_with_lanes);
-  void GetLaneLaneOverlapElements(
-      const std::unordered_map<std::pair<std::string, std::string>,
-                               OverlapWithLane, apollo::common::util::PairHash>&
-          lane_lane_overlaps);
-  void GetJunctionObjectOverlapElements(
-      const std::vector<JunctionInternal>& junctions);
+private:
+        void GetLaneObjectOverlapElements(const std::string& lane_id, const std::vector<OverlapWithLane>& overlap_with_lanes);
+        void GetLaneSignalOverlapElements(const std::string& lane_id, const std::vector<OverlapWithLane>& overlap_with_lanes);
+        void GetLaneJunctionOverlapElements(
+        const std::string& lane_id, const std::vector<OverlapWithLane>& overlap_with_lanes);
+        void GetLaneLaneOverlapElements(const std::unordered_map<std::pair<std::string, std::string>, OverlapWithLane, apollo::common::util::PairHash>& lane_lane_overlaps);
+        void GetJunctionObjectOverlapElements(const std::vector<JunctionInternal>& junctions);
 
  private:
   ProtoData proto_data_;

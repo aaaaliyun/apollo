@@ -23,27 +23,25 @@ namespace apollo {
 namespace hdmap {
 namespace adapter {
 
-class CoordinateConvertTool {
- public:
-  CoordinateConvertTool();
-  ~CoordinateConvertTool();
+class CoordinateConvertTool 
+{
+public:
+        CoordinateConvertTool();
+        ~CoordinateConvertTool();
 
- public:
-  static CoordinateConvertTool* GetInstance();
+public:
+        static CoordinateConvertTool* GetInstance();
 
- public:
-  Status SetConvertParam(const std::string& source_param,
-                         const std::string& dst_param);
-  Status CoordiateConvert(const double longitude, const double latitude,
-                          const double height_ellipsoid, double* utm_x,
-                          double* utm_y, double* utm_z);
+public:
+        Status SetConvertParam(const std::string& source_param, const std::string& dst_param);
+        Status CoordiateConvert(const double longitude, const double latitude, const double height_ellipsoid, double* utm_x, double* utm_y, double* utm_z);
 
- private:
-  std::string source_convert_param_;
-  std::string dst_convert_param_;
+private:
+        std::string source_convert_param_;
+        std::string dst_convert_param_;
 
-  projPJ pj_from_;
-  projPJ pj_to_;
+        projPJ pj_from_;
+        projPJ pj_to_;
 };
 
 }  // namespace adapter

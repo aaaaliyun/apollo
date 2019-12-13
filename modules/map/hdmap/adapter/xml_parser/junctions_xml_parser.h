@@ -25,10 +25,10 @@ namespace apollo {
 namespace hdmap {
 namespace adapter {
 
-class JunctionsXmlParser {
- public:
-  static Status Parse(const tinyxml2::XMLElement& xml_node,
-                      std::vector<JunctionInternal>* junctions);
+class JunctionsXmlParser 
+{
+public:
+        static Status Parse(const tinyxml2::XMLElement& xml_node, std::vector<JunctionInternal>* junctions);
 };
 
 }  // namespace adapter

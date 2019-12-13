@@ -31,9 +31,10 @@ namespace apollo {
 namespace hdmap {
 namespace adapter {
 
-class OpendriveAdapter {
- public:
-  static bool LoadData(const std::string& filename, apollo::hdmap::Map* pb_map);
+class OpendriveAdapter 
+{
+public:
+        static bool LoadData(const std::string& filename, apollo::hdmap::Map* pb_map);
 };
 
 }  // namespace adapter

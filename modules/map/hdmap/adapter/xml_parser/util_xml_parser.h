@@ -25,28 +25,22 @@ namespace apollo {
 namespace hdmap {
 namespace adapter {
 
-class UtilXmlParser {
- public:
-  static Status ParseCurve(const tinyxml2::XMLElement& xml_node,
-                           PbCurve* curve);
-  static Status ParseGeometry(const tinyxml2::XMLElement& xml_node,
-                              PbCurveSegment* curve_segment);
-  static Status ParsePointSet(const tinyxml2::XMLElement& xml_node,
-                              PbLineSegment* line_segment);
-  static Status ParseOutline(const tinyxml2::XMLElement& xml_node,
-                             PbPolygon* polygon);
-  static Status ParsePoint(const tinyxml2::XMLElement& xml_node, PbPoint3D* pt);
+class UtilXmlParser 
+{
+public:
+        static Status ParseCurve(const tinyxml2::XMLElement& xml_node, PbCurve* curve);
+        static Status ParseGeometry(const tinyxml2::XMLElement& xml_node, PbCurveSegment* curve_segment);
+        static Status ParsePointSet(const tinyxml2::XMLElement& xml_node, PbLineSegment* line_segment);
+        static Status ParseOutline(const tinyxml2::XMLElement& xml_node, PbPolygon* polygon);
+        static Status ParsePoint(const tinyxml2::XMLElement& xml_node, PbPoint3D* pt);
 
-  static std::string ToUpper(const std::string& s);
+        static std::string ToUpper(const std::string& s);
 
-  static void WGS84ToUTM(const double x, const double y, const double z,
-                         double* output_x, double* output_y, double* output_z);
+        static void WGS84ToUTM(const double x, const double y, const double z, double* output_x, double* output_y, double* output_z);
 
-  static double CurveLength(const PbCurve& curve);
+        static double CurveLength(const PbCurve& curve);
 
-  static tinyxml2::XMLError QueryStringAttribute(
-      const tinyxml2::XMLElement& xml_node, const std::string& name,
-      std::string* value);
+        static tinyxml2::XMLError QueryStringAttribute(const tinyxml2::XMLElement& xml_node, const std::string& name, std::string* value);
 };
 
 }  // namespace adapter
