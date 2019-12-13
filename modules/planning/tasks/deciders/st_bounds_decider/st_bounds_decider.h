@@ -38,7 +38,7 @@ namespace apollo {
 namespace planning {
 
 constexpr double kSTBoundsDeciderResolution = 0.1;
-constexpr double kSTPassableThreshold = 5.0;
+constexpr double kSTPassableThreshold = 3.0;
 
 class STBoundsDecider : public Decider {
  public:
@@ -73,7 +73,7 @@ class STBoundsDecider : public Decider {
                     std::vector<std::pair<std::string, ObjectDecisionType>>>>*
           available_choices);
 
-  void BackwardFlatten(
+  bool BackwardFlatten(
       std::vector<std::tuple<double, double, double>>* const st_bound);
 
   void RecordSTGraphDebug(

@@ -296,6 +296,57 @@ void ChannelMonitor::RunOnce(const double current_time)
 
 void ChannelMonitor::UpdateStatus(
     const apollo::dreamview::ChannelMonitorConfig& config,
+// <<<<<<< HEAD
+//     ComponentStatus* status, const bool update_freq, const double freq) 
+// {
+//         status->clear_status();
+
+//         const auto reader_message_pair = GetReaderAndLatestMessage(config.name());
+//         const auto reader = reader_message_pair.first;
+//         const auto message = reader_message_pair.second;
+
+//         if (reader == nullptr) 
+//         {
+//                 SummaryMonitor::EscalateStatus(ComponentStatus::UNKNOWN, absl::StrCat(config.name(), " is not registered in ChannelMonitor."), status);
+//                 return;
+//         }
+
+//         // Check channel delay
+//         const double delay = reader->GetDelaySec();
+//         if (delay < 0 || delay > config.delay_fatal()) 
+//         {
+//                 SummaryMonitor::EscalateStatus(ComponentStatus::FATAL, absl::StrCat(config.name(), " delayed for ", delay, " seconds."), status);
+//         }
+
+//         // Check channel fields
+//         const std::string field_sepr = ".";
+//         if (message != nullptr) 
+//         {
+//                 for (const auto& field : config.mandatory_fields()) 
+//                 {
+//                         if (!ValidateFields(*message, absl::StrSplit(field, field_sepr), 0)) 
+//                         {
+//                                 SummaryMonitor::EscalateStatus(ComponentStatus::ERROR, absl::StrCat(config.name(), " missing field ", field), status);
+//                         }
+//                 }
+//         }
+
+//         // Check channel frequency
+//         if (update_freq) 
+//         {
+//                 if (freq > config.max_frequency_allowed()) 
+//                 {
+//                         SummaryMonitor::EscalateStatus(ComponentStatus::WARN, absl::StrCat(config.name(), " has frequency ", freq, " > max allowed ", config.max_frequency_allowed()), status);
+//                 } 
+//                 else if (freq < config.min_frequency_allowed()) 
+//                 {
+//                         SummaryMonitor::EscalateStatus(ComponentStatus::WARN,absl::StrCat(config.name(), " has frequency ", freq, " < min allowed ", config.max_frequency_allowed()), status);
+//                 }
+//         }
+
+//         SummaryMonitor::EscalateStatus(ComponentStatus::OK, "", status);
+// >>>>>>> update_stream/master
+// =======
     ComponentStatus* status, const bool update_freq, const double freq) 
 {
         status->clear_status();
@@ -336,10 +387,10 @@ void ChannelMonitor::UpdateStatus(
                 if (freq > config.max_frequency_allowed()) 
                 {
                         SummaryMonitor::EscalateStatus(ComponentStatus::WARN, absl::StrCat(config.name(), " has frequency ", freq, " > max allowed ", config.max_frequency_allowed()), status);
-                } 
-                else if (freq < config.min_frequency_allowed()) 
+                }
+                if (freq < config.min_frequency_allowed()) 
                 {
-                        SummaryMonitor::EscalateStatus(ComponentStatus::WARN,absl::StrCat(config.name(), " has frequency ", freq, " < min allowed ", config.max_frequency_allowed()), status);
+                        SummaryMonitor::EscalateStatus(ComponentStatus::WARN, absl::StrCat(config.name(), " has frequency ", freq, " < min allowed ", config.max_frequency_allowed()), status);
                 }
         }
 
