@@ -287,7 +287,7 @@ void ProtoOrganizer::GetLaneJunctionOverlapElements(const std::string& lane_id, 
 void ProtoOrganizer::GetLaneLaneOverlapElements(const std::unordered_map<std::pair<std::string, std::string>, OverlapWithLane, PairHash>& lane_lane_overlaps) 
 {
         std::unordered_set<std::string> close_set;
-        for (atuto& overlap_lane_pair : lane_lane_overlaps) 
+        for (auto& overlap_lane_pair : lane_lane_overlaps) 
         {
                 auto& lane_id = overlap_lane_pair.first.first;
                 auto& overlap_lane = overlap_lane_pair.second;

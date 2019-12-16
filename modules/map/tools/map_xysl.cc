@@ -142,7 +142,7 @@ public:
                 return 0;
         }
 
-        oid PrintOverlap(const std::string &overlap_id) 
+        void PrintOverlap(const std::string &overlap_id) 
         {
                 const auto *overlap_ptr = GetOverlap(FLAGS_overlap);
                 if (overlap_ptr == nullptr) 
