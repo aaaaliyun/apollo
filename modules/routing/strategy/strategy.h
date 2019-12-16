@@ -21,11 +21,12 @@
 namespace apollo {
 namespace routing {
 
-class Strategy {
- public:
-  virtual ~Strategy() {}
+class Strategy 
+{
+public:
+        virtual ~Strategy() {}
 
-  virtual bool Search(const TopoGraph* graph, const SubTopoGraph* sub_graph,
+        virtual bool Search(const TopoGraph* graph, const SubTopoGraph* sub_graph,
                       const TopoNode* src_node, const TopoNode* dest_node,
                       std::vector<NodeWithRange>* const result_nodes) = 0;
 };

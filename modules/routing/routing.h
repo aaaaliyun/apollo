@@ -28,44 +28,44 @@
 namespace apollo {
 namespace routing {
 
-class Routing {
-  // friend class RoutingTestBase;
- public:
-  Routing();
+class Routing 
+{
+// friend class RoutingTestBase;
+public:
+        Routing();
 
-  /**
-   * @brief module name
-   */
-  std::string Name() const;
+        /**
+        * @brief module name
+        */
+        std::string Name() const;
 
-  /**
-   * @brief module initialization function
-   * @return initialization status
-   */
-  apollo::common::Status Init();
+        /**
+        * @brief module initialization function
+        * @return initialization status
+        */
+        apollo::common::Status Init();
 
-  /**
-   * @brief module start function
-   * @return start status
-   */
-  apollo::common::Status Start();
+        /**
+        * @brief module start function
+        * @return start status
+        */
+        apollo::common::Status Start();
 
-  /**
-   * @brief destructor
-   */
-  virtual ~Routing() = default;
+        /**
+        * @brief destructor
+        */
+        virtual ~Routing() = default;
 
-  bool Process(const std::shared_ptr<RoutingRequest> &routing_request,
-               RoutingResponse *const routing_response);
+        bool Process(const std::shared_ptr<RoutingRequest> &routing_request, RoutingResponse *const routing_response);
 
- private:
-  RoutingRequest FillLaneInfoIfMissing(const RoutingRequest &routing_request);
+private:
+        RoutingRequest FillLaneInfoIfMissing(const RoutingRequest &routing_request);
 
-  std::unique_ptr<Navigator> navigator_ptr_;
-  common::monitor::MonitorLogBuffer monitor_logger_buffer_;
+        std::unique_ptr<Navigator> navigator_ptr_;
+        common::monitor::MonitorLogBuffer monitor_logger_buffer_;
 
-  RoutingConfig routing_conf_;
-  const hdmap::HDMap *hdmap_ = nullptr;
+        RoutingConfig routing_conf_;
+        const hdmap::HDMap *hdmap_ = nullptr;
 };
 
 }  // namespace routing

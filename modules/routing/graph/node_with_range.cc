@@ -27,20 +27,23 @@ NodeWithRange::NodeWithRange(const TopoNode* node, double start_s, double end_s)
 
 NodeWithRange::~NodeWithRange() {}
 
-bool NodeWithRange::operator<(const NodeWithRange& other) const {
-  return StartS() > other.StartS();
+bool NodeWithRange::operator<(const NodeWithRange& other) const 
+{
+        return StartS() > other.StartS();
 }
 
 const TopoNode* NodeWithRange::GetTopoNode() const { return topo_node_; }
 
 bool NodeWithRange::IsVirtual() const { return topo_node_->IsVirtual(); }
 
-const std::string& NodeWithRange::RoadId() const {
-  return topo_node_->RoadId();
+const std::string& NodeWithRange::RoadId() const 
+{
+        return topo_node_->RoadId();
 }
 
-const std::string& NodeWithRange::LaneId() const {
-  return topo_node_->LaneId();
+const std::string& NodeWithRange::LaneId() const 
+{
+        return topo_node_->LaneId();
 }
 
 double NodeWithRange::FullLength() const { return topo_node_->Length(); }

@@ -25,28 +25,29 @@
 namespace apollo {
 namespace routing {
 
-class AStarStrategy : public Strategy {
- public:
-  explicit AStarStrategy(bool enable_change);
-  ~AStarStrategy() = default;
+class AStarStrategy : public Strategy 
+{
+public:
+        explicit AStarStrategy(bool enable_change);
+        ~AStarStrategy() = default;
 
-  virtual bool Search(const TopoGraph* graph, const SubTopoGraph* sub_graph,
+        virtual bool Search(const TopoGraph* graph, const SubTopoGraph* sub_graph,
                       const TopoNode* src_node, const TopoNode* dest_node,
                       std::vector<NodeWithRange>* const result_nodes);
 
- private:
-  void Clear();
-  double HeuristicCost(const TopoNode* src_node, const TopoNode* dest_node);
-  double GetResidualS(const TopoNode* node);
-  double GetResidualS(const TopoEdge* edge, const TopoNode* to_node);
+private:
+        void Clear();
+        double HeuristicCost(const TopoNode* src_node, const TopoNode* dest_node);
+        double GetResidualS(const TopoNode* node);
+        double GetResidualS(const TopoEdge* edge, const TopoNode* to_node);
 
- private:
-  bool change_lane_enabled_;
-  std::unordered_set<const TopoNode*> open_set_;
-  std::unordered_set<const TopoNode*> closed_set_;
-  std::unordered_map<const TopoNode*, const TopoNode*> came_from_;
-  std::unordered_map<const TopoNode*, double> g_score_;
-  std::unordered_map<const TopoNode*, double> enter_s_;
+private:
+        bool change_lane_enabled_;
+        std::unordered_set<const TopoNode*> open_set_;
+        std::unordered_set<const TopoNode*> closed_set_;
+        std::unordered_map<const TopoNode*, const TopoNode*> came_from_;
+        std::unordered_map<const TopoNode*, double> g_score_;
+        std::unordered_map<const TopoNode*, double> enter_s_;
 };
 
 }  // namespace routing

@@ -26,79 +26,79 @@ using apollo::common::ErrorCode;
 
 std::string Routing::Name() const { return FLAGS_routing_node_name; }
 
-Routing::Routing()
-    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::ROUTING) {}
+Routing::Routing() : monitor_logger_buffer_(common::monitor::MonitorMessageItem::ROUTING) {}
 
-apollo::common::Status Routing::Init() {
-  const auto routing_map_file = apollo::hdmap::RoutingMapFile();
-  AINFO << "Use routing topology graph path: " << routing_map_file;
-  navigator_ptr_.reset(new Navigator(routing_map_file));
-  CHECK(
-      cyber::common::GetProtoFromFile(FLAGS_routing_conf_file, &routing_conf_))
-      << "Unable to load routing conf file: " + FLAGS_routing_conf_file;
+apollo::common::Status Routing::Init() 
+{
+        const auto routing_map_file = apollo::hdmap::RoutingMapFile();
+        AINFO << "Use routing topology graph path: " << routing_map_file;
+        navigator_ptr_.reset(new Navigator(routing_map_file));
+        CHECK(cyber::common::GetProtoFromFile(FLAGS_routing_conf_file, &routing_conf_)) << "Unable to load routing conf file: " + FLAGS_routing_conf_file;
 
-  AINFO << "Conf file: " << FLAGS_routing_conf_file << " is loaded.";
+        AINFO << "Conf file: " << FLAGS_routing_conf_file << " is loaded.";
 
-  hdmap_ = apollo::hdmap::HDMapUtil::BaseMapPtr();
-  CHECK(hdmap_) << "Failed to load map file:" << apollo::hdmap::BaseMapFile();
+        hdmap_ = apollo::hdmap::HDMapUtil::BaseMapPtr();
+        CHECK(hdmap_) << "Failed to load map file:" << apollo::hdmap::BaseMapFile();
 
-  return apollo::common::Status::OK();
+        return apollo::common::Status::OK();
 }
 
-apollo::common::Status Routing::Start() {
-  if (!navigator_ptr_->IsReady()) {
-    AERROR << "Navigator is not ready!";
-    return apollo::common::Status(ErrorCode::ROUTING_ERROR,
-                                  "Navigator not ready");
-  }
-  AINFO << "Routing service is ready.";
-  monitor_logger_buffer_.INFO("Routing started");
-  return apollo::common::Status::OK();
+apollo::common::Status Routing::Start() 
+{
+        if (!navigator_ptr_->IsReady()) 
+        {
+                AERROR << "Navigator is not ready!";
+                return apollo::common::Status(ErrorCode::ROUTING_ERROR, "Navigator not ready");
+        }
+        AINFO << "Routing service is ready.";
+        monitor_logger_buffer_.INFO("Routing started");
+        return apollo::common::Status::OK();
 }
 
-RoutingRequest Routing::FillLaneInfoIfMissing(
-    const RoutingRequest& routing_request) {
-  RoutingRequest fixed_request(routing_request);
-  for (int i = 0; i < routing_request.waypoint_size(); ++i) {
-    const auto& lane_waypoint = routing_request.waypoint(i);
-    if (lane_waypoint.has_id()) {
-      continue;
-    }
-    const auto point =
-        common::util::PointFactory::ToPointENU(lane_waypoint.pose());
+RoutingRequest Routing::FillLaneInfoIfMissing(const RoutingRequest& routing_request) 
+{
+        RoutingRequest fixed_request(routing_request);
+        for (int i = 0; i < routing_request.waypoint_size(); ++i) 
+        {
+                const auto& lane_waypoint = routing_request.waypoint(i);
+                if (lane_waypoint.has_id()) 
+                {
+                        continue;
+                }
+                const auto point = common::util::PointFactory::ToPointENU(lane_waypoint.pose());
 
-    double s = 0.0;
-    double l = 0.0;
-    hdmap::LaneInfoConstPtr lane;
-    // FIXME(all): select one reasonable lane candidate for point=>lane
-    // is one to many relationship.
-    if (hdmap_->GetNearestLane(point, &lane, &s, &l) != 0) {
-      AERROR << "Failed to find nearest lane from map at position: "
-             << point.DebugString();
-      return routing_request;
-    }
-    auto waypoint_info = fixed_request.mutable_waypoint(i);
-    waypoint_info->set_id(lane->id().id());
-    waypoint_info->set_s(s);
-  }
-  AINFO << "Fixed routing request:" << fixed_request.DebugString();
-  return fixed_request;
+                double s = 0.0;
+                double l = 0.0;
+                hdmap::LaneInfoConstPtr lane;
+                // FIXME(all): select one reasonable lane candidate for point=>lane
+                // is one to many relationship.
+                if (hdmap_->GetNearestLane(point, &lane, &s, &l) != 0) 
+                {
+                        AERROR << "Failed to find nearest lane from map at position: " << point.DebugString();
+                        return routing_request;
+                }
+                auto waypoint_info = fixed_request.mutable_waypoint(i);
+                waypoint_info->set_id(lane->id().id());
+                waypoint_info->set_s(s);
+        }
+        AINFO << "Fixed routing request:" << fixed_request.DebugString();
+        return fixed_request;
 }
 
-bool Routing::Process(const std::shared_ptr<RoutingRequest>& routing_request,
-                      RoutingResponse* const routing_response) {
-  CHECK_NOTNULL(routing_response);
-  AINFO << "Get new routing request:" << routing_request->DebugString();
-  const auto& fixed_request = FillLaneInfoIfMissing(*routing_request);
-  if (!navigator_ptr_->SearchRoute(fixed_request, routing_response)) {
-    AERROR << "Failed to search route with navigator.";
+bool Routing::Process(const std::shared_ptr<RoutingRequest>& routing_request, RoutingResponse* const routing_response) 
+{
+        CHECK_NOTNULL(routing_response);
+        AINFO << "Get new routing request:" << routing_request->DebugString();
+        const auto& fixed_request = FillLaneInfoIfMissing(*routing_request);
+        if (!navigator_ptr_->SearchRoute(fixed_request, routing_response)) 
+        {
+                AERROR << "Failed to search route with navigator.";
 
-    monitor_logger_buffer_.WARN("Routing failed! " +
-                                routing_response->status().msg());
-    return false;
-  }
-  monitor_logger_buffer_.INFO("Routing success!");
-  return true;
+                monitor_logger_buffer_.WARN("Routing failed! " + routing_response->status().msg());
+                return false;
+        }
+        monitor_logger_buffer_.INFO("Routing success!");
+        return true;
 }
 
 }  // namespace routing

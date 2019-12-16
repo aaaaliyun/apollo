@@ -27,38 +27,34 @@
 namespace apollo {
 namespace routing {
 
-class GraphCreator {
- public:
-  GraphCreator(const std::string& base_map_file_path,
-               const std::string& dump_topo_file_path,
-               const RoutingConfig& routing_conf);
+class GraphCreator 
+{
+public:
+        GraphCreator(const std::string& base_map_file_path, const std::string& dump_topo_file_path, const RoutingConfig& routing_conf);
 
-  ~GraphCreator() = default;
+        ~GraphCreator() = default;
 
-  bool Create();
+        bool Create();
 
- private:
-  void InitForbiddenLanes();
-  std::string GetEdgeID(const std::string& from_id, const std::string& to_id);
+private:
+        void InitForbiddenLanes();
+        std::string GetEdgeID(const std::string& from_id, const std::string& to_id);
 
-  void AddEdge(
-      const Node& from_node,
-      const ::google::protobuf::RepeatedPtrField<hdmap::Id>& to_node_vec,
-      const Edge::DirectionType& type);
+        void AddEdge(const Node& from_node, const ::google::protobuf::RepeatedPtrField<hdmap::Id>& to_node_vec, const Edge::DirectionType& type);
 
-  static bool IsValidUTurn(const hdmap::Lane& lane, const double radius);
+        static bool IsValidUTurn(const hdmap::Lane& lane, const double radius);
 
- private:
-  std::string base_map_file_path_;
-  std::string dump_topo_file_path_;
-  hdmap::Map pbmap_;
-  Graph graph_;
-  std::unordered_map<std::string, int> node_index_map_;
-  std::unordered_map<std::string, std::string> road_id_map_;
-  std::unordered_set<std::string> showed_edge_id_set_;
-  std::unordered_set<std::string> forbidden_lane_id_set_;
+private:
+        std::string base_map_file_path_;
+        std::string dump_topo_file_path_;
+        hdmap::Map pbmap_;
+        Graph graph_;
+        std::unordered_map<std::string, int> node_index_map_;
+        std::unordered_map<std::string, std::string> road_id_map_;
+        std::unordered_set<std::string> showed_edge_id_set_;
+        std::unordered_set<std::string> forbidden_lane_id_set_;
 
-  const RoutingConfig& routing_conf_;
+        const RoutingConfig& routing_conf_;
 };
 
 }  // namespace routing

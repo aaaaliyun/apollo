@@ -27,66 +27,79 @@ namespace {
 
 void merge_block_range(const TopoNode* topo_node,
                        const std::vector<NodeSRange>& origin_range,
-                       std::vector<NodeSRange>* block_range) {
-  std::vector<NodeSRange> sorted_origin_range(origin_range);
-  std::sort(sorted_origin_range.begin(), sorted_origin_range.end());
-  size_t cur_index = 0;
-  auto total_size = sorted_origin_range.size();
-  while (cur_index < total_size) {
-    NodeSRange range(sorted_origin_range[cur_index]);
-    ++cur_index;
-    while (cur_index < total_size &&
-           range.MergeRangeOverlap(sorted_origin_range[cur_index])) {
-      ++cur_index;
-    }
-    if (range.EndS() < topo_node->StartS() ||
-        range.StartS() > topo_node->EndS()) {
-      continue;
-    }
-    range.SetStartS(std::max(topo_node->StartS(), range.StartS()));
-    range.SetEndS(std::min(topo_node->EndS(), range.EndS()));
-    block_range->push_back(std::move(range));
-  }
+                       std::vector<NodeSRange>* block_range) 
+{
+        std::vector<NodeSRange> sorted_origin_range(origin_range);
+        std::sort(sorted_origin_range.begin(), sorted_origin_range.end());
+        size_t cur_index = 0;
+        auto total_size = sorted_origin_range.size();
+        while (cur_index < total_size) 
+        {
+                NodeSRange range(sorted_origin_range[cur_index]);
+                ++cur_index;
+                while (cur_index < total_size && range.MergeRangeOverlap(sorted_origin_range[cur_index])) 
+                {
+                        ++cur_index;
+                }
+                if (range.EndS() < topo_node->StartS() || range.StartS() > topo_node->EndS()) 
+                {
+                        continue;
+                }
+                range.SetStartS(std::max(topo_node->StartS(), range.StartS()));
+                range.SetEndS(std::min(topo_node->EndS(), range.EndS()));
+                block_range->push_back(std::move(range));
+        }
 }
 
 }  // namespace
 
 const std::unordered_map<const TopoNode*, std::vector<NodeSRange>>&
-TopoRangeManager::RangeMap() const {
-  return range_map_;
-}
-const std::vector<NodeSRange>* TopoRangeManager::Find(
-    const TopoNode* node) const {
-  auto iter = range_map_.find(node);
-  if (iter == range_map_.end()) {
-    return nullptr;
-  } else {
-    return &(iter->second);
-  }
+TopoRangeManager::RangeMap() const 
+{
+        return range_map_;
 }
 
-void TopoRangeManager::PrintDebugInfo() const {
-  for (const auto& map : range_map_) {
-    for (const auto& range : map.second) {
-      AINFO << "black lane id: " << map.first->LaneId()
-            << ", start s: " << range.StartS() << ", end s: " << range.EndS();
-    }
-  }
+const std::vector<NodeSRange>* TopoRangeManager::Find(const TopoNode* node) const 
+{
+        auto iter = range_map_.find(node);
+        if (iter == range_map_.end()) 
+        {
+                return nullptr;
+        } 
+        else 
+        {
+                return &(iter->second);
+        }
+}
+
+void TopoRangeManager::PrintDebugInfo() const 
+{
+        for (const auto& map : range_map_) 
+        {
+                for (const auto& range : map.second) 
+                {
+                        AINFO << "black lane id: " << map.first->LaneId()
+                              << ", start s: " << range.StartS() << ", end s: " << range.EndS();
+                }
+        }
 }
 
 void TopoRangeManager::Clear() { range_map_.clear(); }
 
-void TopoRangeManager::Add(const TopoNode* node, double start_s, double end_s) {
-  NodeSRange range(start_s, end_s);
-  range_map_[node].push_back(range);
+void TopoRangeManager::Add(const TopoNode* node, double start_s, double end_s) 
+{
+        NodeSRange range(start_s, end_s);
+        range_map_[node].push_back(range);
 }
 
-void TopoRangeManager::SortAndMerge() {
-  for (auto& iter : range_map_) {
-    std::vector<NodeSRange> merged_range_vec;
-    merge_block_range(iter.first, iter.second, &merged_range_vec);
-    iter.second.assign(merged_range_vec.begin(), merged_range_vec.end());
-  }
+void TopoRangeManager::SortAndMerge() 
+{
+        for (auto& iter : range_map_) 
+        {
+                std::vector<NodeSRange> merged_range_vec;
+                merge_block_range(iter.first, iter.second, &merged_range_vec);
+                iter.second.assign(merged_range_vec.begin(), merged_range_vec.end());
+        }
 }
 
 }  // namespace routing

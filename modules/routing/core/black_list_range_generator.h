@@ -25,19 +25,14 @@
 namespace apollo {
 namespace routing {
 
-class BlackListRangeGenerator {
- public:
-  BlackListRangeGenerator() = default;
-  ~BlackListRangeGenerator() = default;
+class BlackListRangeGenerator 
+{
+public:
+        BlackListRangeGenerator() = default;
+        ~BlackListRangeGenerator() = default;
 
-  void GenerateBlackMapFromRequest(const RoutingRequest& request,
-                                   const TopoGraph* graph,
-                                   TopoRangeManager* const range_manager) const;
-
-  void AddBlackMapFromTerminal(const TopoNode* src_node,
-                               const TopoNode* dest_node, double start_s,
-                               double end_s,
-                               TopoRangeManager* const range_manager) const;
+        void GenerateBlackMapFromRequest(const RoutingRequest& request, const TopoGraph* graph, TopoRangeManager* const range_manager) const;
+        void AddBlackMapFromTerminal(const TopoNode* src_node, const TopoNode* dest_node, double start_s, double end_s, TopoRangeManager* const range_manager) const;
 };
 
 }  // namespace routing

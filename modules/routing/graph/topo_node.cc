@@ -34,63 +34,71 @@ const double kLenghtEpsilon = 1e-6;         // in meter
 using apollo::common::util::FindPtrOrNull;
 using ::google::protobuf::RepeatedPtrField;
 
-void ConvertOutRange(const RepeatedPtrField<CurveRange>& range_vec,
-                     double start_s, double end_s,
-                     std::vector<NodeSRange>* out_range, int* prefer_index) {
-  out_range->clear();
-  for (const auto& c_range : range_vec) {
-    double s_s = c_range.start().s();
-    double e_s = c_range.end().s();
-    if (e_s < start_s || s_s > end_s || e_s < s_s) {
-      continue;
-    }
-    s_s = std::max(start_s, s_s);
-    e_s = std::min(end_s, e_s);
-    NodeSRange s_range(s_s, e_s);
-    out_range->push_back(std::move(s_range));
-  }
-  sort(out_range->begin(), out_range->end());
-  int max_index = -1;
-  double max_diff = 0.0;
-  for (size_t i = 0; i < out_range->size(); ++i) {
-    if (out_range->at(i).Length() > max_diff) {
-      max_index = static_cast<int>(i);
-      max_diff = out_range->at(i).Length();
-    }
-  }
-  *prefer_index = max_index;
+void ConvertOutRange(const RepeatedPtrField<CurveRange>& range_vec, double start_s, double end_s, std::vector<NodeSRange>* out_range, int* prefer_index) 
+{
+        out_range->clear();
+        for (const auto& c_range : range_vec) 
+        {
+                double s_s = c_range.start().s();
+                double e_s = c_range.end().s();
+                if (e_s < start_s || s_s > end_s || e_s < s_s) 
+                {
+                        continue;
+                }
+                s_s = std::max(start_s, s_s);
+                e_s = std::min(end_s, e_s);
+                NodeSRange s_range(s_s, e_s);
+                out_range->push_back(std::move(s_range));
+        }
+        sort(out_range->begin(), out_range->end());
+        int max_index = -1;
+        double max_diff = 0.0;
+        for (size_t i = 0; i < out_range->size(); ++i) 
+        {
+                if (out_range->at(i).Length() > max_diff) 
+                {
+                        max_index = static_cast<int>(i);
+                        max_diff = out_range->at(i).Length();
+                }
+        }
+        *prefer_index = max_index;
 }
 
 }  // namespace
 
-bool TopoNode::IsOutRangeEnough(const std::vector<NodeSRange>& range_vec,
-                                double start_s, double end_s) {
-  if (!NodeSRange::IsEnoughForChangeLane(start_s, end_s)) {
-    return false;
-  }
-  int start_index = BinarySearchForSLarger(range_vec, start_s);
-  int end_index = BinarySearchForSSmaller(range_vec, end_s);
+bool TopoNode::IsOutRangeEnough(const std::vector<NodeSRange>& range_vec, double start_s, double end_s) 
+{
+        if (!NodeSRange::IsEnoughForChangeLane(start_s, end_s)) 
+        {
+                return false;
+        }
+        int start_index = BinarySearchForSLarger(range_vec, start_s);
+        int end_index = BinarySearchForSSmaller(range_vec, end_s);
 
-  int index_diff = end_index - start_index;
-  if (start_index < 0 || end_index < 0) {
-    return false;
-  }
-  if (index_diff > 1) {
-    return true;
-  }
+        int index_diff = end_index - start_index;
+        if (start_index < 0 || end_index < 0) 
+        {
+                return false;
+        }
+        if (index_diff > 1) 
+        {
+                return true;
+        }
 
-  double pre_s_s = std::max(start_s, range_vec[start_index].StartS());
-  double suc_e_s = std::min(end_s, range_vec[end_index].EndS());
+        double pre_s_s = std::max(start_s, range_vec[start_index].StartS());
+        double suc_e_s = std::min(end_s, range_vec[end_index].EndS());
 
-  if (index_diff == 1) {
-    double dlt = range_vec[start_index].EndS() - pre_s_s;
-    dlt += suc_e_s - range_vec[end_index].StartS();
-    return NodeSRange::IsEnoughForChangeLane(dlt);
-  }
-  if (index_diff == 0) {
-    return NodeSRange::IsEnoughForChangeLane(pre_s_s, suc_e_s);
-  }
-  return false;
+        if (index_diff == 1) 
+        {
+                double dlt = range_vec[start_index].EndS() - pre_s_s;
+                dlt += suc_e_s - range_vec[end_index].StartS();
+                return NodeSRange::IsEnoughForChangeLane(dlt);
+        }
+        if (index_diff == 0) 
+        {
+                return NodeSRange::IsEnoughForChangeLane(pre_s_s, suc_e_s);
+        }
+        return false;
 }
 
 TopoNode::TopoNode(const Node& node)

@@ -23,22 +23,23 @@
 namespace apollo {
 namespace routing {
 
-class NodeWithRange : public NodeSRange {
- public:
-  NodeWithRange(const NodeWithRange& other) = default;
-  NodeWithRange(const TopoNode* node, double start_s, double end_s);
-  NodeWithRange(const TopoNode* node, const NodeSRange& range);
-  virtual ~NodeWithRange();
-  bool operator<(const NodeWithRange& other) const;
+class NodeWithRange : public NodeSRange 
+{
+public:
+        NodeWithRange(const NodeWithRange& other) = default;
+        NodeWithRange(const TopoNode* node, double start_s, double end_s);
+        NodeWithRange(const TopoNode* node, const NodeSRange& range);
+        virtual ~NodeWithRange();
+        bool operator<(const NodeWithRange& other) const;
 
-  const TopoNode* GetTopoNode() const;
-  bool IsVirtual() const;
-  const std::string& RoadId() const;
-  const std::string& LaneId() const;
-  double FullLength() const;
+        const TopoNode* GetTopoNode() const;
+        bool IsVirtual() const;
+        const std::string& RoadId() const;
+        const std::string& LaneId() const;
+        double FullLength() const;
 
- private:
-  const TopoNode* topo_node_ = nullptr;
+private:
+        const TopoNode* topo_node_ = nullptr;
 };
 
 }  // namespace routing

@@ -24,22 +24,22 @@
 namespace apollo {
 namespace routing {
 
-class TopoRangeManager {
- public:
-  TopoRangeManager() = default;
-  virtual ~TopoRangeManager() = default;
+class TopoRangeManager 
+{
+public:
+        TopoRangeManager() = default;
+        virtual ~TopoRangeManager() = default;
 
-  const std::unordered_map<const TopoNode*, std::vector<NodeSRange>>& RangeMap()
-      const;
-  const std::vector<NodeSRange>* Find(const TopoNode* node) const;
-  void PrintDebugInfo() const;
+        const std::unordered_map<const TopoNode*, std::vector<NodeSRange>>& RangeMap() const;
+        const std::vector<NodeSRange>* Find(const TopoNode* node) const;
+        void PrintDebugInfo() const;
 
-  void Clear();
-  void Add(const TopoNode* node, double start_s, double end_s);
-  void SortAndMerge();
+        void Clear();
+        void Add(const TopoNode* node, double start_s, double end_s);
+        void SortAndMerge();
 
- private:
-  std::unordered_map<const TopoNode*, std::vector<NodeSRange>> range_map_;
+private:
+        std::unordered_map<const TopoNode*, std::vector<NodeSRange>> range_map_;
 };
 
 }  // namespace routing
