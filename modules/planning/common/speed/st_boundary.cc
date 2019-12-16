@@ -33,41 +33,6 @@ using apollo::common::math::LineSegment2d;
 using apollo::common::math::Vec2d;
 
 STBoundary::STBoundary(
-    const std::vector<std::pair<STPoint, STPoint>>& point_pairs) {
-  CHECK(IsValid(point_pairs)) << "The input point_pairs are NOT valid";
-
-  std::vector<std::pair<STPoint, STPoint>> reduced_pairs(point_pairs);
-  RemoveRedundantPoints(&reduced_pairs);
-
-  for (const auto& item : reduced_pairs) {
-    // use same t for both points
-    const double t = item.first.t();
-    lower_points_.emplace_back(item.first.s(), t);
-    upper_points_.emplace_back(item.second.s(), t);
-  }
-
-  for (const auto& point : lower_points_) {
-    points_.emplace_back(point.t(), point.s());
-  }
-  for (auto rit = upper_points_.rbegin(); rit != upper_points_.rend(); ++rit) {
-    points_.emplace_back(rit->t(), rit->s());
-  }
-
-  BuildFromPoints();
-
-  for (const auto& point : lower_points_) {
-    min_s_ = std::fmin(min_s_, point.s());
-  }
-  for (const auto& point : upper_points_) {
-    max_s_ = std::fmax(max_s_, point.s());
-  }
-  min_t_ = lower_points_.front().t();
-  max_t_ = lower_points_.back().t();
-
-  obstacle_road_right_ending_t_ = std::numeric_limits<double>::lowest();
-}
-
-STBoundary::STBoundary(
     const std::vector<std::pair<STPoint, STPoint>>& point_pairs,
     bool is_accurate_boundary) {
   CHECK(IsValid(point_pairs)) << "The input point_pairs are NOT valid";
@@ -179,9 +144,10 @@ bool STBoundary::GetUnblockSRange(const double curr_time, double* s_upper,
   }
 
   const double r =
-      (left == right ? 0.0 : (curr_time - upper_points_[left].t()) /
-                                 (upper_points_[right].t() -
-                                  upper_points_[left].t()));
+      (left == right
+           ? 0.0
+           : (curr_time - upper_points_[left].t()) /
+                 (upper_points_[right].t() - upper_points_[left].t()));
 
   double upper_cross_s =
       upper_points_[left].s() +
@@ -219,9 +185,10 @@ bool STBoundary::GetBoundarySRange(const double curr_time, double* s_upper,
     return false;
   }
   const double r =
-      (left == right ? 0.0 : (curr_time - upper_points_[left].t()) /
-                                 (upper_points_[right].t() -
-                                  upper_points_[left].t()));
+      (left == right
+           ? 0.0
+           : (curr_time - upper_points_[left].t()) /
+                 (upper_points_[right].t() - upper_points_[left].t()));
 
   *s_upper = upper_points_[left].s() +
              r * (upper_points_[right].s() - upper_points_[left].s());

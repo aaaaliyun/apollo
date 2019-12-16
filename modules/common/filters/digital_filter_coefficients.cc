@@ -58,13 +58,23 @@ void LpFirstOrderCoefficients(const double ts, const double settling_time,
                 return;
         }
 
-        const size_t k_d = static_cast<int>(dead_time / ts);
+// <<<<<<< HEAD
+//         const size_t k_d = static_cast<int>(dead_time / ts);
+//         double a_term;
+
+//         denominators->clear();
+//         numerators->clear();
+//         denominators->reserve(2);
+//         numerators->reserve(k_d);  // size depends on dead-time
+// =======
+        const size_t k_d = static_cast<size_t>(dead_time / ts);
         double a_term;
 
         denominators->clear();
         numerators->clear();
         denominators->reserve(2);
-        numerators->reserve(k_d);  // size depends on dead-time
+        numerators->reserve(k_d + 1);  // size depends on dead-time
+// >>>>>>> update_stream/master
 
         if (settling_time == 0.0) 
         {
@@ -75,10 +85,17 @@ void LpFirstOrderCoefficients(const double ts, const double settling_time,
                 a_term = exp(-1 * ts / settling_time);
         }
 
+// <<<<<<< HEAD
+//         denominators->push_back(1.0);
+//         denominators->push_back(-a_term);
+//         numerators->insert(numerators->end(), k_d - 1, 0.0);
+//         numerators->push_back(1 - a_term);
+// =======
         denominators->push_back(1.0);
         denominators->push_back(-a_term);
-        numerators->insert(numerators->end(), k_d - 1, 0.0);
+        numerators->insert(numerators->end(), k_d, 0.0);
         numerators->push_back(1 - a_term);
+// >>>>>>> update_stream/master
 }
 
 }  // namespace common
