@@ -16,11 +16,6 @@
 
 #include "modules/prediction/common/message_process.h"
 
-#include <algorithm>
-#include <iomanip>
-#include <limits>
-#include <vector>
-
 #include "cyber/common/file.h"
 #include "cyber/record/record_reader.h"
 
@@ -44,13 +39,13 @@ namespace apollo {
 namespace prediction {
 
 using apollo::common::adapter::AdapterConfig;
+using apollo::cyber::record::RecordMessage;
+using apollo::cyber::record::RecordReader;
 using apollo::localization::LocalizationEstimate;
 using apollo::perception::PerceptionObstacle;
 using apollo::perception::PerceptionObstacles;
 using apollo::planning::ADCTrajectory;
 using apollo::storytelling::Stories;
-using cyber::record::RecordMessage;
-using cyber::record::RecordReader;
 
 bool MessageProcess::Init() {
   InitContainers();

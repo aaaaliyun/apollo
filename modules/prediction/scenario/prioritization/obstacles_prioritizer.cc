@@ -16,9 +16,7 @@
 
 #include "modules/prediction/scenario/prioritization/obstacles_prioritizer.h"
 
-#include <algorithm>
 #include <limits>
-#include <memory>
 #include <queue>
 #include <unordered_map>
 #include <utility>
@@ -34,16 +32,14 @@
 namespace apollo {
 namespace prediction {
 
+using apollo::common::Point3D;
+using apollo::common::adapter::AdapterConfig;
+using apollo::common::math::Box2d;
+using apollo::common::math::Vec2d;
+using apollo::hdmap::LaneInfo;
+using apollo::hdmap::OverlapInfo;
 using apollo::perception::PerceptionObstacle;
-using common::Point3D;
-using common::adapter::AdapterConfig;
-using common::math::Box2d;
-using common::math::Vec2d;
-using hdmap::LaneInfo;
-using hdmap::OverlapInfo;
 using ConstLaneInfoPtr = std::shared_ptr<const LaneInfo>;
-
-static constexpr double kCautionDistanceThreshold = 60.0;
 
 namespace {
 
@@ -219,7 +215,7 @@ void ObstaclesPrioritizer::AssignCautionLevelInJunction(
       continue;
     }
     if (obstacle_ptr->IsInJunction(junction_id)) {
-      SetCautionIfCloseToEgo(ego_vehicle, kCautionDistanceThreshold,
+      SetCautionIfCloseToEgo(ego_vehicle, FLAGS_caution_distance_threshold,
                              obstacle_ptr);
     }
   }
@@ -241,7 +237,7 @@ void ObstaclesPrioritizer::AssignCautionLevelCruiseKeepLane(
       AERROR << "Obstacle [" << nearest_front_obstacle_id << "] Not found";
       continue;
     }
-    SetCautionIfCloseToEgo(ego_vehicle, kCautionDistanceThreshold,
+    SetCautionIfCloseToEgo(ego_vehicle, FLAGS_caution_distance_threshold,
                            obstacle_ptr);
   }
 }
@@ -266,7 +262,7 @@ void ObstaclesPrioritizer::AssignCautionLevelCruiseChangeLane(
         AERROR << "Obstacle [" << nearest_front_obstacle_id << "] Not found";
         continue;
       }
-      SetCautionIfCloseToEgo(ego_vehicle, kCautionDistanceThreshold,
+      SetCautionIfCloseToEgo(ego_vehicle, FLAGS_caution_distance_threshold,
                              obstacle_ptr);
     } else if (IsLaneSequenceInReferenceLine(lane_sequence,
                                              ego_trajectory_container)) {
@@ -278,7 +274,7 @@ void ObstaclesPrioritizer::AssignCautionLevelCruiseChangeLane(
         Obstacle* front_obstacle_ptr =
             obstacles_container->GetObstacle(nearest_front_obstacle_id);
         if (front_obstacle_ptr != nullptr) {
-          SetCautionIfCloseToEgo(ego_vehicle, kCautionDistanceThreshold,
+          SetCautionIfCloseToEgo(ego_vehicle, FLAGS_caution_distance_threshold,
                                  front_obstacle_ptr);
         }
       }
@@ -286,7 +282,7 @@ void ObstaclesPrioritizer::AssignCautionLevelCruiseChangeLane(
         Obstacle* backward_obstacle_ptr =
             obstacles_container->GetObstacle(nearest_backward_obstacle_id);
         if (backward_obstacle_ptr != nullptr) {
-          SetCautionIfCloseToEgo(ego_vehicle, kCautionDistanceThreshold,
+          SetCautionIfCloseToEgo(ego_vehicle, FLAGS_caution_distance_threshold,
                                  backward_obstacle_ptr);
         }
       }
@@ -419,7 +415,7 @@ void ObstaclesPrioritizer::AssignCautionLevelByEgoReferenceLine(
         if (std::fabs(start_l) < FLAGS_pedestrian_nearby_lane_search_radius ||
             std::fabs(end_l) < FLAGS_pedestrian_nearby_lane_search_radius ||
             start_l * end_l < 0.0) {
-          SetCautionIfCloseToEgo(ego_vehicle, kCautionDistanceThreshold,
+          SetCautionIfCloseToEgo(ego_vehicle, FLAGS_caution_distance_threshold,
                                  obstacle_ptr);
         }
       }
@@ -541,7 +537,7 @@ void ObstaclesPrioritizer::SetCautionBackward(
         AERROR << "Obstacle [" << obstacle_id << "] Not found";
         continue;
       }
-      SetCautionIfCloseToEgo(ego_vehicle, kCautionDistanceThreshold,
+      SetCautionIfCloseToEgo(ego_vehicle, FLAGS_caution_distance_threshold,
                              obstacle_ptr);
       continue;
     }

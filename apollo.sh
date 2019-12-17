@@ -135,6 +135,12 @@ function generate_build_targets() {
   fi
 }
 
+function jobs_count() {
+  CPU_COUNT=$(nproc)
+  CPU_FACTOR="0.7"
+  python -c "print(int(max(${CPU_COUNT} * ${CPU_FACTOR}, 1)))"
+}
+
 #=================================================
 #              Build functions
 #=================================================

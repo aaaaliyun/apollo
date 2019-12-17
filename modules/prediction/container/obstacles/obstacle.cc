@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <iomanip>
 #include <limits>
-#include <list>
-#include <unordered_set>
 
 #include "modules/prediction/common/junction_analyzer.h"
 #include "modules/prediction/container/obstacles/obstacle_clusters.h"
@@ -28,16 +26,13 @@
 
 namespace apollo {
 namespace prediction {
-
-using common::ErrorCode;
-using common::PathPoint;
-using common::Point3D;
-using common::math::KalmanFilter;
-using hdmap::JunctionInfo;
-using hdmap::LaneInfo;
-using perception::PerceptionObstacle;
-
 namespace {
+
+using apollo::common::PathPoint;
+using apollo::common::Point3D;
+using apollo::hdmap::JunctionInfo;
+using apollo::hdmap::LaneInfo;
+using apollo::perception::PerceptionObstacle;
 
 double Damp(const double x, const double sigma) {
   return 1.0 / (1.0 + std::exp(1.0 / (std::fabs(x) + sigma)));

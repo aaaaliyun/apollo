@@ -16,6 +16,7 @@
 
 #include "modules/common/latency_recorder/latency_recorder.h"
 
+#include "cyber/common/global_data.h"
 #include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/util/message_util.h"
 
@@ -28,23 +29,20 @@ LatencyRecorder::LatencyRecorder(const std::string& module_name)
         records_.reset(new LatencyRecordMap);
 }
 
-void LatencyRecorder::AppendLatencyRecord(const uint64_t message_id,
-                                          const absl::Time& begin_time,
-// <<<<<<< HEAD
-//                                           const absl::Time& end_time) 
-// {
-//         static auto writer = CreateWriter();
-//         if (writer == nullptr) 
-//         {
-//                 return;
-//         }
-// =======
-                                          const absl::Time& end_time) 
+void LatencyRecorder::AppendLatencyRecord(const uint64_t message_id, const absl::Time& begin_time, const absl::Time& end_time) 
 {
-        // TODO(michael): ALERT for now for trouble shooting,
-        // CHECK_LT(begin_time, end_time) in the future to enforce the validation
-        if (begin_time >= end_time) 
-        {
+  	// TODO(michael): ALERT for now for trouble shooting,
+  	// CHECK_LT(begin_time, end_time) in the future to enforce the validation
+  	if (begin_time >= end_time) 
+	{
+    		// In Simulation mode, there might be large number of cases where
+                // begin_times equal to end_times, reduce the error frequency in this mode
+                static const int kErrorReduceBase = 1000;
+                if (!cyber::common::GlobalData::Instance()->IsRealityMode()) 
+                {
+                        AERROR_EVERY(kErrorReduceBase) << "latency begin_time: " << begin_time << " greater than or equal to end_time: " << end_time << ", " << kErrorReduceBase << " times";
+                        return;
+                }
                 AERROR << "latency begin_time: " << begin_time << " greater than or equal to end_time: " << end_time;
                 return;
         }
@@ -54,7 +52,6 @@ void LatencyRecorder::AppendLatencyRecord(const uint64_t message_id,
         {
                 return;
         }
-// >>>>>>> update_stream/master
 
         std::lock_guard<std::mutex> lock(mutex_);
 
@@ -73,27 +70,6 @@ void LatencyRecorder::AppendLatencyRecord(const uint64_t message_id,
 }
 
 std::shared_ptr<apollo::cyber::Writer<LatencyRecordMap>>
-// <<<<<<< HEAD
-// LatencyRecorder::CreateWriter() 
-// {
-//         const std::string node_name_prefix = "latency_recorder";
-//         if (module_name_.empty()) 
-//         {
-//                 AERROR << "missing module name for sending latency records";
-//                 return nullptr;
-//         }
-//         if (node_ == nullptr) 
-//         {
-//                 current_time_ = absl::Now();
-//                 node_ = apollo::cyber::CreateNode(absl::StrCat(node_name_prefix, module_name_, absl::ToUnixNanos(current_time_)));
-//                 if (node_ == nullptr) 
-//                 {
-//                         AERROR << "unable to create node for latency recording";
-//                         return nullptr;
-//                 }
-//         }
-//         return node_->CreateWriter<LatencyRecordMap>(FLAGS_latency_recording_topic);
-// =======
 LatencyRecorder::CreateWriter() 
 {
         const std::string node_name_prefix = "latency_recorder";
@@ -113,7 +89,6 @@ LatencyRecorder::CreateWriter()
                 }
         }
         return node_->CreateWriter<LatencyRecordMap>(FLAGS_latency_recording_topic);
-// >>>>>>> update_stream/master
 }
 
 void LatencyRecorder::PublishLatencyRecords(const std::shared_ptr<apollo::cyber::Writer<LatencyRecordMap>>& writer) 

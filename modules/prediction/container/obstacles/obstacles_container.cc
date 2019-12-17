@@ -17,8 +17,6 @@
 #include "modules/prediction/container/obstacles/obstacles_container.h"
 
 #include <iomanip>
-#include <limits>
-#include <unordered_set>
 #include <utility>
 
 #include "modules/prediction/common/feature_output.h"
@@ -33,7 +31,6 @@ namespace prediction {
 
 using apollo::perception::PerceptionObstacle;
 using apollo::perception::PerceptionObstacles;
-using apollo::prediction::PredictionConstants;
 
 ObstaclesContainer::ObstaclesContainer()
     : ptr_obstacles_(FLAGS_max_num_obstacles) {}

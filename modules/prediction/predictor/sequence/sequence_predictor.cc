@@ -18,7 +18,6 @@
 
 #include <limits>
 #include <memory>
-#include <utility>
 
 #include "modules/common/proto/geometry.pb.h"
 #include "modules/prediction/common/prediction_gflags.h"
@@ -31,7 +30,6 @@ namespace prediction {
 using apollo::common::PathPoint;
 using apollo::common::Point3D;
 using apollo::common::TrajectoryPoint;
-using apollo::common::adapter::AdapterConfig;
 using apollo::hdmap::LaneInfo;
 
 bool SequencePredictor::Predict(
