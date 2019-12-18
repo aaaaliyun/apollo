@@ -19,17 +19,18 @@
 TargetCamera::TargetCamera()
     : AbstractCamera(), target_pos_(0.0, 0.0, 0.0), distance_(10.0) {}
 
-void TargetCamera::UpdateWorld() {
-  QMatrix4x4 R = YawPitchRoll(yaw(), pitch(), roll());
-  QVector3D T{0, 0, distance_};
-  T = QVector3D(R * QVector4D(T, 0.0f));
-  position_ = target_pos_ + T;
-  look_ = target_pos_ - position_;
-  look_.normalize();
+void TargetCamera::UpdateWorld() 
+{
+        QMatrix4x4 R = YawPitchRoll(yaw(), pitch(), roll());
+        QVector3D T{0, 0, distance_};
+        T = QVector3D(R * QVector4D(T, 0.0f));
+        position_ = target_pos_ + T;
+        look_ = target_pos_ - position_;
+        look_.normalize();
 
-  up_ = QVector3D(R * QVector4D(UP, 0.0f));
-  right_ = QVector3D::crossProduct(look_, up_);
+        up_ = QVector3D(R * QVector4D(UP, 0.0f));
+        right_ = QVector3D::crossProduct(look_, up_);
 
-  model_view_mat_.setToIdentity();
-  model_view_mat_.lookAt(position_, target_pos_, up_);
+        model_view_mat_.setToIdentity();
+        model_view_mat_.lookAt(position_, target_pos_, up_);
 }

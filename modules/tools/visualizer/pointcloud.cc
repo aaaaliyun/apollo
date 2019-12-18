@@ -24,41 +24,48 @@ PointCloud::PointCloud(
     : RenderableObject(pointCount, vertexElementCount, shaderProgram),
       buffer_(nullptr) {}
 
-PointCloud::~PointCloud(void) {
-  if (buffer_) {
-    delete[] buffer_;
-    buffer_ = nullptr;
-  }
+PointCloud::~PointCloud(void) 
+{
+        if (buffer_) 
+        {
+                delete[] buffer_;
+                buffer_ = nullptr;
+        }
 }
 
-bool PointCloud::FillVertexBuffer(GLfloat* pBuffer) {
-  if (buffer_ && pBuffer) {
-    memcpy(pBuffer, buffer_, VertexBufferSize());
-    delete[] buffer_;
-    buffer_ = nullptr;
-    return true;
-  } else {
-    std::cout << "---Error!!! cannot upload data to Graphics Card----"
-              << std::endl;
-    return false;
-  }
+bool PointCloud::FillVertexBuffer(GLfloat* pBuffer) 
+{
+        if (buffer_ && pBuffer) 
+        {
+                memcpy(pBuffer, buffer_, VertexBufferSize());
+                delete[] buffer_;
+                buffer_ = nullptr;
+                return true;
+        } 
+        else 
+        {
+                std::cout << "---Error!!! cannot upload data to Graphics Card----" << std::endl;
+                return false;
+        }
 }
 
-bool PointCloud::FillData(
-    const std::shared_ptr<const apollo::drivers::PointCloud>& pdata) {
-  assert(vertex_count() == pdata->point_size());
-  buffer_ = new GLfloat[vertex_count() * vertex_element_count()];
-  if (buffer_) {
-    GLfloat* tmp = buffer_;
+bool PointCloud::FillData(const std::shared_ptr<const apollo::drivers::PointCloud>& pdata) 
+{
+        assert(vertex_count() == pdata->point_size());
+        buffer_ = new GLfloat[vertex_count() * vertex_element_count()];
+        if (buffer_) 
+        {
+                GLfloat* tmp = buffer_;
 
-    for (int i = 0; i < vertex_count(); ++i, tmp += vertex_element_count()) {
-      const apollo::drivers::PointXYZIT& point = pdata->point(i);
-      tmp[0] = point.x();
-      tmp[1] = point.z();
-      tmp[2] = -point.y();
-      tmp[3] = static_cast<float>(point.intensity());
-    }
-    return true;
-  }
-  return false;
+                for (int i = 0; i < vertex_count(); ++i, tmp += vertex_element_count()) 
+                {
+                        const apollo::drivers::PointXYZIT& point = pdata->point(i);
+                        tmp[0] = point.x();
+                        tmp[1] = point.z();
+                        tmp[2] = -point.y();
+                        tmp[3] = static_cast<float>(point.intensity());
+                }
+                return true;
+        }
+        return false;
 }

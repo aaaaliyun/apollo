@@ -26,21 +26,19 @@
 namespace apollo {
 namespace v2x {
 
-class ObuInterFaceBase {
- public:
-  ObuInterFaceBase() {}
-  virtual ~ObuInterFaceBase() {}
+class ObuInterFaceBase 
+{
+public:
+        ObuInterFaceBase() {}
+        virtual ~ObuInterFaceBase() {}
 
- public:
-  virtual bool InitialServer() = 0;
-  virtual bool InitialClient() = 0;
-  virtual void GetV2xObstaclesFromObu(
-      const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg) {}
-  virtual void GetV2xTrafficLightFromObu(
-      const std::shared_ptr<IntersectionTrafficLightData> &msg) {}
-  virtual void SendCarStatusToObu(const std::shared_ptr<CarStatus> &msg) {}
-  virtual void SendObstaclesToObu(
-      const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg) {}
+public:
+        virtual bool InitialServer() = 0;
+        virtual bool InitialClient() = 0;
+        virtual void GetV2xObstaclesFromObu(const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg) {}
+        virtual void GetV2xTrafficLightFromObu(const std::shared_ptr<IntersectionTrafficLightData> &msg) {}
+        virtual void SendCarStatusToObu(const std::shared_ptr<CarStatus> &msg) {}
+        virtual void SendObstaclesToObu(const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg) {}
 };
 
 }  // namespace v2x

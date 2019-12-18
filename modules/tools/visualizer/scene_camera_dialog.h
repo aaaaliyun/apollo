@@ -24,34 +24,35 @@ class SceneCameraDialog;
 
 class QVector3D;
 
-class SceneCameraDialog : public QDialog {
-  Q_OBJECT
+class SceneCameraDialog : public QDialog 
+{
+Q_OBJECT
 
- public:
-  explicit SceneCameraDialog(QWidget *parent = nullptr);
-  ~SceneCameraDialog();
+public:
+        explicit SceneCameraDialog(QWidget *parent = nullptr);
+        ~SceneCameraDialog();
 
- signals:
-  void resetcamera();
+signals:
+        void resetcamera();
 
-  void sensitivityChanged(float);
-  void cameraTypeChanged(int);
+        void sensitivityChanged(float);
+        void cameraTypeChanged(int);
 
-  void xValueChanged(double);
-  void yValueChanged(double);
-  void zValueChanged(double);
-  void yawValueChanged(double);
-  void pitchValueChanged(double);
-  void rollValueChanged(double);
+        void xValueChanged(double);
+        void yValueChanged(double);
+        void zValueChanged(double);
+        void yawValueChanged(double);
+        void pitchValueChanged(double);
+        void rollValueChanged(double);
 
- public slots:
-  void updateCameraAttitude(const QVector3D &);
-  void updateCameraPos(const QVector3D &);
+public slots:
+        void updateCameraAttitude(const QVector3D &);
+        void updateCameraPos(const QVector3D &);
 
- private slots:
-  void OnStepSlideChanged(int v);
-  void onCameraTypeChanged(int);
+private slots:
+        void OnStepSlideChanged(int v);
+        void onCameraTypeChanged(int);
 
- private:
-  Ui::SceneCameraDialog *ui;
+private:
+        Ui::SceneCameraDialog *ui;
 };

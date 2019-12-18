@@ -26,18 +26,19 @@
 namespace apollo {
 namespace storytelling {
 
-class Storytelling final : public apollo::cyber::TimerComponent {
- public:
-  Storytelling() = default;
-  ~Storytelling() = default;
+class Storytelling final : public apollo::cyber::TimerComponent 
+{
+public:
+        Storytelling() = default;
+        ~Storytelling() = default;
 
-  bool Init() override;
+        bool Init() override;
 
-  bool Proc() override;
+        bool Proc() override;
 
- private:
-  std::vector<std::unique_ptr<BaseTeller>> story_tellers_;
-  Stories stories_;
+private:
+        std::vector<std::unique_ptr<BaseTeller>> story_tellers_;
+        Stories stories_;
 };
 
 CYBER_REGISTER_COMPONENT(Storytelling)

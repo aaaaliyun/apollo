@@ -18,17 +18,18 @@
 
 #include <QtWidgets/QTreeWidget>
 
-class TreeWidget : public QTreeWidget {
-  Q_OBJECT
+class TreeWidget : public QTreeWidget 
+{
+        Q_OBJECT
 
- public:
-  explicit TreeWidget(QWidget *parent = nullptr);
-  ~TreeWidget() {}
+public:
+        explicit TreeWidget(QWidget *parent = nullptr);
+        ~TreeWidget() {}
 
- signals:
-  void visibilityChanged(bool);
+signals:
+        void visibilityChanged(bool);
 
  protected:
-  void resizeEvent(QResizeEvent *);
-  bool event(QEvent *e);
+        void resizeEvent(QResizeEvent *);
+        bool event(QEvent *e);
 };

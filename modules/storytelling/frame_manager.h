@@ -25,34 +25,36 @@
 namespace apollo {
 namespace storytelling {
 
-class FrameManager {
- public:
-  void Init(const std::shared_ptr<cyber::Node>& node);
+class FrameManager 
+{
+public:
+        void Init(const std::shared_ptr<cyber::Node>& node);
 
-  void StartFrame();
-  void EndFrame();
+        void StartFrame();
+        void EndFrame();
 
-  // Getters.
-  apollo::common::monitor::MonitorLogBuffer& LogBuffer() { return log_buffer_; }
+        // Getters.
+        apollo::common::monitor::MonitorLogBuffer& LogBuffer() { return log_buffer_; }
 
-  // Cyber reader / writer creator.
-  template <class T>
-  std::shared_ptr<cyber::Reader<T>> CreateOrGetReader(
-      const std::string& channel) {
-    auto reader = node_->GetReader<T>(channel);
-    return reader != nullptr ? reader : node_->CreateReader<T>(channel);
-  }
+        // Cyber reader / writer creator.
+        template <class T>
+        std::shared_ptr<cyber::Reader<T>> CreateOrGetReader(const std::string& channel) 
+        {
+                auto reader = node_->GetReader<T>(channel);
+                return reader != nullptr ? reader : node_->CreateReader<T>(channel);
+        }
 
-  template <class T>
-  std::shared_ptr<cyber::Writer<T>> CreateWriter(const std::string& channel) {
-    return node_->CreateWriter<T>(channel);
-  }
+        template <class T>
+        std::shared_ptr<cyber::Writer<T>> CreateWriter(const std::string& channel) 
+        {
+                return node_->CreateWriter<T>(channel);
+        }
 
- private:
-  apollo::common::monitor::MonitorLogBuffer log_buffer_;
-  std::shared_ptr<cyber::Node> node_;
+private:
+        apollo::common::monitor::MonitorLogBuffer log_buffer_;
+        std::shared_ptr<cyber::Node> node_;
 
-  DECLARE_SINGLETON(FrameManager)
+        DECLARE_SINGLETON(FrameManager)
 };
 
 }  // namespace storytelling

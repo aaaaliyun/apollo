@@ -22,15 +22,17 @@ namespace storytelling {
 FrameManager::FrameManager()
     : log_buffer_(apollo::common::monitor::MonitorMessageItem::STORYTELLING) {}
 
-void FrameManager::Init(const std::shared_ptr<cyber::Node>& node) {
-  node_ = node;
+void FrameManager::Init(const std::shared_ptr<cyber::Node>& node) 
+{
+        node_ = node;
 }
 
 void FrameManager::StartFrame() { node_->Observe(); }
 
-void FrameManager::EndFrame() {
-  // Print and publish all monitor logs.
-  log_buffer_.Publish();
+void FrameManager::EndFrame() 
+{
+        // Print and publish all monitor logs.
+        log_buffer_.Publish();
 }
 
 }  // namespace storytelling

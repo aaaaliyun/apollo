@@ -24,24 +24,25 @@
 class Texture;
 class FixedAspectRatioWidget;
 
-class VideoImgViewer : public QOpenGLWidget, protected QOpenGLFunctions {
- public:
-  explicit VideoImgViewer(QWidget* parent = nullptr);
-  ~VideoImgViewer();
+class VideoImgViewer : public QOpenGLWidget, protected QOpenGLFunctions 
+{
+public:
+        explicit VideoImgViewer(QWidget* parent = nullptr);
+        ~VideoImgViewer();
 
- protected:
-  void initializeGL() override;
-  void resizeGL(int w, int h) override;
-  void paintGL() override;
+protected:
+        void initializeGL() override;
+        void resizeGL(int w, int h) override;
+        void paintGL() override;
 
- private:
-  bool is_init_;
-  int mvp_id_;
+private:
+        bool is_init_;
+        int mvp_id_;
 
-  Plane plane_;
-  FreeCamera ortho_camera_;
-  std::shared_ptr<Texture> default_image_;
+        Plane plane_;
+        FreeCamera ortho_camera_;
+        std::shared_ptr<Texture> default_image_;
 
-  std::shared_ptr<QOpenGLShaderProgram> video_image_shader_prog_;
-  friend class FixedAspectRatioWidget;
+        std::shared_ptr<QOpenGLShaderProgram> video_image_shader_prog_;
+        friend class FixedAspectRatioWidget;
 };

@@ -39,32 +39,31 @@
 
 namespace apollo {
 namespace bridge {
-class UDPBridgeMultiReceiverComponent final : public cyber::Component<> {
- public:
-  UDPBridgeMultiReceiverComponent();
-  ~UDPBridgeMultiReceiverComponent();
+class UDPBridgeMultiReceiverComponent final : public cyber::Component<> 
+{
+public:
+        UDPBridgeMultiReceiverComponent();
+        ~UDPBridgeMultiReceiverComponent();
 
-  bool Init() override;
-  std::string Name() const { return FLAGS_bridge_module_name; }
-  std::shared_ptr<ProtoDiserializedBufBase> CreateBridgeProtoBuf(
-      const BridgeHeader &header);
-  bool IsProtoExist(const BridgeHeader &header);
-  bool IsTimeout(double time_stamp);
-  void MsgDispatcher();
-  bool InitSession(uint16_t port);
-  bool MsgHandle(int fd);
+        bool Init() override;
+        std::string Name() const { return FLAGS_bridge_module_name; }
+        std::shared_ptr<ProtoDiserializedBufBase> CreateBridgeProtoBuf(const BridgeHeader &header);
+        bool IsProtoExist(const BridgeHeader &header);
+        bool IsTimeout(double time_stamp);
+        void MsgDispatcher();
+        bool InitSession(uint16_t port);
+        bool MsgHandle(int fd);
 
- private:
-  bool RemoveInvalidBuf(uint32_t msg_id, const std::string &msg_name);
+private:
+        bool RemoveInvalidBuf(uint32_t msg_id, const std::string &msg_name);
 
- private:
-  common::monitor::MonitorLogBuffer monitor_logger_buffer_;
-  std::shared_ptr<UDPListener<UDPBridgeMultiReceiverComponent>> listener_ =
-      std::make_shared<UDPListener<UDPBridgeMultiReceiverComponent>>();
-  unsigned int bind_port_ = 0;
-  bool enable_timeout_ = true;
-  std::mutex mutex_;
-  std::vector<std::shared_ptr<ProtoDiserializedBufBase>> proto_list_;
+private:
+        common::monitor::MonitorLogBuffer monitor_logger_buffer_;
+        std::shared_ptr<UDPListener<UDPBridgeMultiReceiverComponent>> listener_ = std::make_shared<UDPListener<UDPBridgeMultiReceiverComponent>>();
+        unsigned int bind_port_ = 0;
+        bool enable_timeout_ = true;
+        std::mutex mutex_;
+        std::vector<std::shared_ptr<ProtoDiserializedBufBase>> proto_list_;
 };
 
 }  // namespace bridge

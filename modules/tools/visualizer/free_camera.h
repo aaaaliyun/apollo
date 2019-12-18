@@ -18,22 +18,23 @@
 
 #include "modules/tools/visualizer/abstract_camera.h"
 
-class FreeCamera : public AbstractCamera {
- public:
-  FreeCamera(void);
-  ~FreeCamera() {}
+class FreeCamera : public AbstractCamera 
+{
+public:
+        FreeCamera(void);
+        ~FreeCamera() {}
 
-  // After calling the function updateWorld
-  // the translation become zero vector
-  virtual void UpdateWorld(void);
+        // After calling the function updateWorld
+        // the translation become zero vector
+        virtual void UpdateWorld(void);
 
-  const QVector3D& tanslation(void) { return translation_; }
-  void set_translation(const QVector3D& t) { translation_ = t; }
+        const QVector3D& tanslation(void) { return translation_; }
+        void set_translation(const QVector3D& t) { translation_ = t; }
 
-  void Walk(const float dt) { translation_ += (look_ * dt); }
-  void Starfe(const float dt) { translation_ += (right_ * dt); }
-  void Lift(const float dt) { translation_ += (up_ * dt); }
+        void Walk(const float dt) { translation_ += (look_ * dt); }
+        void Starfe(const float dt) { translation_ += (right_ * dt); }
+        void Lift(const float dt) { translation_ += (up_ * dt); }
 
- private:
-  QVector3D translation_;
+private:
+        QVector3D translation_;
 };

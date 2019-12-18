@@ -21,10 +21,11 @@
 namespace apollo {
 namespace storytelling {
 
-class CloseToJunctionTeller : public BaseTeller {
- public:
-  void Init() override;
-  void Update(Stories* stories) override;
+class CloseToJunctionTeller : public BaseTeller 
+{
+public:
+        void Init() override;
+        void Update(Stories* stories) override;
 };
 
 }  // namespace storytelling

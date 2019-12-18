@@ -21,11 +21,12 @@
 namespace apollo {
 namespace storytelling {
 
-class BaseTeller {
- public:
-  virtual ~BaseTeller() = default;
-  virtual void Init() = 0;
-  virtual void Update(Stories* stories) = 0;
+class BaseTeller 
+{
+public:
+        virtual ~BaseTeller() = default;
+        virtual void Init() = 0;
+        virtual void Update(Stories* stories) = 0;
 };
 
 }  // namespace storytelling

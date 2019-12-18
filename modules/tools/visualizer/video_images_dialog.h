@@ -22,15 +22,16 @@ namespace Ui {
 class VideoImagesDialog;
 }
 
-class VideoImagesDialog : public QDialog {
-  Q_OBJECT
+class VideoImagesDialog : public QDialog 
+{
+Q_OBJECT
 
- public:
-  explicit VideoImagesDialog(QWidget *parent = nullptr);
-  ~VideoImagesDialog();
+public:
+        explicit VideoImagesDialog(QWidget *parent = nullptr);
+        ~VideoImagesDialog();
 
-  int count(void) const;
+        int count(void) const;
 
- private:
-  Ui::VideoImagesDialog *ui;
+private:
+        Ui::VideoImagesDialog *ui;
 };

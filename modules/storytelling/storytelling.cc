@@ -22,33 +22,37 @@
 namespace apollo {
 namespace storytelling {
 
-bool Storytelling::Init() {
-  FrameManager::Instance()->Init(node_);
-  story_tellers_.emplace_back(new CloseToJunctionTeller());
+bool Storytelling::Init() 
+{
+        FrameManager::Instance()->Init(node_);
+        story_tellers_.emplace_back(new CloseToJunctionTeller());
 
-  // Init all tellers.
-  for (const auto& teller : story_tellers_) {
-    teller->Init();
-  }
-  return true;
+        // Init all tellers.
+        for (const auto& teller : story_tellers_) 
+        {
+                teller->Init();
+        }
+        return true;
 }
 
-bool Storytelling::Proc() {
-  auto* manager = FrameManager::Instance();
-  manager->StartFrame();
+bool Storytelling::Proc() 
+{
+        auto* manager = FrameManager::Instance();
+        manager->StartFrame();
 
-  // Query all tellers.
-  for (const auto& teller : story_tellers_) {
-    teller->Update(&stories_);
-  }
+        // Query all tellers.
+        for (const auto& teller : story_tellers_) 
+        {
+                teller->Update(&stories_);
+        }
 
-  // Send stories.
-  static auto writer = manager->CreateWriter<Stories>(FLAGS_storytelling_topic);
-  apollo::common::util::FillHeader("Storytelling", &stories_);
-  writer->Write(stories_);
+        // Send stories.
+        static auto writer = manager->CreateWriter<Stories>(FLAGS_storytelling_topic);
+        apollo::common::util::FillHeader("Storytelling", &stories_);
+        writer->Write(stories_);
 
-  manager->EndFrame();
-  return true;
+        manager->EndFrame();
+        return true;
 }
 
 }  // namespace storytelling

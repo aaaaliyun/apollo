@@ -22,70 +22,68 @@
 #include <QtGui/QOpenGLVertexArrayObject>
 #include <memory>
 
-class RenderableObject : protected QOpenGLFunctions {
- public:
-  static std::shared_ptr<QOpenGLShaderProgram> NullRenderableObj;
-  static std::shared_ptr<QOpenGLShaderProgram> CreateShaderProgram(
-      const QString& vertexShaderFileName, const QString& fragShaderFileName);
+class RenderableObject : protected QOpenGLFunctions 
+{
+public:
+        static std::shared_ptr<QOpenGLShaderProgram> NullRenderableObj;
+        static std::shared_ptr<QOpenGLShaderProgram> CreateShaderProgram(
+        const QString& vertexShaderFileName, const QString& fragShaderFileName);
 
-  explicit RenderableObject(int vertex_count = 1, int vertex_element_count = 3,
-                            const std::shared_ptr<QOpenGLShaderProgram>&
-                                shaderProgram = NullRenderableObj);
-  virtual ~RenderableObject(void);
+        explicit RenderableObject(int vertex_count = 1, int vertex_element_count = 3, const std::shared_ptr<QOpenGLShaderProgram>& shaderProgram = NullRenderableObj);
+        virtual ~RenderableObject(void);
 
-  virtual GLenum GetPrimitiveType(void) const = 0;
-  virtual void SetupExtraUniforms(void) {}
+        virtual GLenum GetPrimitiveType(void) const = 0;
+        virtual void SetupExtraUniforms(void) {}
 
-  bool is_renderable(void) const { return is_renderable_; }
-  void set_is_renderable(bool b) { is_renderable_ = b; }
+        bool is_renderable(void) const { return is_renderable_; }
+        void set_is_renderable(bool b) { is_renderable_ = b; }
 
-  int vertex_count(void) const { return vertex_count_; }
-  void set_vertex_count(int vertexCount) { vertex_count_ = vertexCount; }
+        int vertex_count(void) const { return vertex_count_; }
+        void set_vertex_count(int vertexCount) { vertex_count_ = vertexCount; }
 
-  int vertex_element_count(void) const { return vertex_element_count_; }
-  void set_vertex_element_count(int vertexElementCount) {
-    vertex_element_count_ = vertexElementCount;
-  }
+        int vertex_element_count(void) const { return vertex_element_count_; }
+        void set_vertex_element_count(int vertexElementCount) 
+        {
+                vertex_element_count_ = vertexElementCount;
+        }
 
-  int VertexBufferSize(void) const {
-    return vertex_count() * vertex_element_count() *
-           static_cast<int>(sizeof(GLfloat));
-  }
+        int VertexBufferSize(void) const 
+        {
+                return vertex_count() * vertex_element_count() * static_cast<int>(sizeof(GLfloat));
+        }
 
-  void set_shader_program(
-      const std::shared_ptr<QOpenGLShaderProgram>& shaderProgram) {
-    shader_program_ = shaderProgram;
-  }
+        void set_shader_program(const std::shared_ptr<QOpenGLShaderProgram>& shaderProgram) 
+        {
+                shader_program_ = shaderProgram;
+        }
 
-  bool haveShaderProgram(void) { return shader_program_ != nullptr; }
+        bool haveShaderProgram(void) { return shader_program_ != nullptr; }
 
-  bool Init(
-      std::shared_ptr<QOpenGLShaderProgram>& shaderProgram =
-          NullRenderableObj);  // initial vao, vbo and call fillVertexBuffer
-  void Destroy(void);
+        bool Init(std::shared_ptr<QOpenGLShaderProgram>& shaderProgram = NullRenderableObj);  // initial vao, vbo and call fillVertexBuffer
+        void Destroy(void);
 
-  void Render(const QMatrix4x4* mvp = nullptr);
+        void Render(const QMatrix4x4* mvp = nullptr);
 
- protected:
-  virtual bool FillVertexBuffer(GLfloat* pBuffer) = 0;
-  virtual void Draw(void) {
-    glDrawArrays(GetPrimitiveType(), 0, vertex_count());
-  }
+protected:
+        virtual bool FillVertexBuffer(GLfloat* pBuffer) = 0;
+        virtual void Draw(void) 
+        {
+                glDrawArrays(GetPrimitiveType(), 0, vertex_count());
+        }
 
-  virtual void SetupAllAttrPointer(void) {
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-        0, vertex_element_count(), GL_FLOAT, GL_FALSE,
-        static_cast<int>(sizeof(GLfloat)) * vertex_element_count(), 0);
-  }
+        virtual void SetupAllAttrPointer(void) 
+        {
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(0, vertex_element_count(), GL_FLOAT, GL_FALSE, static_cast<int>(sizeof(GLfloat)) * vertex_element_count(), 0);
+        }
 
-  bool is_init_;
-  bool is_renderable_;
+        bool is_init_;
+        bool is_renderable_;
 
-  int vertex_count_;
-  int vertex_element_count_;
+        int vertex_count_;
+        int vertex_element_count_;
 
-  std::shared_ptr<QOpenGLShaderProgram> shader_program_;
-  QOpenGLVertexArrayObject vao_;
-  QOpenGLBuffer vbo_;
+        std::shared_ptr<QOpenGLShaderProgram> shader_program_;
+        QOpenGLVertexArrayObject vao_;
+        QOpenGLBuffer vbo_;
 };

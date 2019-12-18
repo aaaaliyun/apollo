@@ -41,106 +41,100 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow {
-  Q_OBJECT
+class MainWindow : public QMainWindow 
+{
+Q_OBJECT
 
- public:
-  explicit MainWindow(QWidget* parent = nullptr);
-  ~MainWindow();
+public:
+        explicit MainWindow(QWidget* parent = nullptr);
+        ~MainWindow();
 
-  void TopologyChanged(const apollo::cyber::proto::ChangeMsg& change_msg);
-  void AddNewWriter(const apollo::cyber::proto::RoleAttributes& role);
+        void TopologyChanged(const apollo::cyber::proto::ChangeMsg& change_msg);
+        void AddNewWriter(const apollo::cyber::proto::RoleAttributes& role);
 
- protected:
-  void resizeEvent(QResizeEvent*) override;
+protected:
+        void resizeEvent(QResizeEvent*) override;
 
- private slots:
-  void ActionAddGrid(void);
+private slots:
+        void ActionAddGrid(void);
 
-  void ActionOpenPointCloud(void);
-  void PlayRenderableObject(bool);
-  void ChangePointCloudChannel(void);
+        void ActionOpenPointCloud(void);
+        void PlayRenderableObject(bool);
+        void ChangePointCloudChannel(void);
 
-  void ActionOpenImage(void);
-  void PlayVideoImage(bool b);
-  void ChangeVideoImgChannel(void);
-  void SelectCurrentTreeItem(FixedAspectRatioWidget*);
+        void ActionOpenImage(void);
+        void PlayVideoImage(bool b);
+        void ChangeVideoImgChannel(void);
+        void SelectCurrentTreeItem(FixedAspectRatioWidget*);
 
-  void ActionDelVideoImage(void);
+        void ActionDelVideoImage(void);
 
-  void CloseVideoImgViewer(bool b);
+        void CloseVideoImgViewer(bool b);
 
-  void UpdateActions(void);
-  void EnableGrid(bool b);
+        void UpdateActions(void);
+        void EnableGrid(bool b);
 
-  void EditGridColor(QTreeWidgetItem* item, int column);
-  void ChangeGridCellCountBySize(int v);
+        void EditGridColor(QTreeWidgetItem* item, int column);
+        void ChangeGridCellCountBySize(int v);
 
-  void ActionOpenImages(void);
-  void AddVideoImages(void);
+        void ActionOpenImages(void);
+        void AddVideoImages(void);
 
-  void ActionOpenRadarChannel(void);
-  void openRadarChannel(bool b);
-  void EnableRadarPoints(bool b);
-  void ChangeRadarChannel(void);
+        void ActionOpenRadarChannel(void);
+        void openRadarChannel(bool b);
+        void EnableRadarPoints(bool b);
+        void ChangeRadarChannel(void);
 
-  void showMessage(void);
+        void showMessage(void);
 
-  void PlayPause(void);
+        void PlayPause(void);
 
- private:
-  struct VideoImgProxy;
-  struct RadarData;
+private:
+        struct VideoImgProxy;
+        struct RadarData;
 
-  void PointCloudReaderCallback(
-      const std::shared_ptr<const apollo::drivers::PointCloud>& pdata);
-  void ImageReaderCallback(
-      const std::shared_ptr<const apollo::drivers::Image>& imgData,
-      VideoImgProxy* proxy);
-  void ImageReaderCallback(
-      const std::shared_ptr<const apollo::drivers::CompressedImage>& imgData,
-      VideoImgProxy* proxy);
+        void PointCloudReaderCallback(const std::shared_ptr<const apollo::drivers::PointCloud>& pdata);
+        void ImageReaderCallback(const std::shared_ptr<const apollo::drivers::Image>& imgData, VideoImgProxy* proxy);
+        void ImageReaderCallback(const std::shared_ptr<const apollo::drivers::CompressedImage>& imgData, VideoImgProxy* proxy);
 
-  void InsertAllChannelNames(void);
-  VideoImgProxy* AddVideoImgViewer(void);
-  void DoDeleteVideoImg(VideoImgProxy*);
-  void DoPlayVideoImage(bool, VideoImgProxy*);
-  void calculateWH(void);
+        void InsertAllChannelNames(void);
+        VideoImgProxy* AddVideoImgViewer(void);
+        void DoDeleteVideoImg(VideoImgProxy*);
+        void DoPlayVideoImage(bool, VideoImgProxy*);
+        void calculateWH(void);
 
-  RadarData* createRadarData(void);
-  void DoOpenRadarChannel(bool b, RadarData* radarProxy);
-  void RadarRenderCallback(
-      const std::shared_ptr<const apollo::drivers::RadarObstacles>& rawData,
-      RadarData* radar);
+        RadarData* createRadarData(void);
+        void DoOpenRadarChannel(bool b, RadarData* radarProxy);
+        void RadarRenderCallback(const std::shared_ptr<const apollo::drivers::RadarObstacles>& rawData, RadarData* radar);
 
-  Ui::MainWindow* ui_;
-  MessageDialog* msg_dialog_;
-  VideoImagesDialog* open_images_dialog_;
+        Ui::MainWindow* ui_;
+        MessageDialog* msg_dialog_;
+        VideoImagesDialog* open_images_dialog_;
 
-  QTreeWidgetItem* all_channel_root_;
+        QTreeWidgetItem* all_channel_root_;
 
-  Grid* grid_;
-  QCheckBox* enable_grid_checkBox_;
-  QTreeWidgetItem* grid_root_item_;
+        Grid* grid_;
+        QCheckBox* enable_grid_checkBox_;
+        QTreeWidgetItem* grid_root_item_;
 
-  QTreeWidgetItem* pointcloud_top_item_;
-  QComboBox* pointcloud_comboBox_;
-  QPushButton* pointcloud_button_;
-  CyberChannReader<apollo::drivers::PointCloud>* pointcloud_channel_Reader_;
+        QTreeWidgetItem* pointcloud_top_item_;
+        QComboBox* pointcloud_comboBox_;
+        QPushButton* pointcloud_button_;
+        CyberChannReader<apollo::drivers::PointCloud>* pointcloud_channel_Reader_;
 
-  QMutex pointcloud_reader_mutex_;
+        QMutex pointcloud_reader_mutex_;
 
-  QMenu right_menu_;
+        QMenu right_menu_;
 
-  std::shared_ptr<QOpenGLShaderProgram> pointcloud_shader_;
-  std::shared_ptr<QOpenGLShaderProgram> grid_shader_;
-  std::shared_ptr<QOpenGLShaderProgram> radar_points_shader_;
+        std::shared_ptr<QOpenGLShaderProgram> pointcloud_shader_;
+        std::shared_ptr<QOpenGLShaderProgram> grid_shader_;
+        std::shared_ptr<QOpenGLShaderProgram> radar_points_shader_;
 
-  QList<VideoImgProxy*> video_image_viewer_list_;
-  QList<VideoImgProxy*> closed_video_image_viewer_list_;
+        QList<VideoImgProxy*> video_image_viewer_list_;
+        QList<VideoImgProxy*> closed_video_image_viewer_list_;
 
-  QList<RadarData*> radarData_list_;
-  QList<RadarData*> closed_radarData_list_;
+        QList<RadarData*> radarData_list_;
+        QList<RadarData*> closed_radarData_list_;
 
-  std::map<std::string, std::string> _channelName2TypeMap;
+        std::map<std::string, std::string> _channelName2TypeMap;
 };

@@ -19,38 +19,41 @@
 #include "modules/tools/visualizer/renderable_object.h"
 #include "modules/tools/visualizer/texture.h"
 
-class Plane : public RenderableObject {
-  /*
-   *  struct Vertex
-   *  {
-   *      GLfloat _vert[2];
-   *      GLfloat _texCoor[2];
-   *  };
-   *
-   */
+class Plane : public RenderableObject 
+{
+        /*
+        *  struct Vertex
+        *  {
+        *      GLfloat _vert[2];
+        *      GLfloat _texCoor[2];
+        *  };
+        *
+        */
 
- public:
-  static std::shared_ptr<Texture> NullTextureObj;
+public:
+        static std::shared_ptr<Texture> NullTextureObj;
 
-  explicit Plane(const std::shared_ptr<Texture>& t = NullTextureObj);
-  virtual ~Plane(void) { texture_.reset(); }
+        explicit Plane(const std::shared_ptr<Texture>& t = NullTextureObj);
+        virtual ~Plane(void) { texture_.reset(); }
 
-  void set_texture(const std::shared_ptr<Texture>& t) {
-    if (t != texture_) {
-      texture_ = t;
-    }
-  }
+        void set_texture(const std::shared_ptr<Texture>& t) 
+        {
+                if (t != texture_) 
+                {
+                        texture_ = t;
+                }
+        }
 
-  GLenum GetPrimitiveType(void) const override { return GL_QUADS; }
-  GLsizei texWidth(void) const { return texture_->width(); }
-  GLsizei texHeight(void) const { return texture_->height(); }
+        GLenum GetPrimitiveType(void) const override { return GL_QUADS; }
+        GLsizei texWidth(void) const { return texture_->width(); }
+        GLsizei texHeight(void) const { return texture_->height(); }
 
- protected:
-  bool FillVertexBuffer(GLfloat* pBuffer) override;
-  void Draw(void) override;
-  void SetupAllAttrPointer(void) override;
+protected:
+        bool FillVertexBuffer(GLfloat* pBuffer) override;
+        void Draw(void) override;
+        void SetupAllAttrPointer(void) override;
 
- private:
-  GLuint texture_id_;
-  std::shared_ptr<Texture> texture_;
+private:
+        GLuint texture_id_;
+        std::shared_ptr<Texture> texture_;
 };

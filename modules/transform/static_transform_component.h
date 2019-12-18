@@ -27,22 +27,23 @@
 namespace apollo {
 namespace transform {
 
-class StaticTransformComponent final : public apollo::cyber::Component<> {
- public:
-  StaticTransformComponent() = default;
-  ~StaticTransformComponent() = default;
+class StaticTransformComponent final : public apollo::cyber::Component<> 
+{
+public:
+        StaticTransformComponent() = default;
+        ~StaticTransformComponent() = default;
 
- public:
-  bool Init() override;
+public:
+        bool Init() override;
 
- private:
-  void SendTransforms();
-  void SendTransform(const std::vector<TransformStamped>& msgtf);
-  bool ParseFromYaml(const std::string& file_path, TransformStamped* transform);
+private:
+        void SendTransforms();
+        void SendTransform(const std::vector<TransformStamped>& msgtf);
+        bool ParseFromYaml(const std::string& file_path, TransformStamped* transform);
 
-  apollo::static_transform::Conf conf_;
-  std::shared_ptr<cyber::Writer<TransformStampeds>> writer_;
-  TransformStampeds transform_stampeds_;
+        apollo::static_transform::Conf conf_;
+        std::shared_ptr<cyber::Writer<TransformStampeds>> writer_;
+        TransformStampeds transform_stampeds_;
 };
 
 CYBER_REGISTER_COMPONENT(StaticTransformComponent)

@@ -22,26 +22,27 @@ namespace apollo {
 namespace bridge {
 
 template <typename T>
-class BridgeBuffer {
- public:
-  BridgeBuffer();
-  explicit BridgeBuffer(size_t size);
-  virtual ~BridgeBuffer();
+class BridgeBuffer 
+{
+public:
+        BridgeBuffer();
+        explicit BridgeBuffer(size_t size);
+        virtual ~BridgeBuffer();
 
-  operator T *();
-  void reset(size_t size);
-  size_t size() const { return size_; }
-  size_t capacity() const { return capacity_; }
-  void write(size_t index, const T *data, size_t size);
+        operator T *();
+        void reset(size_t size);
+        size_t size() const { return size_; }
+        size_t capacity() const { return capacity_; }
+        void write(size_t index, const T *data, size_t size);
 
- private:
-  T *buf_ = nullptr;
-  size_t size_ = 0;
-  size_t capacity_ = 0;
-  std::mutex mutex_;
+private:
+        T *buf_ = nullptr;
+        size_t size_ = 0;
+        size_t capacity_ = 0;
+        std::mutex mutex_;
 
-  BridgeBuffer(const BridgeBuffer &) = delete;
-  BridgeBuffer &operator=(const BridgeBuffer &) = delete;
+        BridgeBuffer(const BridgeBuffer &) = delete;
+        BridgeBuffer &operator=(const BridgeBuffer &) = delete;
 };
 
 }  // namespace bridge

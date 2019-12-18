@@ -29,59 +29,65 @@ using apollo::cyber::io::Session;
 using apollo::localization::LocalizationEstimate;
 
 template <typename T>
-bool UDPBridgeSenderComponent<T>::Init() {
-  AINFO << "UDP bridge sender init, startin...";
-  apollo::bridge::UDPBridgeSenderRemoteInfo udp_bridge_remote;
-  if (!this->GetProtoConfig(&udp_bridge_remote)) {
-    AINFO << "load udp bridge component proto param failed";
-    return false;
-  }
-  remote_ip_ = udp_bridge_remote.remote_ip();
-  remote_port_ = udp_bridge_remote.remote_port();
-  proto_name_ = udp_bridge_remote.proto_name();
-  ADEBUG << "UDP Bridge remote ip is: " << remote_ip_;
-  ADEBUG << "UDP Bridge remote port is: " << remote_port_;
-  ADEBUG << "UDP Bridge for Proto is: " << proto_name_;
-  return true;
+bool UDPBridgeSenderComponent<T>::Init() 
+{
+        AINFO << "UDP bridge sender init, startin...";
+        apollo::bridge::UDPBridgeSenderRemoteInfo udp_bridge_remote;
+        if (!this->GetProtoConfig(&udp_bridge_remote)) 
+        {
+                AINFO << "load udp bridge component proto param failed";
+                return false;
+        }
+        remote_ip_ = udp_bridge_remote.remote_ip();
+        remote_port_ = udp_bridge_remote.remote_port();
+        proto_name_ = udp_bridge_remote.proto_name();
+        ADEBUG << "UDP Bridge remote ip is: " << remote_ip_;
+        ADEBUG << "UDP Bridge remote port is: " << remote_port_;
+        ADEBUG << "UDP Bridge for Proto is: " << proto_name_;
+        return true;
 }
 
 template <typename T>
-bool UDPBridgeSenderComponent<T>::Proc(const std::shared_ptr<T> &pb_msg) {
-  if (remote_port_ == 0 || remote_ip_.empty()) {
-    AERROR << "remote info is invalid!";
-    return false;
-  }
+bool UDPBridgeSenderComponent<T>::Proc(const std::shared_ptr<T> &pb_msg) 
+{
+        if (remote_port_ == 0 || remote_ip_.empty()) 
+        {
+                AERROR << "remote info is invalid!";
+                return false;
+        }
 
-  if (pb_msg == nullptr) {
-    AERROR << "proto msg is not ready!";
-    return false;
-  }
+        if (pb_msg == nullptr) 
+        {
+                AERROR << "proto msg is not ready!";
+                return false;
+        }
 
-  struct sockaddr_in server_addr;
-  server_addr.sin_addr.s_addr = inet_addr(remote_ip_.c_str());
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(static_cast<uint16_t>(remote_port_));
-  int sock_fd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
+        struct sockaddr_in server_addr;
+        server_addr.sin_addr.s_addr = inet_addr(remote_ip_.c_str());
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(static_cast<uint16_t>(remote_port_));
+        int sock_fd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
 
-  int res =
-      connect(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
-  if (res < 0) {
-    close(sock_fd);
-    return false;
-  }
+        int res = connect(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+        if (res < 0) 
+        {
+                close(sock_fd);
+                return false;
+        }
 
-  BridgeProtoSerializedBuf<T> proto_buf;
-  proto_buf.Serialize(pb_msg, proto_name_);
-  for (size_t j = 0; j < proto_buf.GetSerializedBufCount(); j++) {
-    ssize_t nbytes = send(sock_fd, proto_buf.GetSerializedBuf(j),
-                          proto_buf.GetSerializedBufSize(j), 0);
-    if (nbytes != static_cast<ssize_t>(proto_buf.GetSerializedBufSize(j))) {
-      break;
-    }
-  }
-  close(sock_fd);
+        BridgeProtoSerializedBuf<T> proto_buf;
+        proto_buf.Serialize(pb_msg, proto_name_);
+        for (size_t j = 0; j < proto_buf.GetSerializedBufCount(); j++) 
+        {
+                ssize_t nbytes = send(sock_fd, proto_buf.GetSerializedBuf(j), proto_buf.GetSerializedBufSize(j), 0);
+                if (nbytes != static_cast<ssize_t>(proto_buf.GetSerializedBufSize(j))) 
+                {
+                        break;
+                }
+        }
+        close(sock_fd);
 
-  return true;
+        return true;
 }
 
 BRIDGE_IMPL(LocalizationEstimate);

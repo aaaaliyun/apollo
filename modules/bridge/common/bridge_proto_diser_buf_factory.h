@@ -25,17 +25,18 @@
 namespace apollo {
 namespace bridge {
 
-class ProtoDiserializedBufBaseFactory {
- public:
-  static std::shared_ptr<ProtoDiserializedBufBase> CreateObj(
-      const BridgeHeader &header) {
-    std::shared_ptr<ProtoDiserializedBufBase> obj;
-    if (strcmp("Chassis", header.GetMsgName().c_str()) == 0) {
-      obj = std::make_shared<BridgeProtoDiserializedBuf<canbus::Chassis>>(
-          FLAGS_chassis_topic);
-    }
-    return obj;
-  }
+class ProtoDiserializedBufBaseFactory 
+{
+public:
+        static std::shared_ptr<ProtoDiserializedBufBase> CreateObj(const BridgeHeader &header) 
+        {
+                std::shared_ptr<ProtoDiserializedBufBase> obj;
+                if (strcmp("Chassis", header.GetMsgName().c_str()) == 0) 
+                {
+                        obj = std::make_shared<BridgeProtoDiserializedBuf<canbus::Chassis>>(FLAGS_chassis_topic);
+                }
+                return obj;
+        }
 };
 
 }  // namespace bridge

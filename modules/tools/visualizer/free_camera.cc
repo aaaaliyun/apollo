@@ -19,19 +19,20 @@
 FreeCamera::FreeCamera(void)
     : AbstractCamera(), translation_(0.0, 0.0f, 0.0f) {}
 
-void FreeCamera::UpdateWorld(void) {
-  QMatrix4x4 R = YawPitchRoll(attitude_[0], attitude_[1], attitude_[2]);
+void FreeCamera::UpdateWorld(void) 
+{
+        QMatrix4x4 R = YawPitchRoll(attitude_[0], attitude_[1], attitude_[2]);
 
-  position_ += translation_;
-  translation_.setX(0.0f);
-  translation_.setY(0.0f);
-  translation_.setZ(0.0f);
+        position_ += translation_;
+        translation_.setX(0.0f);
+        translation_.setY(0.0f);
+        translation_.setZ(0.0f);
 
-  look_ = QVector3D(R * QVector4D(0.0f, 0.0f, 1.0f, 0.0f));
-  up_ = QVector3D(R * QVector4D(0.0f, 1.0f, 0.0f, 0.0f));
-  right_ = QVector3D::crossProduct(look_, up_);
+        look_ = QVector3D(R * QVector4D(0.0f, 0.0f, 1.0f, 0.0f));
+        up_ = QVector3D(R * QVector4D(0.0f, 1.0f, 0.0f, 0.0f));
+        right_ = QVector3D::crossProduct(look_, up_);
 
-  QVector3D tgt = position_ + look_;
-  model_view_mat_.setToIdentity();
-  model_view_mat_.lookAt(position_, tgt, up_);
+        QVector3D tgt = position_ + look_;
+        model_view_mat_.setToIdentity();
+        model_view_mat_.lookAt(position_, tgt, up_);
 }

@@ -27,46 +27,54 @@ template <typename T>
 BridgeBuffer<T>::BridgeBuffer() {}
 
 template <typename T>
-BridgeBuffer<T>::BridgeBuffer(size_t size) {
-  reset(size);
+BridgeBuffer<T>::BridgeBuffer(size_t size) 
+{
+        reset(size);
 }
 
 template <typename T>
-BridgeBuffer<T>::~BridgeBuffer() {
-  std::lock_guard<std::mutex> lg(mutex_);
-  if (buf_) {
-    delete[] buf_;
-  }
-  buf_ = nullptr;
-  size_ = 0;
-  capacity_ = 0;
+BridgeBuffer<T>::~BridgeBuffer() 
+{
+        std::lock_guard<std::mutex> lg(mutex_);
+        if (buf_) 
+        {
+                delete[] buf_;
+        }
+        buf_ = nullptr;
+        size_ = 0;
+        capacity_ = 0;
 }
 
 template <typename T>
-BridgeBuffer<T>::operator T *() {
-  return buf_;
+BridgeBuffer<T>::operator T *() 
+{
+        return buf_;
 }
 
 template <typename T>
-void BridgeBuffer<T>::reset(size_t size) {
-  std::lock_guard<std::mutex> lg(mutex_);
-  if (capacity_ < size) {
-    if (buf_) {
-      delete[] buf_;
-    }
-    capacity_ = size;
-    buf_ = new T[capacity_];
-  }
-  size_ = size;
-  memset(buf_, 0, sizeof(T) * capacity_);
+void BridgeBuffer<T>::reset(size_t size) 
+{
+        std::lock_guard<std::mutex> lg(mutex_);
+        if (capacity_ < size) 
+        {
+                if (buf_) 
+                {
+                        delete[] buf_;
+                }
+                capacity_ = size;
+                buf_ = new T[capacity_];
+        }
+        size_ = size;
+        memset(buf_, 0, sizeof(T) * capacity_);
 }
 
 template <typename T>
-void BridgeBuffer<T>::write(size_t index, const T *data, size_t size) {
-  std::lock_guard<std::mutex> lg(mutex_);
-  reset(size + index);
-  T *p = buf_ + index;
-  memcpy(p, data, size);
+void BridgeBuffer<T>::write(size_t index, const T *data, size_t size) 
+{
+        std::lock_guard<std::mutex> lg(mutex_);
+        reset(size + index);
+        T *p = buf_ + index;
+        memcpy(p, data, size);
 }
 
 BRIDGE_IMPL(char);

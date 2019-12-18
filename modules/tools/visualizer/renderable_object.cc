@@ -20,27 +20,23 @@
 
 std::shared_ptr<QOpenGLShaderProgram> RenderableObject::NullRenderableObj;
 
-std::shared_ptr<QOpenGLShaderProgram> RenderableObject::CreateShaderProgram(
-    const QString& vertexShaderFileName, const QString& fragShaderFileName) {
-  std::shared_ptr<QOpenGLShaderProgram> shaderProg(new QOpenGLShaderProgram());
-  if (shaderProg != nullptr) {
-    shaderProg->addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                        vertexShaderFileName);
-    shaderProg->addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                        fragShaderFileName);
-    if (!shaderProg->link()) {
-      std::cerr << "----cannot link shader programm, log:("
-                << shaderProg->log().toStdString() << ")\n";
-
-      shaderProg.reset();
-    }
-  }
-  return shaderProg;
+std::shared_ptr<QOpenGLShaderProgram> RenderableObject::CreateShaderProgram(const QString& vertexShaderFileName, const QString& fragShaderFileName) 
+{
+        std::shared_ptr<QOpenGLShaderProgram> shaderProg(new QOpenGLShaderProgram());
+        if (shaderProg != nullptr) 
+        {
+                shaderProg->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderFileName);
+                shaderProg->addShaderFromSourceFile(QOpenGLShader::Fragment, fragShaderFileName);
+                if (!shaderProg->link()) 
+                {
+                        std::cerr << "----cannot link shader programm, log:(" << shaderProg->log().toStdString() << ")\n";
+                        shaderProg.reset();
+                }
+        }
+        return shaderProg;
 }
 
-RenderableObject::RenderableObject(
-    int vertexCount, int vertexElementCount,
-    const std::shared_ptr<QOpenGLShaderProgram>& shaderProgram)
+RenderableObject::RenderableObject(int vertexCount, int vertexElementCount, const std::shared_ptr<QOpenGLShaderProgram>& shaderProgram)
     : QOpenGLFunctions(),
       is_init_(false),
       is_renderable_(true),
@@ -50,85 +46,107 @@ RenderableObject::RenderableObject(
       vao_(),
       vbo_(QOpenGLBuffer::VertexBuffer) {}
 
-RenderableObject::~RenderableObject() { Destroy(); }
+RenderableObject::~RenderableObject() 
+{ 
+        Destroy(); 
+}
 
-void RenderableObject::Destroy(void) {
-  if (is_init_) {
-    is_renderable_ = false;
-    is_init_ = false;
-    shader_program_.reset();
-    vbo_.destroy();
-    vao_.destroy();
+void RenderableObject::Destroy(void) 
+{
+        if (is_init_) 
+        {
+                is_renderable_ = false;
+                is_init_ = false;
+                shader_program_.reset();
+                vbo_.destroy();
+                vao_.destroy();
   }
 }
 
-bool RenderableObject::Init(
-    std::shared_ptr<QOpenGLShaderProgram>& shaderProgram) {
-  if (is_init_) {
-    return true;
-  }
+bool RenderableObject::Init(std::shared_ptr<QOpenGLShaderProgram>& shaderProgram) 
+{
+        if (is_init_) 
+        {
+                return true;
+        }
 
-  if (vertex_count() < 1) {
-    return false;
-  }
-  if (vertex_element_count() < 1) {
-    return false;
-  }
+        if (vertex_count() < 1) 
+        {
+                return false;
+        }
 
-  if (shaderProgram != nullptr) {
-    shader_program_ = shaderProgram;
-  }
+        if (vertex_element_count() < 1) 
+        {
+                return false;
+        }
 
-  if (shader_program_ == nullptr) {
-    return false;
-  }
+        if (shaderProgram != nullptr) 
+        {
+                shader_program_ = shaderProgram;
+        }
 
-  initializeOpenGLFunctions();
+        if (shader_program_ == nullptr) 
+        {
+                return false;
+        }
 
-  if (!vao_.create()) {
-    return false;
-  }
-  vao_.bind();
+        initializeOpenGLFunctions();
 
-  if (!vbo_.create()) {
-    vao_.destroy();
-    return false;
-  }
-  vbo_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-  vbo_.bind();
+        if (!vao_.create()) 
+        {
+                return false;
+        }
 
-  vbo_.allocate(VertexBufferSize());
-  GLfloat* pBuffer = static_cast<GLfloat*>(vbo_.map(QOpenGLBuffer::WriteOnly));
-  bool ret = FillVertexBuffer(pBuffer);
-  vbo_.unmap();
+        vao_.bind();
 
-  if (!ret) {
-    return ret;
-  }
+        if (!vbo_.create()) 
+        {
+                vao_.destroy();
+                return false;
+        }
 
-  SetupAllAttrPointer();
+        vbo_.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        vbo_.bind();
 
-  vbo_.release();
-  vao_.release();
-  is_init_ = true;
+        vbo_.allocate(VertexBufferSize());
+        GLfloat* pBuffer = static_cast<GLfloat*>(vbo_.map(QOpenGLBuffer::WriteOnly));
+        bool ret = FillVertexBuffer(pBuffer);
+        vbo_.unmap();
 
-  return true;
+        if (!ret) 
+        {
+                return ret;
+        }
+
+        SetupAllAttrPointer();
+
+        vbo_.release();
+        vao_.release();
+        is_init_ = true;
+
+        return true;
 }
 
-void RenderableObject::Render(const QMatrix4x4* mvp) {
-  if (is_init_) {
-    if (is_renderable()) {
-      shader_program_->bind();
-      if (mvp) {
-        shader_program_->setUniformValue("mvp", *mvp);
-      }
-      SetupExtraUniforms();
-      vao_.bind();
-      Draw();
-      vao_.release();
-      shader_program_->release();
-    }
-  } else {
-    std::cerr << "Please initialize the object" << std::endl;
-  }
+void RenderableObject::Render(const QMatrix4x4* mvp) 
+{
+        if (is_init_) 
+        {
+                if (is_renderable()) 
+                {
+                        shader_program_->bind();
+                        if (mvp) 
+                        {
+                                shader_program_->setUniformValue("mvp", *mvp);
+                        }
+                        SetupExtraUniforms();
+                        vao_.bind();
+                        Draw();
+                        vao_.release();
+                        shader_program_->release();
+                }
+        } 
+        else 
+        {
+                std::cerr << "Please initialize the object" << std::endl;
+        }
 }

@@ -22,16 +22,17 @@ namespace Ui {
 class MessageDialog;
 }
 
-class MessageDialog : public QDialog {
-  Q_OBJECT
+class MessageDialog : public QDialog 
+{
+Q_OBJECT
 
- public:
-  explicit MessageDialog(QWidget* parent = nullptr);
-  ~MessageDialog();
+public:
+        explicit MessageDialog(QWidget* parent = nullptr);
+        ~MessageDialog();
 
-  void setMessage(const QString& msg);
-  void setMessage(const char* msg) { setMessage(QString(msg)); }
+        void setMessage(const QString& msg);
+        void setMessage(const char* msg) { setMessage(QString(msg)); }
 
- private:
-  Ui::MessageDialog* ui_;
+private:
+        Ui::MessageDialog* ui_;
 };

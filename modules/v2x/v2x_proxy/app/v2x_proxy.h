@@ -33,38 +33,39 @@
 namespace apollo {
 namespace v2x {
 
-class V2xProxy {
- public:
-  V2xProxy();
-  ~V2xProxy() {}
-  bool InitFlag();
+class V2xProxy 
+{
+public:
+        V2xProxy();
+        ~V2xProxy() {}
+        bool InitFlag();
 
- private:
-  std::unique_ptr<cyber::Timer> x2v_trafficlight_timer_;
-  std::unique_ptr<cyber::Timer> v2x_carstatus_timer_;
-  std::unique_ptr<cyber::Node> node_;
-  std::shared_ptr<cyber::Reader<StatusResponse>> first_flag_reader_ = nullptr;
-  std::unique_ptr<OsInterFace> os_interface_;
-  std::unique_ptr<ObuInterFaceGrpcImpl> obu_interface_;
+private:
+        std::unique_ptr<cyber::Timer> x2v_trafficlight_timer_;
+        std::unique_ptr<cyber::Timer> v2x_carstatus_timer_;
+        std::unique_ptr<cyber::Node> node_;
+        std::shared_ptr<cyber::Reader<StatusResponse>> first_flag_reader_ = nullptr;
+        std::unique_ptr<OsInterFace> os_interface_;
+        std::unique_ptr<ObuInterFaceGrpcImpl> obu_interface_;
 
-  std::shared_ptr<IntersectionTrafficLightData> x2v_trafficlight_;
-  std::shared_ptr<CarStatus> v2x_carstatus_;
+        std::shared_ptr<IntersectionTrafficLightData> x2v_trafficlight_;
+        std::shared_ptr<CarStatus> v2x_carstatus_;
 
-  /* function obu to car traffic light timer callback
-   */
-  void OnX2vTrafficLightTimer();
+        /* function obu to car traffic light timer callback
+        */
+        void OnX2vTrafficLightTimer();
 
-  /* function car to obu car status timer callback
-   */
-  void OnV2xCarStatusTimer();
+        /* function car to obu car status timer callback
+        */
+        void OnV2xCarStatusTimer();
 
-  /* function trafficlight proc according to hdmap waiting for add
-  @param output mutable CurrentLaneTrafficLight msg
-  */
-  bool TrafficLightProc(CurrentLaneTrafficLight *msg);
-  std::unique_ptr<apollo::hdmap::HDMap> hdmap_;
+        /* function trafficlight proc according to hdmap waiting for add
+        @param output mutable CurrentLaneTrafficLight msg
+        */
+        bool TrafficLightProc(CurrentLaneTrafficLight *msg);
+        std::unique_ptr<apollo::hdmap::HDMap> hdmap_;
 
-  bool init_flag_ = false;
+        bool init_flag_ = false;
 };
 
 }  // namespace v2x

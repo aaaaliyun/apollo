@@ -29,49 +29,44 @@
 namespace apollo {
 namespace v2x {
 
-class GrpcServerImpl final : public ObuToCar::Service {
- public:
-  /* construct function
-   */
-  GrpcServerImpl();
+class GrpcServerImpl final : public ObuToCar::Service 
+{
+public:
+        /* construct function
+        */
+        GrpcServerImpl();
 
-  ~GrpcServerImpl() {}
+        ~GrpcServerImpl() {}
 
-  bool InitFlag() { return init_flag_; }
+        bool InitFlag() { return init_flag_; }
 
-  /* function that send perception obstacles through grpc
-  @param input perception obstacles grpc request
-  @param output grpc response
-  */
-  grpc::Status SendPerceptionObstacles(
-      grpc::ServerContext* context,
-      const apollo::perception::PerceptionObstacles* request,
-      StatusResponse* response);
+        /* function that send perception obstacles through grpc
+        @param input perception obstacles grpc request
+        @param output grpc response
+        */
+        grpc::Status SendPerceptionObstacles(grpc::ServerContext* context, const apollo::perception::PerceptionObstacles* request, StatusResponse* response);
 
-  /* function that send v2x trafficlight through grpc
-  @param input v2x trafficlight grpc request
-  @param output grpc response
-  */
-  grpc::Status SendV2xTrafficLight(grpc::ServerContext* context,
-                                   const IntersectionTrafficLightData* request,
-                                   StatusResponse* response);
+        /* function that send v2x trafficlight through grpc
+        @param input v2x trafficlight grpc request
+        @param output grpc response
+        */
+        grpc::Status SendV2xTrafficLight(grpc::ServerContext* context, const IntersectionTrafficLightData* request, StatusResponse* response);
 
-  /* function that get latest msg from grpc
-  @param output shared_ptr
-  */
-  void GetMsgFromGrpc(
-      const std::shared_ptr<apollo::perception::PerceptionObstacles>& ptr);
-  void GetMsgFromGrpc(const std::shared_ptr<IntersectionTrafficLightData>& ptr);
+        /* function that get latest msg from grpc
+        @param output shared_ptr
+        */
+        void GetMsgFromGrpc(const std::shared_ptr<apollo::perception::PerceptionObstacles>& ptr);
+        void GetMsgFromGrpc(const std::shared_ptr<IntersectionTrafficLightData>& ptr);
 
- private:
-  std::mutex traffic_light_mutex_;
-  std::mutex obstacles_mutex_;
-  apollo::perception::PerceptionObstacles latest_obstacles_;
-  IntersectionTrafficLightData latest_trafficlight_;
-  bool init_flag_ = false;
-  bool first_recv_flag_ = true;
-  std::unique_ptr<cyber::Node> node_;
-  std::shared_ptr<cyber::Writer<StatusResponse>> first_flag_writer_ = nullptr;
+private:
+        std::mutex traffic_light_mutex_;
+        std::mutex obstacles_mutex_;
+        apollo::perception::PerceptionObstacles latest_obstacles_;
+        IntersectionTrafficLightData latest_trafficlight_;
+        bool init_flag_ = false;
+        bool first_recv_flag_ = true;
+        std::unique_ptr<cyber::Node> node_;
+        std::shared_ptr<cyber::Writer<StatusResponse>> first_flag_writer_ = nullptr;
 };
 
 }  // namespace v2x

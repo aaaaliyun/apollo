@@ -18,36 +18,37 @@
 
 const QVector3D AbstractCamera::UP{0.0f, 1.0f, 0.0f};
 
-QMatrix4x4 AbstractCamera::YawPitchRoll(float yaw, float pitch, float roll) {
-  yaw = Radians(yaw);
-  pitch = Radians(pitch);
-  roll = Radians(roll);
+QMatrix4x4 AbstractCamera::YawPitchRoll(float yaw, float pitch, float roll) 
+{
+        yaw = Radians(yaw);
+        pitch = Radians(pitch);
+        roll = Radians(roll);
 
-  register float tmpCy = std::cos(yaw);
-  register float tmpSy = std::sin(yaw);
-  register float tmpCp = std::cos(pitch);
-  register float tmpSp = std::sin(pitch);
-  register float tmpCr = std::cos(roll);
-  register float tmpSr = std::sin(roll);
+        register float tmpCy = std::cos(yaw);
+        register float tmpSy = std::sin(yaw);
+        register float tmpCp = std::cos(pitch);
+        register float tmpSp = std::sin(pitch);
+        register float tmpCr = std::cos(roll);
+        register float tmpSr = std::sin(roll);
 
-  QMatrix4x4 Result;
-  Result(0, 0) = tmpCy * tmpCr + tmpSy * tmpSp * tmpSr;
-  Result(1, 0) = tmpSr * tmpCp;
-  Result(2, 0) = -tmpSy * tmpCr + tmpCy * tmpSp * tmpSr;
-  Result(3, 0) = 0.0f;
-  Result(0, 1) = -tmpCy * tmpSr + tmpSy * tmpSp * tmpCr;
-  Result(1, 1) = tmpCr * tmpCp;
-  Result(2, 1) = tmpSr * tmpSy + tmpCy * tmpSp * tmpCr;
-  Result(3, 1) = 0.0f;
-  Result(0, 2) = tmpSy * tmpCp;
-  Result(1, 2) = -tmpSp;
-  Result(2, 2) = tmpCy * tmpCp;
-  Result(3, 2) = 0.0f;
-  Result(0, 3) = 0.0f;
-  Result(1, 3) = 0.0f;
-  Result(2, 3) = 0.0f;
-  Result(3, 3) = 1.0f;
-  return Result;
+        QMatrix4x4 Result;
+        Result(0, 0) = tmpCy * tmpCr + tmpSy * tmpSp * tmpSr;
+        Result(1, 0) = tmpSr * tmpCp;
+        Result(2, 0) = -tmpSy * tmpCr + tmpCy * tmpSp * tmpSr;
+        Result(3, 0) = 0.0f;
+        Result(0, 1) = -tmpCy * tmpSr + tmpSy * tmpSp * tmpCr;
+        Result(1, 1) = tmpCr * tmpCp;
+        Result(2, 1) = tmpSr * tmpSy + tmpCy * tmpSp * tmpCr;
+        Result(3, 1) = 0.0f;
+        Result(0, 2) = tmpSy * tmpCp;
+        Result(1, 2) = -tmpSp;
+        Result(2, 2) = tmpCy * tmpCp;
+        Result(3, 2) = 0.0f;
+        Result(0, 3) = 0.0f;
+        Result(1, 3) = 0.0f;
+        Result(2, 3) = 0.0f;
+        Result(3, 3) = 1.0f;
+        return Result;
 }
 
 AbstractCamera::AbstractCamera()

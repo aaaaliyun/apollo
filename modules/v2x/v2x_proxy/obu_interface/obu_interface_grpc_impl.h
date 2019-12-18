@@ -30,64 +30,60 @@
 namespace apollo {
 namespace v2x {
 
-class ObuInterFaceGrpcImpl : public ObuInterFaceBase {
- public:
-  ObuInterFaceGrpcImpl();
-  ~ObuInterFaceGrpcImpl();
+class ObuInterFaceGrpcImpl : public ObuInterFaceBase 
+{
+public:
+        ObuInterFaceGrpcImpl();
+        ~ObuInterFaceGrpcImpl();
 
-  /* function that init grpc server
-   */
-  bool InitialServer() override;
+        /* function that init grpc server
+        */
+        bool InitialServer() override;
 
-  /* function that init grpc client
-   */
-  bool InitialClient() override;
+        /* function that init grpc client
+        */
+        bool InitialClient() override;
 
-  /* function that get perception obstacles through grpc
-  @param output return latest v2x perception obstacles
-  */
-  void GetV2xObstaclesFromObu(
-      const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg)
-      override;
+        /* function that get perception obstacles through grpc
+        @param output return latest v2x perception obstacles
+        */
+        void GetV2xObstaclesFromObu(const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg) override;
 
-  /* function that get v2x traffic light through grpc
-  @param output return latest v2x traffic light
-  */
-  void GetV2xTrafficLightFromObu(
-      const std::shared_ptr<IntersectionTrafficLightData> &msg) override;
+        /* function that get v2x traffic light through grpc
+        @param output return latest v2x traffic light
+        */
+        void GetV2xTrafficLightFromObu(const std::shared_ptr<IntersectionTrafficLightData> &msg) override;
 
-  /* function that send car status through grpc
-  @param input send car status msg to grpc
-  */
-  void SendCarStatusToObu(const std::shared_ptr<CarStatus> &msg) override;
+        /* function that send car status through grpc
+        @param input send car status msg to grpc
+        */
+        void SendCarStatusToObu(const std::shared_ptr<CarStatus> &msg) override;
 
-  /* function that send perception obstacles through grpc
-  @param input send perception obstacles msg to grpc
-  */
-  void SendObstaclesToObu(
-      const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg)
-      override;
+        /* function that send perception obstacles through grpc
+        @param input send perception obstacles msg to grpc
+        */
+        void SendObstaclesToObu(const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg) override;
 
-  /* function that return init flag
-   */
-  bool InitFlag() { return init_succ_; }
+        /* function that return init flag
+        */
+        bool InitFlag() { return init_succ_; }
 
- private:
-  /* thread function that run server
-   */
-  void ThreadRunServer();
-  std::shared_ptr<GrpcClientImpl> grpc_client_;
-  std::shared_ptr<GrpcServerImpl> grpc_server_;
-  std::unique_ptr<grpc::Server> server_;
+private:
+        /* thread function that run server
+        */
+        void ThreadRunServer();
+        std::shared_ptr<GrpcClientImpl> grpc_client_;
+        std::shared_ptr<GrpcServerImpl> grpc_server_;
+        std::unique_ptr<grpc::Server> server_;
 
-  bool grpc_client_init_flag_ = false;
-  bool grpc_server_init_flag_ = false;
+        bool grpc_client_init_flag_ = false;
+        bool grpc_server_init_flag_ = false;
 
-  bool init_succ_ = false;
-  bool exit_flag_ = false;
-  std::unique_ptr<std::thread> thread_ptr_;
-  std::mutex mutex_;
-  std::condition_variable condition_;
+        bool init_succ_ = false;
+        bool exit_flag_ = false;
+        std::unique_ptr<std::thread> thread_ptr_;
+        std::mutex mutex_;
+        std::condition_variable condition_;
 };
 
 }  // namespace v2x

@@ -35,24 +35,26 @@ namespace prediction {
  * This tool is used to trigger modules that depends on prediction message.
  */
 
-class FakePredictionComponent : public apollo::cyber::TimerComponent {
- public:
-  bool Init() override {
-    prediction_writer_ =
-        node_->CreateWriter<PredictionObstacles>(FLAGS_prediction_topic);
-    return true;
-  }
-  bool Proc() override {
-    auto prediction = std::make_shared<PredictionObstacles>();
-    common::util::FillHeader("fake_prediction", prediction.get());
-    prediction_writer_->Write(prediction);
-    return true;
-  }
+class FakePredictionComponent : public apollo::cyber::TimerComponent 
+{
+public:
+        bool Init() override 
+        {
+                prediction_writer_ = node_->CreateWriter<PredictionObstacles>(FLAGS_prediction_topic);
+                return true;
+        }
+        bool Proc() override 
+        {
+                auto prediction = std::make_shared<PredictionObstacles>();
+                common::util::FillHeader("fake_prediction", prediction.get());
+                prediction_writer_->Write(prediction);
+                return true;
+        }
 
- private:
-  std::shared_ptr<apollo::cyber::Writer<PredictionObstacles>>
-      prediction_writer_;
+private:
+        std::shared_ptr<apollo::cyber::Writer<PredictionObstacles>> prediction_writer_;
 };
+
 CYBER_REGISTER_COMPONENT(FakePredictionComponent);
 
 }  // namespace prediction

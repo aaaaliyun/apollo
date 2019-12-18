@@ -44,38 +44,37 @@ namespace bridge {
   CYBER_REGISTER_COMPONENT(UDPBridgeReceiverComponent<pb_msg>)
 
 template <typename T>
-class UDPBridgeReceiverComponent final : public cyber::Component<> {
- public:
-  UDPBridgeReceiverComponent();
-  ~UDPBridgeReceiverComponent();
+class UDPBridgeReceiverComponent final : public cyber::Component<> 
+{
+public:
+        UDPBridgeReceiverComponent();
+        ~UDPBridgeReceiverComponent();
 
-  bool Init() override;
+        bool Init() override;
 
-  std::string Name() const { return FLAGS_bridge_module_name; }
-  bool MsgHandle(int fd);
+        std::string Name() const { return FLAGS_bridge_module_name; }
+        bool MsgHandle(int fd);
 
- private:
-  bool InitSession(uint16_t port);
-  void MsgDispatcher();
-  bool IsProtoExist(const BridgeHeader &header);
-  BridgeProtoDiserializedBuf<T> *CreateBridgeProtoBuf(
-      const BridgeHeader &header);
-  bool IsTimeout(double time_stamp);
-  bool RemoveInvalidBuf(uint32_t msg_id);
+private:
+        bool InitSession(uint16_t port);
+        void MsgDispatcher();
+        bool IsProtoExist(const BridgeHeader &header);
+        BridgeProtoDiserializedBuf<T> *CreateBridgeProtoBuf(const BridgeHeader &header);
+        bool IsTimeout(double time_stamp);
+        bool RemoveInvalidBuf(uint32_t msg_id);
 
- private:
-  common::monitor::MonitorLogBuffer monitor_logger_buffer_;
-  unsigned int bind_port_ = 0;
-  std::string proto_name_ = "";
-  std::string topic_name_ = "";
-  bool enable_timeout_ = true;
-  std::shared_ptr<cyber::Writer<T>> writer_;
-  std::mutex mutex_;
+private:
+        common::monitor::MonitorLogBuffer monitor_logger_buffer_;
+        unsigned int bind_port_ = 0;
+        std::string proto_name_ = "";
+        std::string topic_name_ = "";
+        bool enable_timeout_ = true;
+        std::shared_ptr<cyber::Writer<T>> writer_;
+        std::mutex mutex_;
 
-  std::shared_ptr<UDPListener<UDPBridgeReceiverComponent<T>>> listener_ =
-      std::make_shared<UDPListener<UDPBridgeReceiverComponent<T>>>();
+        std::shared_ptr<UDPListener<UDPBridgeReceiverComponent<T>>> listener_ = std::make_shared<UDPListener<UDPBridgeReceiverComponent<T>>>();
 
-  std::vector<BridgeProtoDiserializedBuf<T> *> proto_list_;
+        std::vector<BridgeProtoDiserializedBuf<T> *> proto_list_;
 };
 
 RECEIVER_BRIDGE_COMPONENT_REGISTER(canbus::Chassis)

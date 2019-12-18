@@ -17,9 +17,9 @@
 #include "modules/tools/visualizer/video_images_dialog.h"
 #include "modules/tools/visualizer/ui_video_images_dialog.h"
 
-VideoImagesDialog::VideoImagesDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::VideoImagesDialog) {
-  ui->setupUi(this);
+VideoImagesDialog::VideoImagesDialog(QWidget *parent) : QDialog(parent), ui(new Ui::VideoImagesDialog) 
+{
+        ui->setupUi(this);
 }
 
 VideoImagesDialog::~VideoImagesDialog() { delete ui; }

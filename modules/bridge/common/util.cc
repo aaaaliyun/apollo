@@ -18,14 +18,16 @@
 namespace apollo {
 namespace bridge {
 
-int GetProtoSize(const char *buf, size_t size) {
-  if (size != sizeof(size_t)) {
-    return 0;
-  }
-  char size_buf[sizeof(size_t)] = {0};
-  memcpy(size_buf, buf, sizeof(size_t));
-  int proto_size = *(reinterpret_cast<int *>(size_buf));
-  return proto_size;
+int GetProtoSize(const char *buf, size_t size) 
+{
+        if (size != sizeof(size_t)) 
+        {
+                return 0;
+        }
+        char size_buf[sizeof(size_t)] = {0};
+        memcpy(size_buf, buf, sizeof(size_t));
+        int proto_size = *(reinterpret_cast<int *>(size_buf));
+        return proto_size;
 }
 
 }  // namespace bridge

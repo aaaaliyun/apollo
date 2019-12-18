@@ -31,24 +31,25 @@ namespace transform {
  * prototypes lay out all the
  * necessary data needed for each message.  */
 
-class TransformBroadcaster {
- public:
-  /** \brief Constructor (needs a cyber::Node reference) */
-  explicit TransformBroadcaster(const std::shared_ptr<cyber::Node>& node);
+class TransformBroadcaster 
+{
+public:
+        /** \brief Constructor (needs a cyber::Node reference) */
+        explicit TransformBroadcaster(const std::shared_ptr<cyber::Node>& node);
 
-  /** \brief Send a TransformStamped message
-   * The stamped data structure includes frame_id, and time, and parent_id
-   * already.  */
-  void SendTransform(const TransformStamped& transform);
+        /** \brief Send a TransformStamped message
+        * The stamped data structure includes frame_id, and time, and parent_id
+        * already.  */
+        void SendTransform(const TransformStamped& transform);
 
-  /** \brief Send a vector of TransformStamped messages
-   * The stamped data structure includes frame_id, and time, and parent_id
-   * already.  */
-  void SendTransform(const std::vector<TransformStamped>& transforms);
+        /** \brief Send a vector of TransformStamped messages
+        * The stamped data structure includes frame_id, and time, and parent_id
+        * already.  */
+        void SendTransform(const std::vector<TransformStamped>& transforms);
 
- private:
-  std::shared_ptr<cyber::Node> node_;
-  std::shared_ptr<cyber::Writer<TransformStampeds>> writer_;
+private:
+        std::shared_ptr<cyber::Node> node_;
+        std::shared_ptr<cyber::Writer<TransformStampeds>> writer_;
 };
 }  // namespace transform
 }  // namespace apollo

@@ -18,41 +18,46 @@
 
 #include "modules/tools/visualizer/abstract_camera.h"
 
-class TargetCamera : public AbstractCamera {
- public:
-  TargetCamera();
+class TargetCamera : public AbstractCamera 
+{
+public:
+        TargetCamera();
 
-  virtual void UpdateWorld();
+        virtual void UpdateWorld();
 
-  const QVector3D& target_pos(void) const { return target_pos_; }
-  void set_target_pos(float x, float y, float z) {
-    target_pos_.setX(x);
-    target_pos_.setY(y);
-    target_pos_.setZ(z);
+        const QVector3D& target_pos(void) const { return target_pos_; }
+        void set_target_pos(float x, float y, float z) 
+        {
+                target_pos_.setX(x);
+                target_pos_.setY(y);
+                target_pos_.setZ(z);
 
-    distance_ = position_.distanceToPoint(target_pos_);
-  }
+                distance_ = position_.distanceToPoint(target_pos_);
+        }
 
-  void set_target_pos(const QVector3D& tgt) {
-    target_pos_ = tgt;
-    distance_ = position_.distanceToPoint(target_pos_);
-  }
+        void set_target_pos(const QVector3D& tgt) 
+        {
+                target_pos_ = tgt;
+                distance_ = position_.distanceToPoint(target_pos_);
+        }
 
-  float distance(void) const { return distance_; }
-  void set_distance(float distance) {
-    if (distance < 0.0f) {
-      distance = 0.0f;
-    }
-    distance_ = distance;
-  }
+        float distance(void) const { return distance_; }
+        void set_distance(float distance) 
+        {
+                if (distance < 0.0f) 
+                {
+                        distance = 0.0f;
+                }
+                distance_ = distance;
+        }
 
-  void Rotate(float xRotateDegrees, float yRotateDegrees,
-              float zRotateDegrees) {
-    SetAttitude(yRotateDegrees, xRotateDegrees, zRotateDegrees);
-  }
+        void Rotate(float xRotateDegrees, float yRotateDegrees, float zRotateDegrees) 
+        {
+                SetAttitude(yRotateDegrees, xRotateDegrees, zRotateDegrees);
+        }
 
- private:
-  QVector3D target_pos_;
+private:
+        QVector3D target_pos_;
 
-  float distance_;
+        float distance_;
 };

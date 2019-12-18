@@ -17,13 +17,14 @@
 #include "modules/tools/visualizer/msg_dialog.h"
 #include "modules/tools/visualizer/ui_msg_dialog.h"
 
-MessageDialog::MessageDialog(QWidget *parent)
-    : QDialog(parent), ui_(new Ui::MessageDialog) {
-  ui_->setupUi(this);
+MessageDialog::MessageDialog(QWidget *parent) : QDialog(parent), ui_(new Ui::MessageDialog) 
+{
+        ui_->setupUi(this);
 }
 
 MessageDialog::~MessageDialog() { delete ui_; }
 
-void MessageDialog::setMessage(const QString &msg) {
-  ui_->msgLabel->setText(msg);
+void MessageDialog::setMessage(const QString &msg) 
+{
+        ui_->msgLabel->setText(msg);
 }

@@ -30,34 +30,34 @@
 namespace apollo {
 namespace v2x {
 
-class GrpcClientImpl {
- public:
-  /* construct function
-  @param input carstatus type msg shared ptr
-  */
-  explicit GrpcClientImpl(std::shared_ptr<grpc::Channel> channel);
+class GrpcClientImpl 
+{
+public:
+        /* construct function
+        @param input carstatus type msg shared ptr
+        */
+        explicit GrpcClientImpl(std::shared_ptr<grpc::Channel> channel);
 
-  ~GrpcClientImpl() {}
+        ~GrpcClientImpl() {}
 
-  bool InitFlag() { return init_flag_; }
+        bool InitFlag() { return init_flag_; }
 
-  /*function that send car status msg through grpc
-  @param input carstatus type msg shared ptr
-  */
-  void SendMsgToGrpc(const std::shared_ptr<CarStatus> &msg);
+        /*function that send car status msg through grpc
+        @param input carstatus type msg shared ptr
+        */
+        void SendMsgToGrpc(const std::shared_ptr<CarStatus> &msg);
 
-  /*function that send perception obstacles msg through grpc
-  @param input perception obstacles type msg shared ptr
-  */
-  void SendMsgToGrpc(
-      const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg);
+        /*function that send perception obstacles msg through grpc
+        @param input perception obstacles type msg shared ptr
+        */
+        void SendMsgToGrpc(const std::shared_ptr<apollo::perception::PerceptionObstacles> &msg);
 
- private:
-  //  grpc service stub
-  std::unique_ptr<CarToObu::Stub> stub_;
-  int carstatus_tv_nsec_ = 0;
-  int perception_tv_nsec_ = 0;
-  bool init_flag_ = false;
+private:
+        //  grpc service stub
+        std::unique_ptr<CarToObu::Stub> stub_;
+        int carstatus_tv_nsec_ = 0;
+        int perception_tv_nsec_ = 0;
+        bool init_flag_ = false;
 };
 
 }  // namespace v2x
