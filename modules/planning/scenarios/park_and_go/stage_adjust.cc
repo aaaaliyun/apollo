@@ -48,10 +48,21 @@ Stage::StageStatus ParkAndGoStageAdjust::Process(
     AERROR << "ParkAndGoStageAdjust planning error";
     return StageStatus::ERROR;
   }
-  const bool ready_to_cruise =
+  const bool is_ready_to_cruise =
       scenario::util::CheckADCReadyToCruise(frame, scenario_config_);
 
-  if (!ready_to_cruise) {
+  bool is_end_of_trajectory = false;
+  const auto& history_frame = FrameHistory::Instance()->Latest();
+  if (history_frame) {
+    const auto& trajectory_points =
+        history_frame->current_frame_planned_trajectory().trajectory_point();
+    if (!trajectory_points.empty()) {
+      is_end_of_trajectory =
+          (trajectory_points.rbegin()->relative_time() < 0.0);
+    }
+  }
+
+  if (!is_ready_to_cruise && !is_end_of_trajectory) {
     return StageStatus::RUNNING;
   }
   return FinishStage();
