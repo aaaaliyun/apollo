@@ -39,105 +39,125 @@ namespace apollo {
 namespace localization {
 namespace msf {
 
-union LeverArm {
-  double arm[3];
-  struct {
-    double arm_x;
-    double arm_y;
-    double arm_z;
-  };
+union LeverArm 
+{
+        double arm[3];
+        struct 
+        {
+                double arm_x;
+                double arm_y;
+                double arm_z;
+        };
 };
 
-struct EphKey {
-  apollo::drivers::gnss::GnssType gnss_type;
-  unsigned int sat_prn;
-  // toe = eph.toe + eph.week_num * sec_per_week
-  double eph_toe;
-  static const int second_per_week = 604800;
-  EphKey(const apollo::drivers::gnss::GnssType type, const unsigned int prn,
-         double toe) {
-    gnss_type = type;
-    sat_prn = prn;
-    eph_toe = toe;
-  }
-  EphKey(const apollo::drivers::gnss::GnssType type, const unsigned int prn,
-         const unsigned int week_num, double toe) {
-    gnss_type = type;
-    sat_prn = prn;
-    eph_toe = toe + week_num * second_per_week;
-  }
-  EphKey() {
-    gnss_type = apollo::drivers::gnss::SYS_UNKNOWN;
-    sat_prn = 0;
-    eph_toe = -0.1;
-  }
-  bool operator<(const EphKey &key2) const {
-    if (gnss_type < key2.gnss_type) {
-      return true;
-    }
-    if (gnss_type == key2.gnss_type) {
-      if (sat_prn < key2.sat_prn) {
-        return true;
-      }
-      if (sat_prn == key2.sat_prn) {
-        return eph_toe < key2.eph_toe;
-      }
-      return false;
-    }
-    return false;
-  }
-  bool operator==(const EphKey &key2) const {
-    return (gnss_type == key2.gnss_type) && (sat_prn == key2.sat_prn) &&
-           (eph_toe == key2.eph_toe);
-  }
-  EphKey &operator=(const EphKey &key2) {
-    gnss_type = key2.gnss_type;
-    sat_prn = key2.sat_prn;
-    eph_toe = key2.eph_toe;
-    return *this;
-  }
+struct EphKey 
+{
+        apollo::drivers::gnss::GnssType gnss_type;
+
+        unsigned int sat_prn;
+
+        // toe = eph.toe + eph.week_num * sec_per_week
+        double eph_toe;
+
+        static const int second_per_week = 604800;
+
+        EphKey(const apollo::drivers::gnss::GnssType type, const unsigned int prn, double toe) 
+        {
+                gnss_type = type;
+                sat_prn = prn;
+                eph_toe = toe;
+        }
+
+        EphKey(const apollo::drivers::gnss::GnssType type, const unsigned int prn, const unsigned int week_num, double toe) 
+        {
+                gnss_type = type;
+                sat_prn = prn;
+                eph_toe = toe + week_num * second_per_week;
+        }
+
+        EphKey() 
+        {
+                gnss_type = apollo::drivers::gnss::SYS_UNKNOWN;
+                sat_prn = 0;
+                eph_toe = -0.1;
+        }
+
+        bool operator<(const EphKey &key2) const 
+        {
+                if (gnss_type < key2.gnss_type) 
+                {
+                        return true;
+                }
+                if (gnss_type == key2.gnss_type) 
+                {
+                        if (sat_prn < key2.sat_prn) 
+                        {
+                                return true;
+                        }
+                        if (sat_prn == key2.sat_prn) 
+                        {
+                                return eph_toe < key2.eph_toe;
+                        }
+                        return false;
+                }
+                return false;
+        }
+
+        bool operator==(const EphKey &key2) const 
+        {
+                return (gnss_type == key2.gnss_type) && (sat_prn == key2.sat_prn) && (eph_toe == key2.eph_toe);
+        }
+
+        EphKey &operator=(const EphKey &key2) 
+        {
+                gnss_type = key2.gnss_type;
+                sat_prn = key2.sat_prn;
+                eph_toe = key2.eph_toe;
+                return *this;
+        }
 };
 
-class LocalizationGnssProcess {
- public:
-  LocalizationGnssProcess();
-  ~LocalizationGnssProcess();
-  apollo::common::Status Init(const LocalizationIntegParam &param);
-  // callback function for rostopic
-  // raw data' field "receiver_id" differs rover (= 0) from baser (= 1)
-  void RawObservationProcess(const drivers::gnss::EpochObservation &raw_obs);
-  void RawEphemerisProcess(const drivers::gnss::GnssEphemeris &gnss_orbit);
-  void IntegSinsPvaProcess(const InsPva &sins_pva, const double variance[9][9]);
-  LocalizationMeasureState GetResult(MeasureData *gnss_measure);
+class LocalizationGnssProcess 
+{
+public:
+        LocalizationGnssProcess();
+        ~LocalizationGnssProcess();
+        apollo::common::Status Init(const LocalizationIntegParam &param);
+        // callback function for rostopic
+        // raw data' field "receiver_id" differs rover (= 0) from baser (= 1)
+        void RawObservationProcess(const drivers::gnss::EpochObservation &raw_obs);
+        void RawEphemerisProcess(const drivers::gnss::GnssEphemeris &gnss_orbit);
+        void IntegSinsPvaProcess(const InsPva &sins_pva, const double variance[9][9]);
+        LocalizationMeasureState GetResult(MeasureData *gnss_measure);
 
- private:
-  void SetDefaultOption();
-  // bool LoadHistoryEph(const std::string &nav_file);
-  bool DuplicateEph(const drivers::gnss::GnssEphemeris &raw_eph);
+private:
+        void SetDefaultOption();
+        // bool LoadHistoryEph(const std::string &nav_file);
+        bool DuplicateEph(const drivers::gnss::GnssEphemeris &raw_eph);
 
-  inline void LogPnt(const GnssPntResultMsg &rover_pnt, double ratio);
-  bool GnssPosition(EpochObservationMsg *raw_rover_obs);
+        inline void LogPnt(const GnssPntResultMsg &rover_pnt, double ratio);
+        bool GnssPosition(EpochObservationMsg *raw_rover_obs);
 
- private:
-  GnssSolver *gnss_solver_;
-  GnssPntResultMsg gnss_pnt_result_;
+private:
+        GnssSolver *gnss_solver_;
+        GnssPntResultMsg gnss_pnt_result_;
 
-  bool enable_ins_aid_rtk_ = true;
+        bool enable_ins_aid_rtk_ = true;
 
-  std::map<EphKey, drivers::gnss::GnssEphemeris> map_gnss_eph_;
+        std::map<EphKey, drivers::gnss::GnssEphemeris> map_gnss_eph_;
 
-  // from imu to gnss antenna
-  LeverArm gnss_lever_arm_;
-  // integrated-ins indicator
-  bool sins_align_finish_ = false;
+        // from imu to gnss antenna
+        LeverArm gnss_lever_arm_;
+        // integrated-ins indicator
+        bool sins_align_finish_ = false;
 
-  // deploy simple short-baseline to resolve heading
-  GnssSolver *double_antenna_solver_;
+        // deploy simple short-baseline to resolve heading
+        GnssSolver *double_antenna_solver_;
 
-  // newest obs time
-  double current_obs_time_ = 0.0;
+        // newest obs time
+        double current_obs_time_ = 0.0;
 
-  LocalizationMeasureState gnss_state_;
+        LocalizationMeasureState gnss_state_;
 };
 
 }  // namespace msf

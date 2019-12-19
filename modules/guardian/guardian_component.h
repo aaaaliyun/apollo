@@ -39,31 +39,28 @@
 namespace apollo {
 namespace guardian {
 
-class GuardianComponent : public apollo::cyber::TimerComponent {
- public:
-  bool Init() override;
-  bool Proc() override;
+class GuardianComponent : public apollo::cyber::TimerComponent 
+{
+public:
+        bool Init() override;
+        bool Proc() override;
 
- private:
-  void PassThroughControlCommand();
-  void TriggerSafetyMode();
+private:
+        void PassThroughControlCommand();
+        void TriggerSafetyMode();
 
-  apollo::guardian::GuardianConf guardian_conf_;
-  apollo::canbus::Chassis chassis_;
-  apollo::monitor::SystemStatus system_status_;
-  apollo::control::ControlCommand control_cmd_;
-  apollo::guardian::GuardianCommand guardian_cmd_;
+        apollo::guardian::GuardianConf guardian_conf_;
+        apollo::canbus::Chassis chassis_;
+        apollo::monitor::SystemStatus system_status_;
+        apollo::control::ControlCommand control_cmd_;
+        apollo::guardian::GuardianCommand guardian_cmd_;
 
-  std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>>
-      chassis_reader_;
-  std::shared_ptr<apollo::cyber::Reader<apollo::control::ControlCommand>>
-      control_cmd_reader_;
-  std::shared_ptr<apollo::cyber::Reader<apollo::monitor::SystemStatus>>
-      system_status_reader_;
-  std::shared_ptr<apollo::cyber::Writer<apollo::guardian::GuardianCommand>>
-      guardian_writer_;
+        std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
+        std::shared_ptr<apollo::cyber::Reader<apollo::control::ControlCommand>> control_cmd_reader_;
+        std::shared_ptr<apollo::cyber::Reader<apollo::monitor::SystemStatus>> system_status_reader_;
+        std::shared_ptr<apollo::cyber::Writer<apollo::guardian::GuardianCommand>> guardian_writer_;
 
-  std::mutex mutex_;
+        std::mutex mutex_;
 };
 
 CYBER_REGISTER_COMPONENT(GuardianComponent)

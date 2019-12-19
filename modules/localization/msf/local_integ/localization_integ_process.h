@@ -44,62 +44,61 @@ enum class IntegState { NOT_INIT = 0, NOT_STABLE, OK, VALID };
  * @brief process Imu msg for localization
  */
 
-class LocalizationIntegProcess {
- public:
-  typedef Eigen::Affine3d TransformD;
+class LocalizationIntegProcess 
+{
+public:
+        typedef Eigen::Affine3d TransformD;
 
-  LocalizationIntegProcess();
-  ~LocalizationIntegProcess();
+        LocalizationIntegProcess();
+        ~LocalizationIntegProcess();
 
-  // Initialization.
-  apollo::common::Status Init(const LocalizationIntegParam &params);
+        // Initialization.
+        apollo::common::Status Init(const LocalizationIntegParam &params);
 
-  // Raw Imu process.
-  void RawImuProcess(const ImuData &imu_msg);
-  void GetState(IntegState *state);
-  void GetResult(IntegState *state, LocalizationEstimate *localization);
-  void GetResult(IntegState *state, InsPva *sins_pva,
-                 double pva_covariance[9][9]);
-  void GetCorrectedImu(ImuData *imu_data);
-  void GetEarthParameter(InertialParameter *earth_param);
+        // Raw Imu process.
+        void RawImuProcess(const ImuData &imu_msg);
+        void GetState(IntegState *state);
+        void GetResult(IntegState *state, LocalizationEstimate *localization);
+        void GetResult(IntegState *state, InsPva *sins_pva, double pva_covariance[9][9]);
+        void GetCorrectedImu(ImuData *imu_data);
+        void GetEarthParameter(InertialParameter *earth_param);
 
-  // itegration measure data process
-  void MeasureDataProcess(const MeasureData &measure_msg);
+        // itegration measure data process
+        void MeasureDataProcess(const MeasureData &measure_msg);
 
- private:
-  bool CheckIntegMeasureData(const MeasureData &measure_data);
+private:
+        bool CheckIntegMeasureData(const MeasureData &measure_data);
 
-  bool LoadGnssAntennaExtrinsic(const std::string &file_path,
-                                TransformD *extrinsic) const;
+        bool LoadGnssAntennaExtrinsic(const std::string &file_path, TransformD *extrinsic) const;
 
-  void MeasureDataProcessImpl(const MeasureData &measure_msg);
-  void MeasureDataThreadLoop();
-  void StartThreadLoop();
-  void StopThreadLoop();
+        void MeasureDataProcessImpl(const MeasureData &measure_msg);
+        void MeasureDataThreadLoop();
+        void StartThreadLoop();
+        void StopThreadLoop();
 
-  void GetValidFromOK();
+        void GetValidFromOK();
 
- private:
-  Sins *sins_;
+private:
+        Sins *sins_;
 
-  // config
-  TransformD gnss_antenna_extrinsic_;
+        // config
+        TransformD gnss_antenna_extrinsic_;
 
-  // double imu_rate_;
+        // double imu_rate_;
 
-  IntegState integ_state_;
-  InsPva ins_pva_;
-  double pva_covariance_[9][9];
+        IntegState integ_state_;
+        InsPva ins_pva_;
+        double pva_covariance_[9][9];
 
-  ImuData corrected_imu_;
-  InertialParameter earth_param_;
+        ImuData corrected_imu_;
+        InertialParameter earth_param_;
 
-  std::atomic<bool> keep_running_;
-  std::queue<MeasureData> measure_data_queue_;
-  int measure_data_queue_size_ = 150;
-  std::mutex measure_data_queue_mutex_;
+        std::atomic<bool> keep_running_;
+        std::queue<MeasureData> measure_data_queue_;
+        int measure_data_queue_size_ = 150;
+        std::mutex measure_data_queue_mutex_;
 
-  int delay_output_counter_ = 0;
+        int delay_output_counter_ = 0;
 };
 
 }  // namespace msf

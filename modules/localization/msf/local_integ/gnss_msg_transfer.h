@@ -32,25 +32,20 @@ namespace apollo {
 namespace localization {
 namespace msf {
 
-class GnssMagTransfer {
- public:
-  static void Transfer(const apollo::drivers::gnss::BandObservation& in,
-                       BandObservationMsg* out);
+class GnssMagTransfer 
+{
+public:
+        static void Transfer(const apollo::drivers::gnss::BandObservation& in, BandObservationMsg* out);
 
-  static void Transfer(const apollo::drivers::gnss::SatelliteObservation& in,
-                       SatelliteObservationMsg* out);
+        static void Transfer(const apollo::drivers::gnss::SatelliteObservation& in, SatelliteObservationMsg* out);
 
-  static void Transfer(const apollo::drivers::gnss::EpochObservation& in,
-                       EpochObservationMsg* out);
+        static void Transfer(const apollo::drivers::gnss::EpochObservation& in, EpochObservationMsg* out);
 
-  static void Transfer(const apollo::drivers::gnss::KepplerOrbit& in,
-                       KepplerOrbitMsg* out);
+        static void Transfer(const apollo::drivers::gnss::KepplerOrbit& in, KepplerOrbitMsg* out);
 
-  static void Transfer(const apollo::drivers::gnss::GlonassOrbit& in,
-                       GlonassOrbitMsg* out);
+        static void Transfer(const apollo::drivers::gnss::GlonassOrbit& in, GlonassOrbitMsg* out);
 
-  static void Transfer(const apollo::drivers::gnss::GnssEphemeris& in,
-                       GnssEphemerisMsg* out);
+        static void Transfer(const apollo::drivers::gnss::GnssEphemeris& in, GnssEphemerisMsg* out);
 };
 
 }  // namespace msf

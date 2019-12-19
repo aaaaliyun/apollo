@@ -24,43 +24,32 @@ namespace localization {
 namespace msf {
 
 struct math {
-  static void EulerToQuaternion(const double x_euler, const double y_euler,
-                                const double z_euler, double qbn[4]) {
-    qbn[0] = sin(x_euler / 2.0) * sin(y_euler / 2.0) * sin(z_euler / 2.0) +
-             cos(x_euler / 2.0) * cos(y_euler / 2.0) * cos(z_euler / 2.0);
-    qbn[1] = cos(y_euler / 2.0) * cos(z_euler / 2.0) * sin(x_euler / 2.0) +
-             cos(x_euler / 2.0) * sin(y_euler / 2.0) * sin(z_euler / 2.0);
-    qbn[2] = cos(x_euler / 2.0) * cos(z_euler / 2.0) * sin(y_euler / 2.0) -
-             cos(y_euler / 2.0) * sin(x_euler / 2.0) * sin(z_euler / 2.0);
-    qbn[3] = cos(z_euler / 2.0) * sin(x_euler / 2.0) * sin(y_euler / 2.0) -
-             cos(x_euler / 2.0) * cos(y_euler / 2.0) * sin(z_euler / 2.0);
+        static void EulerToQuaternion(const double x_euler, const double y_euler, const double z_euler, double qbn[4]) 
+        {
+                qbn[0] = sin(x_euler / 2.0) * sin(y_euler / 2.0) * sin(z_euler / 2.0) + cos(x_euler / 2.0) * cos(y_euler / 2.0) * cos(z_euler / 2.0);
+                qbn[1] = cos(y_euler / 2.0) * cos(z_euler / 2.0) * sin(x_euler / 2.0) + cos(x_euler / 2.0) * sin(y_euler / 2.0) * sin(z_euler / 2.0);
+                qbn[2] = cos(x_euler / 2.0) * cos(z_euler / 2.0) * sin(y_euler / 2.0) - cos(y_euler / 2.0) * sin(x_euler / 2.0) * sin(z_euler / 2.0);
+                qbn[3] = cos(z_euler / 2.0) * sin(x_euler / 2.0) * sin(y_euler / 2.0) - cos(x_euler / 2.0) * cos(y_euler / 2.0) * sin(z_euler / 2.0);
 
-    return;
-  }
+                return;
+        }
 
-  static void QuaternionToDcm(const double *quaternion, double dcm[3][3]) {
-    dcm[0][0] = quaternion[0] * quaternion[0] + quaternion[1] * quaternion[1] -
-                quaternion[2] * quaternion[2] - quaternion[3] * quaternion[3];
-    dcm[0][1] =
-        2 * (quaternion[1] * quaternion[2] - quaternion[0] * quaternion[3]);
-    dcm[0][2] =
-        2 * (quaternion[1] * quaternion[3] + quaternion[0] * quaternion[2]);
+        static void QuaternionToDcm(const double *quaternion, double dcm[3][3]) 
+        {
+                dcm[0][0] = quaternion[0] * quaternion[0] + quaternion[1] * quaternion[1] - quaternion[2] * quaternion[2] - quaternion[3] * quaternion[3];
+                dcm[0][1] = 2 * (quaternion[1] * quaternion[2] - quaternion[0] * quaternion[3]);
+                dcm[0][2] = 2 * (quaternion[1] * quaternion[3] + quaternion[0] * quaternion[2]);
 
-    dcm[1][0] =
-        2 * (quaternion[1] * quaternion[2] + quaternion[0] * quaternion[3]);
-    dcm[1][1] = quaternion[0] * quaternion[0] - quaternion[1] * quaternion[1] +
-                quaternion[2] * quaternion[2] - quaternion[3] * quaternion[3];
-    dcm[1][2] =
-        2 * (quaternion[2] * quaternion[3] - quaternion[0] * quaternion[1]);
+                dcm[1][0] = 2 * (quaternion[1] * quaternion[2] + quaternion[0] * quaternion[3]);
+                dcm[1][1] = quaternion[0] * quaternion[0] - quaternion[1] * quaternion[1] + quaternion[2] * quaternion[2] - quaternion[3] * quaternion[3];
+                dcm[1][2] = 2 * (quaternion[2] * quaternion[3] - quaternion[0] * quaternion[1]);
 
-    dcm[2][0] =
-        2 * (quaternion[1] * quaternion[3] - quaternion[0] * quaternion[2]);
-    dcm[2][1] =
-        2 * (quaternion[2] * quaternion[3] + quaternion[0] * quaternion[1]);
-    dcm[2][2] = quaternion[0] * quaternion[0] - quaternion[1] * quaternion[1] -
-                quaternion[2] * quaternion[2] + quaternion[3] * quaternion[3];
-    return;
-  }
+                dcm[2][0] = 2 * (quaternion[1] * quaternion[3] - quaternion[0] * quaternion[2]);
+                dcm[2][1] = 2 * (quaternion[2] * quaternion[3] + quaternion[0] * quaternion[1]);
+                dcm[2][2] = quaternion[0] * quaternion[0] - quaternion[1] * quaternion[1] - quaternion[2] * quaternion[2] + quaternion[3] * quaternion[3];
+                
+                return;
+        }
 };
 
 }  // namespace msf

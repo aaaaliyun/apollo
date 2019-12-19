@@ -44,54 +44,47 @@ namespace apollo {
 namespace localization {
 namespace msf {
 
-class OnlineVisualizerComponent final
-    : public cyber::Component<drivers::PointCloud> {
- public:
-  OnlineVisualizerComponent();
-  ~OnlineVisualizerComponent();
+class OnlineVisualizerComponent final : public cyber::Component<drivers::PointCloud> 
+{
+public:
+        OnlineVisualizerComponent();
+        ~OnlineVisualizerComponent();
 
-  /**
-   * @brief module initialization function
-   * @return initialization status
-   */
-  bool Init() override;
+        /**
+        * @brief module initialization function
+        * @return initialization status
+        */
+        bool Init() override;
 
-  bool Proc(const std::shared_ptr<drivers::PointCloud> &msg) override;
+        bool Proc(const std::shared_ptr<drivers::PointCloud> &msg) override;
 
- private:
-  bool InitConfig();
-  bool InitIO();
-  void OnLidarLocalization(
-      const std::shared_ptr<LocalizationEstimate> &message);
-  void OnGNSSLocalization(const std::shared_ptr<LocalizationEstimate> &message);
-  void OnFusionLocalization(
-      const std::shared_ptr<LocalizationEstimate> &message);
+private:
+        bool InitConfig();
+        bool InitIO();
+        void OnLidarLocalization(const std::shared_ptr<LocalizationEstimate> &message);
+        void OnGNSSLocalization(const std::shared_ptr<LocalizationEstimate> &message);
+        void OnFusionLocalization(const std::shared_ptr<LocalizationEstimate> &message);
 
-  void ParsePointCloudMessage(
-      const std::shared_ptr<drivers::PointCloud> &message,
-      std::vector<Eigen::Vector3d> *pt3ds,
-      std::vector<unsigned char> *intensities);
+        void ParsePointCloudMessage(const std::shared_ptr<drivers::PointCloud> &message,
+                                    std::vector<Eigen::Vector3d> *pt3ds,
+                                    std::vector<unsigned char> *intensities);
 
- private:
-  std::string lidar_extrinsic_file_;
-  std::string map_folder_;
-  std::string map_visual_folder_;
+private:
+        std::string lidar_extrinsic_file_;
+        std::string map_folder_;
+        std::string map_visual_folder_;
 
-  std::shared_ptr<cyber::Reader<LocalizationEstimate>> lidar_local_listener_ =
-      nullptr;
-  std::string lidar_local_topic_ = "";
+        std::shared_ptr<cyber::Reader<LocalizationEstimate>> lidar_local_listener_ = nullptr;
+        std::string lidar_local_topic_ = "";
 
-  std::shared_ptr<cyber::Reader<LocalizationEstimate>> gnss_local_listener_ =
-      nullptr;
-  std::string gnss_local_topic_ = "";
+        std::shared_ptr<cyber::Reader<LocalizationEstimate>> gnss_local_listener_ = nullptr;
+        std::string gnss_local_topic_ = "";
 
-  std::shared_ptr<cyber::Reader<LocalizationEstimate>> fusion_local_listener_ =
-      nullptr;
-  std::string fusion_local_topic_ = "";
+        std::shared_ptr<cyber::Reader<LocalizationEstimate>> fusion_local_listener_ = nullptr;
+        std::string fusion_local_topic_ = "";
 
-  std::shared_ptr<cyber::Reader<LocalizationEstimate>> ndt_local_listener_ =
-      nullptr;
-  std::string ndt_local_topic_ = "";
+        std::shared_ptr<cyber::Reader<LocalizationEstimate>> ndt_local_listener_ = nullptr;
+        std::string ndt_local_topic_ = "";
 };
 
 CYBER_REGISTER_COMPONENT(OnlineVisualizerComponent);

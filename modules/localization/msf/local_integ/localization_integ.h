@@ -49,39 +49,39 @@ class LocalizationIntegImpl;
  * @brief interface of msf localization
  */
 
-class LocalizationInteg {
- public:
-  LocalizationInteg();
-  ~LocalizationInteg();
-  // Initialization.
-  common::Status Init(const LocalizationIntegParam &params);
+class LocalizationInteg 
+{
+public:
+        LocalizationInteg();
+        ~LocalizationInteg();
+        // Initialization.
+        common::Status Init(const LocalizationIntegParam &params);
 
-  // Lidar pcd process.
-  void PcdProcess(const drivers::PointCloud &message);
-  // Raw Imu process.
-  // void CorrectedImuProcess(const Imu& imu_msg);
-  void RawImuProcessFlu(const drivers::gnss::Imu &imu_msg);
-  void RawImuProcessRfu(const drivers::gnss::Imu &imu_msg);
-  // Gnss Info process.
-  void RawObservationProcess(
-      const drivers::gnss::EpochObservation &raw_obs_msg);
-  void RawEphemerisProcess(const drivers::gnss::GnssEphemeris &gnss_orbit_msg);
-  // gnss best pose process
-  void GnssBestPoseProcess(const drivers::gnss::GnssBestPose &bestgnsspos_msg);
-  // gnss heading process
-  void GnssHeadingProcess(const drivers::gnss::Heading &gnss_heading_msg);
+        // Lidar pcd process.
+        void PcdProcess(const drivers::PointCloud &message);
+        // Raw Imu process.
+        // void CorrectedImuProcess(const Imu& imu_msg);
+        void RawImuProcessFlu(const drivers::gnss::Imu &imu_msg);
+        void RawImuProcessRfu(const drivers::gnss::Imu &imu_msg);
+        // Gnss Info process.
+        void RawObservationProcess(const drivers::gnss::EpochObservation &raw_obs_msg);
+        void RawEphemerisProcess(const drivers::gnss::GnssEphemeris &gnss_orbit_msg);
+        // gnss best pose process
+        void GnssBestPoseProcess(const drivers::gnss::GnssBestPose &bestgnsspos_msg);
+        // gnss heading process
+        void GnssHeadingProcess(const drivers::gnss::Heading &gnss_heading_msg);
 
-  const LocalizationResult &GetLastestLidarLocalization() const;
-  const LocalizationResult &GetLastestIntegLocalization() const;
-  const LocalizationResult &GetLastestGnssLocalization() const;
+        const LocalizationResult &GetLastestLidarLocalization() const;
+        const LocalizationResult &GetLastestIntegLocalization() const;
+        const LocalizationResult &GetLastestGnssLocalization() const;
 
- protected:
-  void TransferImuFlu(const drivers::gnss::Imu &imu_msg, ImuData *imu_data);
+protected:
+        void TransferImuFlu(const drivers::gnss::Imu &imu_msg, ImuData *imu_data);
 
-  void TransferImuRfu(const drivers::gnss::Imu &imu_msg, ImuData *imu_rfu);
+        void TransferImuRfu(const drivers::gnss::Imu &imu_msg, ImuData *imu_rfu);
 
- private:
-  LocalizationIntegImpl *localization_integ_impl_;
+private:
+        LocalizationIntegImpl *localization_integ_impl_;
 };
 
 }  // namespace msf

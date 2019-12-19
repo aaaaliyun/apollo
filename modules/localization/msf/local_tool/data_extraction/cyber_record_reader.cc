@@ -29,22 +29,24 @@ CyberRecordReader::CyberRecordReader() {}
 
 CyberRecordReader::~CyberRecordReader() {}
 
-void CyberRecordReader::Subscribe(
-    const std::string &topic,
-    const std::function<void(const std::string &)> call_back) {
-  call_back_map_[topic] = call_back;
-  topics_.push_back(topic);
+void CyberRecordReader::Subscribe(const std::string &topic, const std::function<void(const std::string &)> call_back) 
+{
+        call_back_map_[topic] = call_back;
+        topics_.push_back(topic);
 }
 
-void CyberRecordReader::Read(const std::string &file_name) {
-  RecordReader reader(file_name);
-  cyber::record::RecordMessage message;
-  while (reader.ReadMessage(&message)) {
-    auto itr = call_back_map_.find(message.channel_name);
-    if (itr != call_back_map_.end()) {
-      itr->second(message.content);
-    }
-  }
+void CyberRecordReader::Read(const std::string &file_name) 
+{
+        RecordReader reader(file_name);
+        cyber::record::RecordMessage message;
+        while (reader.ReadMessage(&message)) 
+        {
+                auto itr = call_back_map_.find(message.channel_name);
+                if (itr != call_back_map_.end()) 
+                {
+                        itr->second(message.content);
+                }
+        }
 }
 
 }  // namespace msf

@@ -54,49 +54,46 @@ class LocalizationMsgPublisher;
  *
  * @brief generate localization info based on MSF
  */
-class MSFLocalization {
- public:
-  MSFLocalization();
+class MSFLocalization 
+{
+public:
+        MSFLocalization();
 
-  apollo::common::Status Init();
-  void InitParams();
-  void OnPointCloud(const std::shared_ptr<drivers::PointCloud> &message);
-  void OnRawImu(const std::shared_ptr<drivers::gnss::Imu> &imu_msg);
-  void OnGnssRtkObs(
-      const std::shared_ptr<drivers::gnss::EpochObservation> &raw_obs_msg);
-  void OnGnssRtkEph(
-      const std::shared_ptr<drivers::gnss::GnssEphemeris> &gnss_orbit_msg);
-  void OnGnssBestPose(
-      const std::shared_ptr<drivers::gnss::GnssBestPose> &bestgnsspos_msg);
-  void OnGnssHeading(
-      const std::shared_ptr<drivers::gnss::Heading> &gnss_heading_msg);
+        apollo::common::Status Init();
+        void InitParams();
+        void OnPointCloud(const std::shared_ptr<drivers::PointCloud> &message);
+        void OnRawImu(const std::shared_ptr<drivers::gnss::Imu> &imu_msg);
+        void OnGnssRtkObs(const std::shared_ptr<drivers::gnss::EpochObservation> &raw_obs_msg);
+        void OnGnssRtkEph(const std::shared_ptr<drivers::gnss::GnssEphemeris> &gnss_orbit_msg);
+        void OnGnssBestPose(const std::shared_ptr<drivers::gnss::GnssBestPose> &bestgnsspos_msg);
+        void OnGnssHeading(const std::shared_ptr<drivers::gnss::Heading> &gnss_heading_msg);
 
-  void SetPublisher(const std::shared_ptr<LocalizationMsgPublisher> &publisher);
+        void SetPublisher(const std::shared_ptr<LocalizationMsgPublisher> &publisher);
 
- private:
-  bool LoadGnssAntennaExtrinsic(const std::string &file_path, double *offset_x,
+private:
+        bool LoadGnssAntennaExtrinsic(const std::string &file_path, double *offset_x,
                                 double *offset_y, double *offset_z,
                                 double *uncertainty_x, double *uncertainty_y,
                                 double *uncertainty_z);
-  bool LoadImuVehicleExtrinsic(const std::string &file_path, double *quat_qx,
+        bool LoadImuVehicleExtrinsic(const std::string &file_path, double *quat_qx,
                                double *quat_qy, double *quat_qz,
                                double *quat_qw);
-  bool LoadZoneIdFromFolder(const std::string &folder_path, int *zone_id);
-  void CompensateImuVehicleExtrinsic(LocalizationEstimate *local_result);
+        bool LoadZoneIdFromFolder(const std::string &folder_path, int *zone_id);
+        void CompensateImuVehicleExtrinsic(LocalizationEstimate *local_result);
 
- private:
-  apollo::common::monitor::MonitorLogBuffer monitor_logger_;
-  msf::LocalizationInteg localization_integ_;
-  msf::LocalizationIntegParam localization_param_;
-  msf::LocalizationMeasureState localization_state_;
-  uint64_t pcd_msg_index_;
+private:
+        apollo::common::monitor::MonitorLogBuffer monitor_logger_;
+        msf::LocalizationInteg localization_integ_;
+        msf::LocalizationIntegParam localization_param_;
+        msf::LocalizationMeasureState localization_state_;
+        uint64_t pcd_msg_index_;
 
-  // FRIEND_TEST(MSFLocalizationTest, InitParams);
+        // FRIEND_TEST(MSFLocalizationTest, InitParams);
 
-  // rotation from the vehicle coord to imu coord
-  Eigen::Quaternion<double> imu_vehicle_quat_;
+        // rotation from the vehicle coord to imu coord
+        Eigen::Quaternion<double> imu_vehicle_quat_;
 
-  std::shared_ptr<LocalizationMsgPublisher> publisher_;
+        std::shared_ptr<LocalizationMsgPublisher> publisher_;
 };
 
 }  // namespace localization

@@ -31,42 +31,47 @@ using common::time::TimeUtil;
 LocalizationInteg::LocalizationInteg()
     : localization_integ_impl_(new LocalizationIntegImpl()) {}
 
-LocalizationInteg::~LocalizationInteg() {
-  delete localization_integ_impl_;
-  localization_integ_impl_ = nullptr;
+LocalizationInteg::~LocalizationInteg() 
+{
+        delete localization_integ_impl_;
+        localization_integ_impl_ = nullptr;
 }
 
-Status LocalizationInteg::Init(const LocalizationIntegParam &params) {
-  return localization_integ_impl_->Init(params);
+Status LocalizationInteg::Init(const LocalizationIntegParam &params) 
+{
+        return localization_integ_impl_->Init(params);
 }
 
-void LocalizationInteg::PcdProcess(const drivers::PointCloud &message) {
-  LidarFrame lidar_frame;
-  LidarMsgTransfer transfer;
-  transfer.Transfer(message, &lidar_frame);
-  localization_integ_impl_->PcdProcess(lidar_frame);
+void LocalizationInteg::PcdProcess(const drivers::PointCloud &message) 
+{
+        LidarFrame lidar_frame;
+        LidarMsgTransfer transfer;
+        transfer.Transfer(message, &lidar_frame);
+        localization_integ_impl_->PcdProcess(lidar_frame);
 }
 
-void LocalizationInteg::RawImuProcessFlu(const drivers::gnss::Imu &imu_msg) {
-  ImuData imu;
-  TransferImuFlu(imu_msg, &imu);
-  localization_integ_impl_->RawImuProcessRfu(imu);
+void LocalizationInteg::RawImuProcessFlu(const drivers::gnss::Imu &imu_msg) 
+{
+        ImuData imu;
+        TransferImuFlu(imu_msg, &imu);
+        localization_integ_impl_->RawImuProcessRfu(imu);
 }
 
-void LocalizationInteg::RawImuProcessRfu(const drivers::gnss::Imu &imu_msg) {
-  ImuData imu;
-  TransferImuRfu(imu_msg, &imu);
-  localization_integ_impl_->RawImuProcessRfu(imu);
+void LocalizationInteg::RawImuProcessRfu(const drivers::gnss::Imu &imu_msg) 
+{
+        ImuData imu;
+        TransferImuRfu(imu_msg, &imu);
+        localization_integ_impl_->RawImuProcessRfu(imu);
 }
 
-void LocalizationInteg::RawObservationProcess(
-    const drivers::gnss::EpochObservation &raw_obs_msg) {
-  localization_integ_impl_->RawObservationProcess(raw_obs_msg);
+void LocalizationInteg::RawObservationProcess(const drivers::gnss::EpochObservation &raw_obs_msg) 
+{
+        localization_integ_impl_->RawObservationProcess(raw_obs_msg);
 }
 
-void LocalizationInteg::RawEphemerisProcess(
-    const drivers::gnss::GnssEphemeris &gnss_orbit_msg) {
-  localization_integ_impl_->RawEphemerisProcess(gnss_orbit_msg);
+void LocalizationInteg::RawEphemerisProcess(const drivers::gnss::GnssEphemeris &gnss_orbit_msg) 
+{
+        localization_integ_impl_->RawEphemerisProcess(gnss_orbit_msg);
 }
 
 void LocalizationInteg::GnssBestPoseProcess(
@@ -74,54 +79,54 @@ void LocalizationInteg::GnssBestPoseProcess(
   localization_integ_impl_->GnssBestPoseProcess(bestgnsspos_msg);
 }
 
-void LocalizationInteg::GnssHeadingProcess(
-    const drivers::gnss::Heading &gnssheading_msg) {
-  localization_integ_impl_->GnssHeadingProcess(gnssheading_msg);
+void LocalizationInteg::GnssHeadingProcess(const drivers::gnss::Heading &gnssheading_msg) 
+{
+        localization_integ_impl_->GnssHeadingProcess(gnssheading_msg);
 }
 
-const LocalizationResult &LocalizationInteg::GetLastestLidarLocalization()
-    const {
-  return localization_integ_impl_->GetLastestLidarLocalization();
+const LocalizationResult &LocalizationInteg::GetLastestLidarLocalization() const 
+{
+        return localization_integ_impl_->GetLastestLidarLocalization();
 }
 
-const LocalizationResult &LocalizationInteg::GetLastestIntegLocalization()
-    const {
-  return localization_integ_impl_->GetLastestIntegLocalization();
+const LocalizationResult &LocalizationInteg::GetLastestIntegLocalization() const 
+{
+        return localization_integ_impl_->GetLastestIntegLocalization();
 }
 
-const LocalizationResult &LocalizationInteg::GetLastestGnssLocalization()
-    const {
-  return localization_integ_impl_->GetLastestGnssLocalization();
+const LocalizationResult &LocalizationInteg::GetLastestGnssLocalization() const 
+{
+        return localization_integ_impl_->GetLastestGnssLocalization();
 }
 
-void LocalizationInteg::TransferImuRfu(const drivers::gnss::Imu &imu_msg,
-                                       ImuData *imu_rfu) {
-  CHECK_NOTNULL(imu_rfu);
+void LocalizationInteg::TransferImuRfu(const drivers::gnss::Imu &imu_msg, ImuData *imu_rfu) 
+{
+        CHECK_NOTNULL(imu_rfu);
 
-  double measurement_time = TimeUtil::Gps2unix(imu_msg.measurement_time());
-  imu_rfu->measurement_time = measurement_time;
-  imu_rfu->fb[0] = imu_msg.linear_acceleration().x() * FLAGS_imu_rate;
-  imu_rfu->fb[1] = imu_msg.linear_acceleration().y() * FLAGS_imu_rate;
-  imu_rfu->fb[2] = imu_msg.linear_acceleration().z() * FLAGS_imu_rate;
+        double measurement_time = TimeUtil::Gps2unix(imu_msg.measurement_time());
+        imu_rfu->measurement_time = measurement_time;
+        imu_rfu->fb[0] = imu_msg.linear_acceleration().x() * FLAGS_imu_rate;
+        imu_rfu->fb[1] = imu_msg.linear_acceleration().y() * FLAGS_imu_rate;
+        imu_rfu->fb[2] = imu_msg.linear_acceleration().z() * FLAGS_imu_rate;
 
-  imu_rfu->wibb[0] = imu_msg.angular_velocity().x() * FLAGS_imu_rate;
-  imu_rfu->wibb[1] = imu_msg.angular_velocity().y() * FLAGS_imu_rate;
-  imu_rfu->wibb[2] = imu_msg.angular_velocity().z() * FLAGS_imu_rate;
+        imu_rfu->wibb[0] = imu_msg.angular_velocity().x() * FLAGS_imu_rate;
+        imu_rfu->wibb[1] = imu_msg.angular_velocity().y() * FLAGS_imu_rate;
+        imu_rfu->wibb[2] = imu_msg.angular_velocity().z() * FLAGS_imu_rate;
 }
 
-void LocalizationInteg::TransferImuFlu(const drivers::gnss::Imu &imu_msg,
-                                       ImuData *imu_flu) {
-  CHECK_NOTNULL(imu_flu);
+void LocalizationInteg::TransferImuFlu(const drivers::gnss::Imu &imu_msg, ImuData *imu_flu) 
+{
+        CHECK_NOTNULL(imu_flu);
 
-  double measurement_time = TimeUtil::Gps2unix(imu_msg.measurement_time());
-  imu_flu->measurement_time = measurement_time;
-  imu_flu->fb[0] = -imu_msg.linear_acceleration().y() * FLAGS_imu_rate;
-  imu_flu->fb[1] = imu_msg.linear_acceleration().x() * FLAGS_imu_rate;
-  imu_flu->fb[2] = imu_msg.linear_acceleration().z() * FLAGS_imu_rate;
+        double measurement_time = TimeUtil::Gps2unix(imu_msg.measurement_time());
+        imu_flu->measurement_time = measurement_time;
+        imu_flu->fb[0] = -imu_msg.linear_acceleration().y() * FLAGS_imu_rate;
+        imu_flu->fb[1] = imu_msg.linear_acceleration().x() * FLAGS_imu_rate;
+        imu_flu->fb[2] = imu_msg.linear_acceleration().z() * FLAGS_imu_rate;
 
-  imu_flu->wibb[0] = -imu_msg.angular_velocity().y() * FLAGS_imu_rate;
-  imu_flu->wibb[1] = imu_msg.angular_velocity().x() * FLAGS_imu_rate;
-  imu_flu->wibb[2] = imu_msg.angular_velocity().z() * FLAGS_imu_rate;
+        imu_flu->wibb[0] = -imu_msg.angular_velocity().y() * FLAGS_imu_rate;
+        imu_flu->wibb[1] = imu_msg.angular_velocity().x() * FLAGS_imu_rate;
+        imu_flu->wibb[2] = imu_msg.angular_velocity().z() * FLAGS_imu_rate;
 }
 
 }  // namespace msf

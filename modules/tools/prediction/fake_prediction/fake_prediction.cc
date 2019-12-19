@@ -43,6 +43,7 @@ public:
                 prediction_writer_ = node_->CreateWriter<PredictionObstacles>(FLAGS_prediction_topic);
                 return true;
         }
+        
         bool Proc() override 
         {
                 auto prediction = std::make_shared<PredictionObstacles>();

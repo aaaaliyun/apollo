@@ -28,42 +28,46 @@ namespace localization {
 namespace msf {
 namespace velodyne {
 
-struct PointXYZIRT {
-  float x;
-  float y;
-  float z;
-  unsigned char intensity;
-  unsigned char ring;
-  double timestamp;
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // make sure our new allocators are aligned
+struct PointXYZIRT 
+{
+        float x;
+        float y;
+        float z;
+        unsigned char intensity;
+        unsigned char ring;
+        double timestamp;
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // make sure our new allocators are aligned
 } EIGEN_ALIGN16;  // enforce SSE padding for correct memory alignment
 
-struct PointXYZIT {
-  float x;
-  float y;
-  float z;
-  unsigned char intensity;
-  double timestamp;
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // make sure our new allocators are aligned
+struct PointXYZIT 
+{
+        float x;
+        float y;
+        float z;
+        unsigned char intensity;
+        double timestamp;
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // make sure our new allocators are aligned
 } EIGEN_ALIGN16;  // enforce SSE padding for correct memory alignment
 
-struct PointXYZIRTd {
-  double x;
-  double y;
-  double z;
-  unsigned char intensity;
-  unsigned char ring;
-  double timestamp;
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // make sure our new allocators are aligned
+struct PointXYZIRTd 
+{
+        double x;
+        double y;
+        double z;
+        unsigned char intensity;
+        unsigned char ring;
+        double timestamp;
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // make sure our new allocators are aligned
 } EIGEN_ALIGN16;  // enforce SSE padding for correct memory alignment
 
-struct PointXYZITd {
-  double x;
-  double y;
-  double z;
-  unsigned char intensity;
-  double timestamp;
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // make sure our new allocators are aligned
+struct PointXYZITd 
+{
+        double x;
+        double y;
+        double z;
+        unsigned char intensity;
+        double timestamp;
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // make sure our new allocators are aligned
 } EIGEN_ALIGN16;  // enforce SSE padding for correct memory alignment
 
 }  // namespace velodyne

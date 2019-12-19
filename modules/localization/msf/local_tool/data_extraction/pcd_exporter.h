@@ -28,19 +28,19 @@ namespace msf {
  * @class PCDExporter
  * @brief Export pcd from rosbag.
  */
-class PCDExporter {
- public:
-  explicit PCDExporter(const std::string &pcd_folder);
-  ~PCDExporter();
+class PCDExporter 
+{
+public:
+        explicit PCDExporter(const std::string &pcd_folder);
+        ~PCDExporter();
 
-  void CompensatedPcdCallback(const std::string &msg);
+        void CompensatedPcdCallback(const std::string &msg);
 
- private:
-  void WritePcdFile(const std::string &filename,
-                    const drivers::PointCloud &msg);
+private:
+        void WritePcdFile(const std::string &filename, const drivers::PointCloud &msg);
 
-  std::string pcd_folder_;
-  FILE *stamp_file_handle_;
+        std::string pcd_folder_;
+        FILE *stamp_file_handle_;
 };
 
 }  // namespace msf

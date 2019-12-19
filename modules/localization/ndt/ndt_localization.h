@@ -31,117 +31,111 @@ namespace apollo {
 namespace localization {
 namespace ndt {
 
-struct LidarHeight {
-  LidarHeight() : height(0.0), height_var(0.0) {}
-  double height;
-  double height_var;
+struct LidarHeight 
+{
+        LidarHeight() : height(0.0), height_var(0.0) {}
+        double height;
+        double height_var;
 };
 
-struct TimeStampPose {
-  double timestamp = 0.0;
-  Eigen::Affine3d pose;
+struct TimeStampPose 
+{
+        double timestamp = 0.0;
+        Eigen::Affine3d pose;
 };
 
-class NDTLocalization {
- public:
-  NDTLocalization() {}
-  ~NDTLocalization() { tf_buffer_ = nullptr; }
-  /**@brief init configuration */
-  void Init();
-  /**@brief receive odometry message */
-  void OdometryCallback(const std::shared_ptr<localization::Gps>& odometry_msg);
-  /**@brief receive lidar pointcloud message */
-  void LidarCallback(const std::shared_ptr<drivers::PointCloud>& lidar_msg);
-  /**@brief receive ins status message */
-  void OdometryStatusCallback(
-      const std::shared_ptr<drivers::gnss::InsStat>& status_msg);
-  /**@brief service start status */
-  bool IsServiceStarted();
-  /**@brief output localization result */
-  void GetLocalization(LocalizationEstimate* localization) const;
-  /**@brief get ndt localization result */
-  void GetLidarLocalization(LocalizationEstimate* lidar_localization) const;
-  /**@brief get localization status */
-  void GetLocalizationStatus(LocalizationStatus* localization_status) const;
-  /**@brief get zone id */
-  inline int GetZoneId() const { return zone_id_; }
-  /**@brief get online resolution for ndt localization*/
-  inline double GetOnlineResolution() const { return online_resolution_; }
+class NDTLocalization 
+{
+public:
+        NDTLocalization() {}
+        ~NDTLocalization() { tf_buffer_ = nullptr; }
+        /**@brief init configuration */
+        void Init();
+        /**@brief receive odometry message */
+        void OdometryCallback(const std::shared_ptr<localization::Gps>& odometry_msg);
+        /**@brief receive lidar pointcloud message */
+        void LidarCallback(const std::shared_ptr<drivers::PointCloud>& lidar_msg);
+        /**@brief receive ins status message */
+        void OdometryStatusCallback(const std::shared_ptr<drivers::gnss::InsStat>& status_msg);
+        /**@brief service start status */
+        bool IsServiceStarted();
+        /**@brief output localization result */
+        void GetLocalization(LocalizationEstimate* localization) const;
+        /**@brief get ndt localization result */
+        void GetLidarLocalization(LocalizationEstimate* lidar_localization) const;
+        /**@brief get localization status */
+        void GetLocalizationStatus(LocalizationStatus* localization_status) const;
+        /**@brief get zone id */
+        inline int GetZoneId() const { return zone_id_; }
+        /**@brief get online resolution for ndt localization*/
+        inline double GetOnlineResolution() const { return online_resolution_; }
 
- private:
-  /**@brief transfer pointcloud message to LidarFrame */
-  void LidarMsgTransfer(const std::shared_ptr<drivers::PointCloud>& message,
-                        LidarFrame* lidar_frame);
-  /**@brief Load lidar extrinsics from file */
-  bool LoadLidarExtrinsic(const std::string& file_path,
-                          Eigen::Affine3d* lidar_extrinsic);
-  /**@brief load lidar height from file */
-  bool LoadLidarHeight(const std::string& file_path, LidarHeight* height);
-  /**@brief load zone id from map folder */
-  bool LoadZoneIdFromFolder(const std::string& folder_path, int* zone_id);
-  /**@brief query forecast pose from tf2 according to timestamp*/
-  bool QueryPoseFromTF(double time, Eigen::Affine3d* pose);
-  /**@brief query forecast pose from odometry buffer, in case fail to get pose
-   * from tf*/
-  bool QueryPoseFromBuffer(double time, Eigen::Affine3d* pose);
-  /**@brief check if odometry message is zero*/
-  bool ZeroOdometry(const Eigen::Affine3d& pose);
-  /**@brief fill header message for LocalizationEstimate struct */
-  void FillLocalizationMsgHeader(LocalizationEstimate* localization);
-  /**@brief fill pose message for LocalizationEstimate struct */
-  void ComposeLocalizationEstimate(
-      const Eigen::Affine3d& pose,
-      const std::shared_ptr<localization::Gps>& odometry_msg,
-      LocalizationEstimate* localization);
-  void ComposeLidarResult(double time_stamp, const Eigen::Affine3d& pose,
-                          LocalizationEstimate* localization);
-  /**@brief fill localization status */
-  void ComposeLocalizationStatus(const drivers::gnss::InsStat& status,
-                                 LocalizationStatus* localization_status);
-  /**@brief find nearest odometry status */
-  bool FindNearestOdometryStatus(const double odometry_timestamp,
-                                 drivers::gnss::InsStat* status);
+private:
+        /**@brief transfer pointcloud message to LidarFrame */
+        void LidarMsgTransfer(const std::shared_ptr<drivers::PointCloud>& message, LidarFrame* lidar_frame);
+        /**@brief Load lidar extrinsics from file */
+        bool LoadLidarExtrinsic(const std::string& file_path, Eigen::Affine3d* lidar_extrinsic);
+        /**@brief load lidar height from file */
+        bool LoadLidarHeight(const std::string& file_path, LidarHeight* height);
+        /**@brief load zone id from map folder */
+        bool LoadZoneIdFromFolder(const std::string& folder_path, int* zone_id);
+        /**@brief query forecast pose from tf2 according to timestamp*/
+        bool QueryPoseFromTF(double time, Eigen::Affine3d* pose);
+        /**@brief query forecast pose from odometry buffer, in case fail to get pose
+        * from tf*/
+        bool QueryPoseFromBuffer(double time, Eigen::Affine3d* pose);
+        /**@brief check if odometry message is zero*/
+        bool ZeroOdometry(const Eigen::Affine3d& pose);
+        /**@brief fill header message for LocalizationEstimate struct */
+        void FillLocalizationMsgHeader(LocalizationEstimate* localization);
+        /**@brief fill pose message for LocalizationEstimate struct */
+        void ComposeLocalizationEstimate(const Eigen::Affine3d& pose, const std::shared_ptr<localization::Gps>& odometry_msg, LocalizationEstimate* localization);
+        void ComposeLidarResult(double time_stamp, const Eigen::Affine3d& pose, LocalizationEstimate* localization);
+        /**@brief fill localization status */
+        void ComposeLocalizationStatus(const drivers::gnss::InsStat& status, LocalizationStatus* localization_status);
+        /**@brief find nearest odometry status */
+        bool FindNearestOdometryStatus(const double odometry_timestamp, drivers::gnss::InsStat* status);
 
- private:
-  std::string module_name_ = "ndt_localization";
-  LocalizationPoseBuffer pose_buffer_;
+private:
+        std::string module_name_ = "ndt_localization";
+        LocalizationPoseBuffer pose_buffer_;
 
-  transform::Buffer* tf_buffer_ = nullptr;
-  std::string tf_target_frame_id_ = "";
-  std::string tf_source_frame_id_ = "";
+        transform::Buffer* tf_buffer_ = nullptr;
+        std::string tf_target_frame_id_ = "";
+        std::string tf_source_frame_id_ = "";
 
-  LidarLocatorNdt lidar_locator_;
-  int zone_id_ = 10;
-  double max_height_ = 100.0;
-  int localization_seq_num_ = 0;
-  unsigned int resolution_id_ = 0;
-  double online_resolution_ = 2.0;
-  std::string map_path_ = "";
-  LidarHeight lidar_height_;
-  Eigen::Affine3d lidar_pose_;
-  Eigen::Affine3d velodyne_extrinsic_;
-  LocalizationEstimate lidar_localization_result_;
-  double ndt_score_ = 0;
-  unsigned int bad_score_count_ = 0;
-  unsigned int bad_score_count_threshold_ = 10;
-  double warnning_ndt_score_ = 1.0;
-  double error_ndt_score_ = 2.0;
-  bool is_service_started_ = false;
+        LidarLocatorNdt lidar_locator_;
+        int zone_id_ = 10;
+        double max_height_ = 100.0;
+        int localization_seq_num_ = 0;
+        unsigned int resolution_id_ = 0;
+        double online_resolution_ = 2.0;
+        std::string map_path_ = "";
+        LidarHeight lidar_height_;
+        Eigen::Affine3d lidar_pose_;
+        Eigen::Affine3d velodyne_extrinsic_;
+        LocalizationEstimate lidar_localization_result_;
+        double ndt_score_ = 0;
+        unsigned int bad_score_count_ = 0;
+        unsigned int bad_score_count_threshold_ = 10;
+        double warnning_ndt_score_ = 1.0;
+        double error_ndt_score_ = 2.0;
+        bool is_service_started_ = false;
 
-  std::list<TimeStampPose> odometry_buffer_;
-  std::mutex odometry_buffer_mutex_;
-  unsigned int odometry_buffer_size_ = 0;
-  const unsigned int max_odometry_buffer_size_ = 100;
+        std::list<TimeStampPose> odometry_buffer_;
+        std::mutex odometry_buffer_mutex_;
+        unsigned int odometry_buffer_size_ = 0;
+        const unsigned int max_odometry_buffer_size_ = 100;
 
-  LocalizationEstimate localization_result_;
-  LocalizationStatus localization_status_;
+        LocalizationEstimate localization_result_;
+        LocalizationStatus localization_status_;
 
-  std::list<drivers::gnss::InsStat> odometry_status_list_;
-  size_t odometry_status_list_max_size_ = 10;
-  std::mutex odometry_status_list_mutex_;
-  double odometry_status_time_diff_threshold_ = 1.0;
+        std::list<drivers::gnss::InsStat> odometry_status_list_;
+        size_t odometry_status_list_max_size_ = 10;
+        std::mutex odometry_status_list_mutex_;
+        double odometry_status_time_diff_threshold_ = 1.0;
 
-  bool ndt_debug_log_flag_ = false;
+        bool ndt_debug_log_flag_ = false;
 };
 
 }  // namespace ndt

@@ -41,14 +41,15 @@ constexpr size_t ArraySize(T (&)[N]) {
 //    2009-01-01 00:00:00.5   1230768000.5   914803215.5
 
 // A table of when a leap second is inserted and cumulative leap seconds.
-static constexpr int32_t LEAP_SECONDS[][2] = {
-    // UNIX time, leap seconds
-    // Add future leap seconds here.
-    {1483228800, 18},  // 2017-01-01
-    {1435708800, 17},  // 2015-07-01
-    {1341100800, 16},  // 2012-07-01
-    {1230768000, 15},  // 2009-01-01
-    {1136073600, 14},  // 2006-01-01
+static constexpr int32_t LEAP_SECONDS[][2] = 
+{
+        // UNIX time, leap seconds
+        // Add future leap seconds here.
+        {1483228800, 18},  // 2017-01-01
+        {1435708800, 17},  // 2015-07-01
+        {1341100800, 16},  // 2012-07-01
+        {1230768000, 15},  // 2009-01-01
+        {1136073600, 14},  // 2006-01-01
                        // We do not have any data before 2016, do we?
 };
 
@@ -60,44 +61,50 @@ constexpr int64_t ONE_MILLION = 1000000L;
 constexpr int64_t ONE_BILLION = 1000000000L;
 
 template <typename T>
-T UnixToGpsSeconds(T unix_seconds) {
-  for (size_t i = 0; i < ArraySize(LEAP_SECONDS); ++i) {
-    if (unix_seconds >= LEAP_SECONDS[i][0]) {
-      return unix_seconds - (UNIX_GPS_DIFF - LEAP_SECONDS[i][1]);
-    }
-  }
-  return static_cast<T>(0);
+T UnixToGpsSeconds(T unix_seconds) 
+{
+        for (size_t i = 0; i < ArraySize(LEAP_SECONDS); ++i) 
+        {
+                if (unix_seconds >= LEAP_SECONDS[i][0]) 
+                {
+                        return unix_seconds - (UNIX_GPS_DIFF - LEAP_SECONDS[i][1]);
+                }
+        }
+        return static_cast<T>(0);
 }
 
-inline int64_t UnixToGpsMicroSeconds(int64_t unix_microseconds) {
-  return UnixToGpsSeconds(unix_microseconds / ONE_MILLION) * ONE_MILLION +
-         unix_microseconds % ONE_MILLION;
+inline int64_t UnixToGpsMicroSeconds(int64_t unix_microseconds) 
+{
+        return UnixToGpsSeconds(unix_microseconds / ONE_MILLION) * ONE_MILLION + unix_microseconds % ONE_MILLION;
 }
 
-inline int64_t UnixToGpsNanoSeconds(int64_t unix_nanoseconds) {
-  return UnixToGpsSeconds(unix_nanoseconds / ONE_BILLION) * ONE_BILLION +
-         unix_nanoseconds % ONE_BILLION;
+inline int64_t UnixToGpsNanoSeconds(int64_t unix_nanoseconds) 
+{
+        return UnixToGpsSeconds(unix_nanoseconds / ONE_BILLION) * ONE_BILLION + unix_nanoseconds % ONE_BILLION;
 }
 
 template <typename T>
-T GpsToUnixSeconds(T gps_seconds) {
-  for (size_t i = 0; i < ArraySize(LEAP_SECONDS); ++i) {
-    T result = gps_seconds + (UNIX_GPS_DIFF - LEAP_SECONDS[i][1]);
-    if (result >= LEAP_SECONDS[i][0]) {
-      return result;
-    }
-  }
-  return static_cast<T>(0);
+T GpsToUnixSeconds(T gps_seconds) 
+{
+        for (size_t i = 0; i < ArraySize(LEAP_SECONDS); ++i) 
+        {
+                T result = gps_seconds + (UNIX_GPS_DIFF - LEAP_SECONDS[i][1]);
+                if (result >= LEAP_SECONDS[i][0]) 
+                {
+                        return result;
+                }
+        }
+        return static_cast<T>(0);
 }
 
-inline int64_t GpsToUnixMicroSeconds(int64_t gps_microseconds) {
-  return GpsToUnixSeconds(gps_microseconds / ONE_MILLION) * ONE_MILLION +
-         gps_microseconds % ONE_MILLION;
+inline int64_t GpsToUnixMicroSeconds(int64_t gps_microseconds) 
+{
+        return GpsToUnixSeconds(gps_microseconds / ONE_MILLION) * ONE_MILLION + gps_microseconds % ONE_MILLION;
 }
 
-inline int64_t GpsToUnixNanoSeconds(int64_t gps_nanoseconds) {
-  return GpsToUnixSeconds(gps_nanoseconds / ONE_BILLION) * ONE_BILLION +
-         gps_nanoseconds % ONE_BILLION;
+inline int64_t GpsToUnixNanoSeconds(int64_t gps_nanoseconds) 
+{
+        return GpsToUnixSeconds(gps_nanoseconds / ONE_BILLION) * ONE_BILLION + gps_nanoseconds % ONE_BILLION;
 }
 
 }  // namespace msf

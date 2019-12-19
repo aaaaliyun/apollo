@@ -35,46 +35,42 @@
 namespace apollo {
 namespace localization {
 
-class RTKLocalizationComponent final
-    : public cyber::Component<localization::Gps> {
- public:
-  RTKLocalizationComponent();
-  ~RTKLocalizationComponent() = default;
+class RTKLocalizationComponent final : public cyber::Component<localization::Gps> 
+{
+public:
+        RTKLocalizationComponent();
+        ~RTKLocalizationComponent() = default;
 
-  bool Init() override;
+        bool Init() override;
 
-  bool Proc(const std::shared_ptr<localization::Gps> &gps_msg) override;
+        bool Proc(const std::shared_ptr<localization::Gps> &gps_msg) override;
 
- private:
-  bool InitConfig();
-  bool InitIO();
+private:
+        bool InitConfig();
+        bool InitIO();
 
-  void PublishPoseBroadcastTF(const LocalizationEstimate &localization);
-  void PublishPoseBroadcastTopic(const LocalizationEstimate &localization);
-  void PublishLocalizationStatus(const LocalizationStatus &localization_status);
+        void PublishPoseBroadcastTF(const LocalizationEstimate &localization);
+        void PublishPoseBroadcastTopic(const LocalizationEstimate &localization);
+        void PublishLocalizationStatus(const LocalizationStatus &localization_status);
 
- private:
-  std::shared_ptr<cyber::Reader<localization::CorrectedImu>>
-      corrected_imu_listener_ = nullptr;
-  std::shared_ptr<cyber::Reader<drivers::gnss::InsStat>> gps_status_listener_ =
-      nullptr;
+private:
+        std::shared_ptr<cyber::Reader<localization::CorrectedImu>> corrected_imu_listener_ = nullptr;
+        std::shared_ptr<cyber::Reader<drivers::gnss::InsStat>> gps_status_listener_ = nullptr;
 
-  std::shared_ptr<cyber::Writer<LocalizationEstimate>> localization_talker_ =
-      nullptr;
-  std::shared_ptr<cyber::Writer<LocalizationStatus>>
-      localization_status_talker_ = nullptr;
+        std::shared_ptr<cyber::Writer<LocalizationEstimate>> localization_talker_ = nullptr;
+        std::shared_ptr<cyber::Writer<LocalizationStatus>> localization_status_talker_ = nullptr;
 
-  std::string localization_topic_ = "";
-  std::string localization_status_topic_ = "";
-  std::string gps_topic_ = "";
-  std::string gps_status_topic_ = "";
-  std::string imu_topic_ = "";
+        std::string localization_topic_ = "";
+        std::string localization_status_topic_ = "";
+        std::string gps_topic_ = "";
+        std::string gps_status_topic_ = "";
+        std::string imu_topic_ = "";
 
-  std::string broadcast_tf_frame_id_ = "";
-  std::string broadcast_tf_child_frame_id_ = "";
-  std::unique_ptr<apollo::transform::TransformBroadcaster> tf2_broadcaster_;
+        std::string broadcast_tf_frame_id_ = "";
+        std::string broadcast_tf_child_frame_id_ = "";
+        std::unique_ptr<apollo::transform::TransformBroadcaster> tf2_broadcaster_;
 
-  std::unique_ptr<RTKLocalization> localization_;
+        std::unique_ptr<RTKLocalization> localization_;
 };
 
 CYBER_REGISTER_COMPONENT(RTKLocalizationComponent);

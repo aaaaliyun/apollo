@@ -22,25 +22,27 @@ namespace apollo {
 namespace localization {
 namespace msf {
 
-class CompressionStrategy {
- public:
-  typedef std::vector<unsigned char> BufferStr;
-  virtual ~CompressionStrategy() {}
-  virtual int Encode(BufferStr* buf, BufferStr* buf_compressed) = 0;
-  virtual int Decode(BufferStr* buf, BufferStr* buf_uncompressed) = 0;
+class CompressionStrategy 
+{
+public:
+        typedef std::vector<unsigned char> BufferStr;
+        virtual ~CompressionStrategy() {}
+        virtual int Encode(BufferStr* buf, BufferStr* buf_compressed) = 0;
+        virtual int Decode(BufferStr* buf, BufferStr* buf_uncompressed) = 0;
 
- protected:
+protected:
 };
 
-class ZlibStrategy : public CompressionStrategy {
- public:
-  virtual int Encode(BufferStr* buf, BufferStr* buf_compressed);
-  virtual int Decode(BufferStr* buf, BufferStr* buf_uncompressed);
+class ZlibStrategy : public CompressionStrategy 
+{
+public:
+        virtual int Encode(BufferStr* buf, BufferStr* buf_compressed);
+        virtual int Decode(BufferStr* buf, BufferStr* buf_uncompressed);
 
- protected:
-  static const unsigned int zlib_chunk;
-  int ZlibCompress(BufferStr* src, BufferStr* dst);
-  int ZlibUncompress(BufferStr* src, BufferStr* dst);
+protected:
+        static const unsigned int zlib_chunk;
+        int ZlibCompress(BufferStr* src, BufferStr* dst);
+        int ZlibUncompress(BufferStr* src, BufferStr* dst);
 };
 
 }  // namespace msf

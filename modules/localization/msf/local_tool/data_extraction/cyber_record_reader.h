@@ -29,19 +29,18 @@ namespace msf {
  * @class CyberRecordReader
  * @brief Read messages from cyber record.
  */
-class CyberRecordReader {
- public:
-  CyberRecordReader();
-  ~CyberRecordReader();
+class CyberRecordReader 
+{
+public:
+        CyberRecordReader();
+        ~CyberRecordReader();
 
-  void Subscribe(const std::string& topic,
-                 const std::function<void(const std::string&)> call_back);
-  void Read(const std::string& file_name);
+        void Subscribe(const std::string& topic, const std::function<void(const std::string&)> call_back);
+        void Read(const std::string& file_name);
 
- private:
-  std::vector<std::string> topics_;
-  std::unordered_map<std::string, std::function<void(const std::string&)>>
-      call_back_map_;
+private:
+        std::vector<std::string> topics_;
+        std::unordered_map<std::string, std::function<void(const std::string&)>> call_back_map_;
 };
 
 }  // namespace msf

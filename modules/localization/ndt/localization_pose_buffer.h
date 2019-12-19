@@ -24,39 +24,39 @@ namespace apollo {
 namespace localization {
 namespace ndt {
 
-struct LocalizationStampedPosePair {
-  double timestamp;
-  Eigen::Affine3d novatel_pose;
-  Eigen::Affine3d locator_pose;
+struct LocalizationStampedPosePair 
+{
+        double timestamp;
+        Eigen::Affine3d novatel_pose;
+        Eigen::Affine3d locator_pose;
 };
 
-class LocalizationPoseBuffer {
- public:
-  LocalizationPoseBuffer();
-  ~LocalizationPoseBuffer();
-  /**@brief receive a pair of lidar pose and
-   * odometry pose which almost have the same timestame
-   * */
-  void UpdateLidarPose(double timestamp, const Eigen::Affine3d& locator_pose,
-                       const Eigen::Affine3d& novatel_pose);
-  /**@brief receive an odometry pose and
-   * estimate the output pose according to last lidar pose recorded.
-   * */
-  Eigen::Affine3d UpdateOdometryPose(double timestamp,
-                                     const Eigen::Affine3d& novatel_pose);
-  /**@brief Get the used size of buffer*/
-  unsigned int GetUsedBufferSize() { return used_buffer_size_; }
-  /**@brief Get the current head of the buffer*/
-  unsigned int GetHeadIndex() { return head_index_; }
+class LocalizationPoseBuffer 
+{
+public:
+        LocalizationPoseBuffer();
+        ~LocalizationPoseBuffer();
+        /**@brief receive a pair of lidar pose and
+        * odometry pose which almost have the same timestame
+        * */
+        void UpdateLidarPose(double timestamp, const Eigen::Affine3d& locator_pose, const Eigen::Affine3d& novatel_pose);
+        /**@brief receive an odometry pose and
+        * estimate the output pose according to last lidar pose recorded.
+        * */
+        Eigen::Affine3d UpdateOdometryPose(double timestamp, const Eigen::Affine3d& novatel_pose);
+        /**@brief Get the used size of buffer*/
+        unsigned int GetUsedBufferSize() { return used_buffer_size_; }
+        /**@brief Get the current head of the buffer*/
+        unsigned int GetHeadIndex() { return head_index_; }
 
- private:
-  static const unsigned int s_buffer_size_;
+private:
+        static const unsigned int s_buffer_size_;
 
- private:
-  std::vector<LocalizationStampedPosePair> lidar_poses_;
-  unsigned int used_buffer_size_;
-  unsigned int head_index_;
-  bool has_initialized_;
+private:
+        std::vector<LocalizationStampedPosePair> lidar_poses_;
+        unsigned int used_buffer_size_;
+        unsigned int head_index_;
+        bool has_initialized_;
 };
 
 }  // namespace ndt

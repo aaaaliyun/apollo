@@ -48,70 +48,66 @@ class LocalizationLidarProcess;
  * @brief interface of msf localization
  */
 
-class LocalizationIntegImpl {
- public:
-  LocalizationIntegImpl();
-  ~LocalizationIntegImpl();
-  // Initialization.
-  common::Status Init(const LocalizationIntegParam& params);
+class LocalizationIntegImpl 
+{
+public:
+        LocalizationIntegImpl();
+        ~LocalizationIntegImpl();
+        // Initialization.
+        common::Status Init(const LocalizationIntegParam& params);
 
-  // Lidar pcd process.
-  void PcdProcess(const LidarFrame& lidar_frame);
-  // Imu process.
-  void RawImuProcessRfu(const ImuData& imu_data);
+        // Lidar pcd process.
+        void PcdProcess(const LidarFrame& lidar_frame);
+        // Imu process.
+        void RawImuProcessRfu(const ImuData& imu_data);
 
-  // Gnss Info process.
-  void RawObservationProcess(
-      const drivers::gnss::EpochObservation& raw_obs_msg);
-  void RawEphemerisProcess(const drivers::gnss::GnssEphemeris& gnss_orbit_msg);
+        // Gnss Info process.
+        void RawObservationProcess(const drivers::gnss::EpochObservation& raw_obs_msg);
+        void RawEphemerisProcess(const drivers::gnss::GnssEphemeris& gnss_orbit_msg);
 
-  // gnss best pose process
-  void GnssBestPoseProcess(const drivers::gnss::GnssBestPose& bestgnsspos_msg);
+        // gnss best pose process
+        void GnssBestPoseProcess(const drivers::gnss::GnssBestPose& bestgnsspos_msg);
 
-  // gnss heading process
-  void GnssHeadingProcess(const drivers::gnss::Heading& gnssheading_msg);
+        // gnss heading process
+        void GnssHeadingProcess(const drivers::gnss::Heading& gnssheading_msg);
 
-  const LocalizationResult& GetLastestLidarLocalization() const;
+        const LocalizationResult& GetLastestLidarLocalization() const;
 
-  const LocalizationResult& GetLastestIntegLocalization() const;
+        const LocalizationResult& GetLastestIntegLocalization() const;
 
-  const LocalizationResult& GetLastestGnssLocalization() const;
+        const LocalizationResult& GetLastestGnssLocalization() const;
 
- protected:
-  void PcdProcessImpl(const LidarFrame& pcd_data);
+protected:
+        void PcdProcessImpl(const LidarFrame& pcd_data);
 
-  void ImuProcessImpl(const ImuData& imu_data);
+        void ImuProcessImpl(const ImuData& imu_data);
 
-  void RawObservationProcessImpl(
-      const drivers::gnss::EpochObservation& raw_obs_msg);
-  void RawEphemerisProcessImpl(
-      const drivers::gnss::GnssEphemeris& gnss_orbit_msg);
-  void GnssBestPoseProcessImpl(
-      const drivers::gnss::GnssBestPose& bestgnsspos_msg);
+        void RawObservationProcessImpl(const drivers::gnss::EpochObservation& raw_obs_msg);
+        void RawEphemerisProcessImpl(const drivers::gnss::GnssEphemeris& gnss_orbit_msg);
+        void GnssBestPoseProcessImpl(const drivers::gnss::GnssBestPose& bestgnsspos_msg);
 
-  void GnssHeadingProcessImpl(const drivers::gnss::Heading& gnssheading_msg);
+        void GnssHeadingProcessImpl(const drivers::gnss::Heading& gnssheading_msg);
 
-  void TransferGnssMeasureToLocalization(const MeasureData& measure,
-                                         LocalizationEstimate* localization);
+        void TransferGnssMeasureToLocalization(const MeasureData& measure, LocalizationEstimate* localization);
 
- private:
-  MeasureRepublishProcess* republish_process_;
-  LocalizationIntegProcess* integ_process_;
-  LocalizationGnssProcess* gnss_process_;
-  LocalizationLidarProcess* lidar_process_;
+private:
+        MeasureRepublishProcess* republish_process_;
+        LocalizationIntegProcess* integ_process_;
+        LocalizationGnssProcess* gnss_process_;
+        LocalizationLidarProcess* lidar_process_;
 
-  LocalizationResult lastest_lidar_localization_;
-  LocalizationResult lastest_integ_localization_;
-  LocalizationResult lastest_gnss_localization_;
+        LocalizationResult lastest_lidar_localization_;
+        LocalizationResult lastest_integ_localization_;
+        LocalizationResult lastest_gnss_localization_;
 
-  bool is_use_gnss_bestpose_ = true;
+        bool is_use_gnss_bestpose_ = true;
 
-  double imu_altitude_from_lidar_localization_ = 0.0;
-  bool imu_altitude_from_lidar_localization_available_ = false;
+        double imu_altitude_from_lidar_localization_ = 0.0;
+        bool imu_altitude_from_lidar_localization_available_ = false;
 
-  bool enable_lidar_localization_ = true;
-  Eigen::Affine3d gnss_antenna_extrinsic_;
-  OnlineLocalizationExpert expert_;
+        bool enable_lidar_localization_ = true;
+        Eigen::Affine3d gnss_antenna_extrinsic_;
+        OnlineLocalizationExpert expert_;
 };
 
 }  // namespace msf
