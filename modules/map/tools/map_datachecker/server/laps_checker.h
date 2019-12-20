@@ -34,10 +34,21 @@ struct GridMeta
 
 typedef std::vector<GridMeta> Grid;
 
+// <<<<<<< HEAD
+// class LapsChecker 
+// {
+// public:
+//         explicit LapsChecker(const std::vector<FramePose>& poses, int laps_to_check, std::shared_ptr<JSonConf> sp_conf);
+//         ErrorCode Check();
+//         double GetProgress() const;
+//         double GetConfidence();
+//         size_t GetLap() const;
+//         ErrorCode GetReturnState();
+// =======
 class LapsChecker 
 {
 public:
-        explicit LapsChecker(const std::vector<FramePose>& poses, int laps_to_check, std::shared_ptr<JSonConf> sp_conf);
+        LapsChecker(const std::vector<FramePose>& poses, int laps_to_check, std::shared_ptr<JSonConf> sp_conf);
         ErrorCode Check();
         double GetProgress() const;
         double GetConfidence();

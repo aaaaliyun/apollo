@@ -16,8 +16,8 @@
 
 #include "cyber/logger/async_logger.h"
 
-#include <stdlib.h>
 #include <sys/prctl.h>
+#include <cstdlib>
 #include <string>
 #include <thread>
 #include <unordered_map>

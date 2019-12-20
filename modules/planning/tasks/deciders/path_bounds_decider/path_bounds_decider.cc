@@ -21,11 +21,6 @@
 #include <limits>
 #include <memory>
 #include <set>
-#include <string>
-#include <tuple>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 #include "absl/strings/str_cat.h"
 #include "modules/common/configs/vehicle_config_helper.h"
@@ -44,7 +39,6 @@ using apollo::common::Status;
 using apollo::common::VehicleConfigHelper;
 using apollo::hdmap::HDMapUtil;
 using apollo::hdmap::JunctionInfo;
-using apollo::hdmap::PNCJunctionInfo;
 
 namespace {
 // PathBoundPoint contains: (s, l_min, l_max).
