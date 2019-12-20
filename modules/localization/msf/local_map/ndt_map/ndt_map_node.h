@@ -26,37 +26,36 @@ namespace apollo {
 namespace localization {
 namespace msf {
 
-class NdtMapNode : public BaseMapNode {
- public:
-  NdtMapNode();
-  ~NdtMapNode();
+class NdtMapNode : public BaseMapNode 
+{
+public:
+        NdtMapNode();
+        ~NdtMapNode();
 
-  /**@brief Get the resolution of this map nodex. */
-  inline float GetMapResolutionZ() const {
-    return static_cast<const NdtMapConfig*>(map_config_)
-        ->map_resolutions_z_[index_.resolution_id_];
-  }
+        /**@brief Get the resolution of this map nodex. */
+        inline float GetMapResolutionZ() const 
+        {
+                return static_cast<const NdtMapConfig*>(map_config_)->map_resolutions_z_[index_.resolution_id_];
+        }
 
-  /**@brief Given the local x, y, altitude index,
-   * return the global coordinate.
-   */
-  Eigen::Vector3d GetCoordinate3D(unsigned int x, unsigned int y,
-                                  int altitude_index) const;
+        /**@brief Given the local x, y, altitude index,
+        * return the global coordinate.
+        */
+        Eigen::Vector3d GetCoordinate3D(unsigned int x, unsigned int y, int altitude_index) const;
 
-  /**@brief Given the local x, y, altitude index,
-   * return the global coordinate.
-   */
-  Eigen::Vector3d GetCoordinateCenter3D(unsigned int x, unsigned int y,
-                                        int altitude_index) const;
+        /**@brief Given the local x, y, altitude index,
+        * return the global coordinate.
+        */
+        Eigen::Vector3d GetCoordinateCenter3D(unsigned int x, unsigned int y, int altitude_index) const;
 
-  /**@brief Combine two map nodes (Reduce operation in mapreduce).
-   * The result is saved in map_node. */
-  static void Reduce(NdtMapNode* map_node, const NdtMapNode& map_node_new);
+        /**@brief Combine two map nodes (Reduce operation in mapreduce).
+        * The result is saved in map_node. */
+        static void Reduce(NdtMapNode* map_node, const NdtMapNode& map_node_new);
 
-  /**@brief The number of cells with elements.*/
-  unsigned int num_valid_cells_;
-  /**@brief The number of single cells with elements. */
-  unsigned int num_valid_single_cells_;
+        /**@brief The number of cells with elements.*/
+        unsigned int num_valid_cells_;
+        /**@brief The number of single cells with elements. */
+        unsigned int num_valid_single_cells_;
 };
 
 }  // namespace msf

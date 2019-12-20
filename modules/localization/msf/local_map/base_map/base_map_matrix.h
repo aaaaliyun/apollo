@@ -25,32 +25,32 @@ namespace localization {
 namespace msf {
 
 /**@brief The data structure of the map cells in a map node. */
-class BaseMapMatrix {
- public:
-  /**@brief The default constructor. */
-  BaseMapMatrix();
-  /**@brief The deconstructor. */
-  virtual ~BaseMapMatrix();
-  /**@brief The copy constructor. */
-  BaseMapMatrix(const BaseMapMatrix& cell);
-  /**@brief Initialize the map matrix. */
-  virtual void Init(const BaseMapConfig* config) = 0;
-  /**@brief Reset map cells data. */
-  virtual void Reset(const BaseMapConfig* config) = 0;
-  /**@brief Load the map cell from a binary chunk.
-   * @param <return> The size read (the real size of object).
-   */
-  virtual unsigned int LoadBinary(unsigned char* buf) = 0;
-  /**@brief Create the binary. Serialization of the object.
-   * @param <buf, buf_size> The buffer and its size.
-   * @param <return> The required or the used size of is returned.
-   */
-  virtual unsigned int CreateBinary(unsigned char* buf,
-                                    unsigned int buf_size) const = 0;
-  /**@brief Get the binary size of the object. */
-  virtual unsigned int GetBinarySize() const = 0;
-  /**@brief get intensity image of node. */
-  virtual void GetIntensityImg(cv::Mat* intensity_img) const = 0;
+class BaseMapMatrix 
+{
+public:
+        /**@brief The default constructor. */
+        BaseMapMatrix();
+        /**@brief The deconstructor. */
+        virtual ~BaseMapMatrix();
+        /**@brief The copy constructor. */
+        BaseMapMatrix(const BaseMapMatrix& cell);
+        /**@brief Initialize the map matrix. */
+        virtual void Init(const BaseMapConfig* config) = 0;
+        /**@brief Reset map cells data. */
+        virtual void Reset(const BaseMapConfig* config) = 0;
+        /**@brief Load the map cell from a binary chunk.
+        * @param <return> The size read (the real size of object).
+        */
+        virtual unsigned int LoadBinary(unsigned char* buf) = 0;
+        /**@brief Create the binary. Serialization of the object.
+        * @param <buf, buf_size> The buffer and its size.
+        * @param <return> The required or the used size of is returned.
+        */
+        virtual unsigned int CreateBinary(unsigned char* buf, unsigned int buf_size) const = 0;
+        /**@brief Get the binary size of the object. */
+        virtual unsigned int GetBinarySize() const = 0;
+        /**@brief get intensity image of node. */
+        virtual void GetIntensityImg(cv::Mat* intensity_img) const = 0;
 };
 
 }  // namespace msf

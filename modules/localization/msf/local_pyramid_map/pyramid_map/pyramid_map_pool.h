@@ -25,18 +25,19 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-class PyramidMapNodePool : public BaseMapNodePool {
- public:
-  /**@brief Constructor
-   * @param <pool_size> The memory pool size.
-   * @param <thread_size> The thread pool size.
-   */
-  PyramidMapNodePool(unsigned int pool_size, unsigned int thread_size);
-  /**@brief Destructor */
-  virtual ~PyramidMapNodePool();
+class PyramidMapNodePool : public BaseMapNodePool 
+{
+public:
+        /**@brief Constructor
+        * @param <pool_size> The memory pool size.
+        * @param <thread_size> The thread pool size.
+        */
+        PyramidMapNodePool(unsigned int pool_size, unsigned int thread_size);
+        /**@brief Destructor */
+        virtual ~PyramidMapNodePool();
 
- private:
-  virtual BaseMapNode* AllocNewMapNode();
+private:
+        virtual BaseMapNode* AllocNewMapNode();
 };
 
 }  // namespace pyramid_map

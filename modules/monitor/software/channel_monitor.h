@@ -27,16 +27,6 @@
 namespace apollo {
 namespace monitor {
 
-// <<<<<<< HEAD
-// class ChannelMonitor : public RecurrentRunner 
-// {
-// public:
-//         ChannelMonitor();
-//         void RunOnce(const double current_time) override;
-
-// private:
-//         static void UpdateStatus(const apollo::dreamview::ChannelMonitorConfig& config, ComponentStatus* status);
-// =======
 class ChannelMonitor : public RecurrentRunner 
 {
 public:
@@ -46,7 +36,6 @@ public:
 private:
         static void UpdateStatus(const apollo::dreamview::ChannelMonitorConfig& config, ComponentStatus* status, const bool update_freq, const double freq);
         std::shared_ptr<LatencyMonitor> latency_monitor_;
-// >>>>>>> update_stream/master
 };
 
 }  // namespace monitor

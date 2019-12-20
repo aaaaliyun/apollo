@@ -318,47 +318,6 @@ PyObject* cyber_delete_PyParameterClient(PyObject* self, PyObject* args)
         return Py_None;
 }
 
-// <<<<<<< HEAD
-// PyObject* cyber_PyParameter_clt_set_parameter(PyObject* self, PyObject* args) 
-// {
-//         PyObject* pyobj_param_clt = nullptr;
-//         PyObject* pyobj_param = nullptr;
-//         if (!PyArg_ParseTuple(args, const_cast<char*>("OO:cyber_PyParameter_set_parameter"), &pyobj_param_clt, &pyobj_param)) 
-//         {
-//                 AERROR << "cyber_PyParameter_set_parameter parsetuple failed!";
-//                 Py_RETURN_FALSE;
-//         }
-
-//         PyParameterClient* pyparam_clt = PyObjectToPtr<PyParameterClient*>(pyobj_param_clt, "apollo_cybertron_pyparameterclient");
-//         if (nullptr == pyparam_clt) 
-//         {
-//                 AERROR << "pyparam_clt ptr is null!";
-//                 Py_RETURN_FALSE;
-//         }
-
-//         PyParameter* pyparam = PyObjectToPtr<PyParameter*>(pyobj_param, "apollo_cybertron_pyparameter");
-//         if (nullptr == pyparam) 
-//         {
-//                 AERROR << "pyparam ptr is null!";
-//                 Py_RETURN_FALSE;
-//         }
-
-//         auto* param = pyparam->get_param();
-//         if (nullptr == param) 
-//         {
-//                 AERROR << "param ptr is null!";
-//                 Py_RETURN_FALSE;
-//         }
-
-//         if (!pyparam_clt->set_parameter(*param)) 
-//         {
-//                 Py_RETURN_FALSE;
-//         } 
-//         else 
-//         {
-//                 Py_RETURN_TRUE;
-//         }
-// =======
 PyObject* cyber_PyParameter_clt_set_parameter(PyObject* self, PyObject* args) 
 {
         PyObject* pyobj_param_clt = nullptr;
@@ -391,7 +350,6 @@ PyObject* cyber_PyParameter_clt_set_parameter(PyObject* self, PyObject* args)
         {
                 Py_RETURN_TRUE;
         }
-// >>>>>>> update_stream/master
 }
 
 PyObject* cyber_PyParameter_clt_get_parameter(PyObject* self, PyObject* args) 
@@ -515,46 +473,6 @@ PyObject* cyber_delete_PyParameterServer(PyObject* self, PyObject* args)
         return Py_None;
 }
 
-// <<<<<<< HEAD
-// PyObject* cyber_PyParameter_srv_set_parameter(PyObject* self, PyObject* args) 
-// {
-//         PyObject* pyobj_param_srv = nullptr;
-//         PyObject* pyobj_param = nullptr;
-//         if (!PyArg_ParseTuple(args, const_cast<char*>("OO:cyber_PyParameter_set_parameter"), &pyobj_param_srv, &pyobj_param)) 
-//         {
-//                 AERROR << "cyber_PyParameter_set_parameter parsetuple failed!";
-//                 Py_INCREF(Py_None);
-//                 return Py_None;
-//         }
-
-//         PyParameterServer* pyparam_srv = PyObjectToPtr<PyParameterServer*>(pyobj_param_srv, "apollo_cybertron_pyparameterserver");
-//         if (nullptr == pyparam_srv) 
-//         {
-//                 AERROR << "pyparam_srv ptr is null!";
-//                 Py_INCREF(Py_None);
-//                 return Py_None;
-//         }
-
-//         PyParameter* pyparam = PyObjectToPtr<PyParameter*>(pyobj_param, "apollo_cybertron_pyparameter");
-//         if (nullptr == pyparam) 
-//         {
-//                 AERROR << "pyparam ptr is null!";
-//                 Py_INCREF(Py_None);
-//                 return Py_None;
-//         }
-
-//         auto* param = pyparam->get_param();
-//         if (nullptr == param) 
-//         {
-//                 AERROR << "param ptr is null!";
-//                 Py_INCREF(Py_None);
-//                 return Py_None;
-//         }
-
-//         pyparam_srv->set_parameter(*param);
-//         Py_INCREF(Py_None);
-//         return Py_None;
-// =======
 PyObject* cyber_PyParameter_srv_set_parameter(PyObject* self, PyObject* args) 
 {
         PyObject* pyobj_param_srv = nullptr;
@@ -585,7 +503,6 @@ PyObject* cyber_PyParameter_srv_set_parameter(PyObject* self, PyObject* args)
         pyparam_srv->set_parameter(pyparam->get_param());
         Py_INCREF(Py_None);
         return Py_None;
-// >>>>>>> update_stream/master
 }
 
 PyObject* cyber_PyParameter_srv_get_parameter(PyObject* self, PyObject* args) 

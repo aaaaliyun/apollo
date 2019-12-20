@@ -27,107 +27,113 @@ PyramidMapConfig::PyramidMapConfig(const std::string& map_version)
 
 PyramidMapConfig::~PyramidMapConfig() {}
 
-bool PyramidMapConfig::CreateXml(boost::property_tree::ptree* config) const {
-  bool success = BaseMapConfig::CreateXml(config);
-  if (success) {
-    config->put("map.map_config.has_intensity", has_intensity_);
-    config->put("map.map_config.has_intensity_var", has_intensity_var_);
-    config->put("map.map_config.has_altitude", has_altitude_);
-    config->put("map.map_config.has_altitude_var", has_altitude_var_);
-    config->put("map.map_config.has_ground_altitude", has_ground_altitude_);
-    config->put("map.map_config.has_count", has_count_);
-    config->put("map.map_config.has_ground_count", has_ground_count_);
-    config->put("map.map_config.resolution_num", resolution_num_);
-    config->put("map.map_config.resolution_ratio", resolution_ratio_);
-    config->put("map.map_config.coordinate_type", coordinate_type_);
-    config->put("map.map_runtime.max_intensity_value", max_intensity_value_);
-    config->put("map.map_runtime.max_intensity_var_value",
-                max_intensity_var_value_);
-    return true;
-  } else {
-    return false;
-  }
+bool PyramidMapConfig::CreateXml(boost::property_tree::ptree* config) const 
+{
+        bool success = BaseMapConfig::CreateXml(config);
+        if (success) 
+        {
+                config->put("map.map_config.has_intensity", has_intensity_);
+                config->put("map.map_config.has_intensity_var", has_intensity_var_);
+                config->put("map.map_config.has_altitude", has_altitude_);
+                config->put("map.map_config.has_altitude_var", has_altitude_var_);
+                config->put("map.map_config.has_ground_altitude", has_ground_altitude_);
+                config->put("map.map_config.has_count", has_count_);
+                config->put("map.map_config.has_ground_count", has_ground_count_);
+                config->put("map.map_config.resolution_num", resolution_num_);
+                config->put("map.map_config.resolution_ratio", resolution_ratio_);
+                config->put("map.map_config.coordinate_type", coordinate_type_);
+                config->put("map.map_runtime.max_intensity_value", max_intensity_value_);
+                config->put("map.map_runtime.max_intensity_var_value", max_intensity_var_value_);
+                return true;
+        } 
+        else 
+        {
+                return false;
+        }
 }
 
-bool PyramidMapConfig::LoadXml(const boost::property_tree::ptree& config) {
-  bool success = BaseMapConfig::LoadXml(config);
-  if (success) {
-    auto has_intensity =
-        config.get_optional<bool>("map.map_config.has_intensity");
-    auto has_intensity_var =
-        config.get_optional<bool>("map.map_config.has_intensity_var");
-    auto has_altitude =
-        config.get_optional<bool>("map.map_config.has_altitude");
-    auto has_altitude_var =
-        config.get_optional<bool>("map.map_config.has_altitude_var");
-    auto has_ground_altitude =
-        config.get_optional<bool>("map.map_config.has_ground_altitude");
-    auto has_count = config.get_optional<bool>("map.map_config.has_count");
-    auto has_ground_count =
-        config.get_optional<bool>("map.map_config.has_ground_count");
-    auto resolution_num =
-        config.get_optional<unsigned int>("map.map_config.resolution_num");
-    auto resolution_ratio =
-        config.get_optional<unsigned int>("map.map_config.resolution_ratio");
-    auto coordinate_type =
-        config.get_optional<std::string>("map.map_config.coordinate_type");
-    auto max_intensity_value =
-        config.get_optional<float>("map.map_runtime.max_intensity_value");
-    auto max_intensity_var_value =
-        config.get_optional<float>("map.map_runtime.max_intensity_var_value");
+bool PyramidMapConfig::LoadXml(const boost::property_tree::ptree& config) 
+{
+        bool success = BaseMapConfig::LoadXml(config);
+        if (success) 
+        {
+                auto has_intensity = config.get_optional<bool>("map.map_config.has_intensity");
+                auto has_intensity_var = config.get_optional<bool>("map.map_config.has_intensity_var");
+                auto has_altitude = config.get_optional<bool>("map.map_config.has_altitude");
+                auto has_altitude_var = config.get_optional<bool>("map.map_config.has_altitude_var");
+                auto has_ground_altitude = config.get_optional<bool>("map.map_config.has_ground_altitude");
+                auto has_count = config.get_optional<bool>("map.map_config.has_count");
+                auto has_ground_count = config.get_optional<bool>("map.map_config.has_ground_count");
+                auto resolution_num = config.get_optional<unsigned int>("map.map_config.resolution_num");
+                auto resolution_ratio = config.get_optional<unsigned int>("map.map_config.resolution_ratio");
+                auto coordinate_type = config.get_optional<std::string>("map.map_config.coordinate_type");
+                auto max_intensity_value = config.get_optional<float>("map.map_runtime.max_intensity_value");
+                auto max_intensity_var_value = config.get_optional<float>("map.map_runtime.max_intensity_var_value");
 
-    if (has_intensity) {
-      has_intensity_ = *has_intensity;
-    }
+                if (has_intensity) 
+                {
+                        has_intensity_ = *has_intensity;
+                }
 
-    if (has_intensity_var) {
-      has_intensity_var_ = *has_intensity_var;
-    }
+                if (has_intensity_var) 
+                {
+                        has_intensity_var_ = *has_intensity_var;
+                }
 
-    if (has_altitude) {
-      has_altitude_ = *has_altitude;
-    }
+                if (has_altitude) 
+                {
+                        has_altitude_ = *has_altitude;
+                }
 
-    if (has_altitude_var) {
-      has_altitude_var_ = *has_altitude_var;
-    }
+                if (has_altitude_var) 
+                {
+                        has_altitude_var_ = *has_altitude_var;
+                }
 
-    if (has_ground_altitude) {
-      has_ground_altitude_ = *has_ground_altitude;
-    }
+                if (has_ground_altitude) 
+                {
+                        has_ground_altitude_ = *has_ground_altitude;
+                }
 
-    if (has_count) {
-      has_count_ = *has_count;
-    }
+                if (has_count) 
+                {
+                        has_count_ = *has_count;
+                }
 
-    if (has_ground_count) {
-      has_ground_count_ = *has_ground_count;
-    }
+                if (has_ground_count) 
+                {
+                        has_ground_count_ = *has_ground_count;
+                }
 
-    if (resolution_num) {
-      resolution_num_ = *resolution_num;
-    }
+                if (resolution_num) 
+                {
+                        resolution_num_ = *resolution_num;
+                }
 
-    if (resolution_ratio) {
-      resolution_ratio_ = *resolution_ratio;
-    }
+                if (resolution_ratio) 
+                {
+                        resolution_ratio_ = *resolution_ratio;
+                }
 
-    if (coordinate_type) {
-      coordinate_type_ = *coordinate_type;
-    }
+                if (coordinate_type) 
+                {
+                        coordinate_type_ = *coordinate_type;
+                }
 
-    if (max_intensity_value) {
-      max_intensity_value_ = *max_intensity_value;
-    }
+                if (max_intensity_value) 
+                {
+                        max_intensity_value_ = *max_intensity_value;
+                }
 
-    if (max_intensity_var_value) {
-      max_intensity_var_value_ = *max_intensity_var_value;
-    }
+                if (max_intensity_var_value) 
+                {
+                        max_intensity_var_value_ = *max_intensity_var_value;
+                }
 
-    return true;
-  }
+                return true;
+        }
 
-  return false;
+        return false;
 }
 
 }  // namespace pyramid_map

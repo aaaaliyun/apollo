@@ -25,32 +25,33 @@ namespace localization {
 namespace msf {
 
 /**@brief The options of the reflectance map. */
-class LosslessMapConfig : public BaseMapConfig {
- public:
-  /**@brief The constructor gives the default map settings. */
-  explicit LosslessMapConfig(std::string map_version = "lossless_map");
-  ~LosslessMapConfig() {}
+class LosslessMapConfig : public BaseMapConfig 
+{
+public:
+        /**@brief The constructor gives the default map settings. */
+        explicit LosslessMapConfig(std::string map_version = "lossless_map");
+        ~LosslessMapConfig() {}
 
-  /**@brief The threshold to split more layers in the map node. */
-  float map_layer_alt_thres_;
-  /**@brief When load map nodes, the maximum number of map nodes will be kept in
-   * memory. */
-  unsigned int map_cache_size_;
-  /**@brief coordinate type. */
-  std::string coordinate_type_;
+        /**@brief The threshold to split more layers in the map node. */
+        float map_layer_alt_thres_;
+        /**@brief When load map nodes, the maximum number of map nodes will be kept in
+        * memory. */
+        unsigned int map_cache_size_;
+        /**@brief coordinate type. */
+        std::string coordinate_type_;
 
-  /**@brief During the visualization (for example, call the function get_image()
-   * of map node layer), the maximum intensity value in the image. */
-  float max_intensity_value_;
-  /**@brief During the visualization (for example, call the function get_image()
-   * of map node layer), the maximum intensity variance value in the image. */
-  float max_intensity_var_value_;
+        /**@brief During the visualization (for example, call the function get_image()
+        * of map node layer), the maximum intensity value in the image. */
+        float max_intensity_value_;
+        /**@brief During the visualization (for example, call the function get_image()
+        * of map node layer), the maximum intensity variance value in the image. */
+        float max_intensity_var_value_;
 
- protected:
-  /**@brief Create the XML structure. */
-  virtual void CreateXml(boost::property_tree::ptree* config) const;
-  /**@brief Load the map options from a XML structure. */
-  virtual void LoadXml(const boost::property_tree::ptree& config);
+protected:
+        /**@brief Create the XML structure. */
+        virtual void CreateXml(boost::property_tree::ptree* config) const;
+        /**@brief Load the map options from a XML structure. */
+        virtual void LoadXml(const boost::property_tree::ptree& config);
 };
 
 }  // namespace msf

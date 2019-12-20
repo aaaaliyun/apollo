@@ -23,47 +23,48 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-class PyramidMap : public BaseMap {
- public:
-  explicit PyramidMap(PyramidMapConfig* config);
-  ~PyramidMap();
+class PyramidMap : public BaseMap 
+{
+public:
+        explicit PyramidMap(PyramidMapConfig* config);
+        ~PyramidMap();
 
- public:
-  /**@brief Given the 3D global coordinate, this function loads the
-   * corresponding map node in the cache thread safely and return intensity, if
-   *necessary.
-   **/
-  float GetIntensitySafe(const Eigen::Vector3d& coordinate, int zone_id,
+public:
+        /**@brief Given the 3D global coordinate, this function loads the
+        * corresponding map node in the cache thread safely and return intensity, if
+        *necessary.
+        **/
+        float GetIntensitySafe(const Eigen::Vector3d& coordinate, int zone_id,
                          unsigned int resolution_id, unsigned int level = 0);
-  /**@brief Given the 3D global coordinate, this function loads the
-   * corresponding map node in the cache and return intensity var, if necessary.
-   **/
-  float GetIntensityVarSafe(const Vector3d& coordinate, int zone_id,
+        /**@brief Given the 3D global coordinate, this function loads the
+        * corresponding map node in the cache and return intensity var, if necessary.
+        **/
+        float GetIntensityVarSafe(const Vector3d& coordinate, int zone_id,
                             unsigned int resolution_id, unsigned int level = 0);
-  /**@brief Given the 3D global coordinate, this function loads the
-   * corresponding map node in the cache thread safely and return altitude, if
-   *necessary.
-   **/
-  float GetAltitudeSafe(const Eigen::Vector3d& coordinate, int zone_id,
+        /**@brief Given the 3D global coordinate, this function loads the
+        * corresponding map node in the cache thread safely and return altitude, if
+        *necessary.
+        **/
+        float GetAltitudeSafe(const Eigen::Vector3d& coordinate, int zone_id,
                         unsigned int resolution_id, unsigned int level = 0);
-  /**@brief Given the 3D global coordinate, this function loads the
-   * corresponding map node in the cache thread safely and return altitude var,
-   *if necessary.
-   **/
-  float GetAltitudeVarSafe(const Eigen::Vector3d& coordinate, int zone_id,
+        /**@brief Given the 3D global coordinate, this function loads the
+        * corresponding map node in the cache thread safely and return altitude var,
+        *if necessary.
+        **/
+        float GetAltitudeVarSafe(const Eigen::Vector3d& coordinate, int zone_id,
                            unsigned int resolution_id, unsigned int level = 0);
-  /**@brief Given the 3D global coordinate, this function loads the
-   * corresponding map node in the cache thread safely and return ground
-   *altitude, if necessary.
-   **/
-  float GetGroundAltitudeSafe(const Eigen::Vector3d& coordinate, int zone_id,
+        /**@brief Given the 3D global coordinate, this function loads the
+        * corresponding map node in the cache thread safely and return ground
+        *altitude, if necessary.
+        **/
+        float GetGroundAltitudeSafe(const Eigen::Vector3d& coordinate, int zone_id,
                               unsigned int resolution_id,
                               unsigned int level = 0);
-  /**@brief Get the number of samples in the map cell thread safely. */
-  unsigned int GetCountSafe(const Eigen::Vector3d& coordinate, int zone_id,
+        /**@brief Get the number of samples in the map cell thread safely. */
+        unsigned int GetCountSafe(const Eigen::Vector3d& coordinate, int zone_id,
                             unsigned int resolution_id, unsigned int level = 0);
-  /**@brief Get the number of ground samples in the map cell thread safely. */
-  unsigned int GetGroundCountSafe(const Eigen::Vector3d& coordinate,
+        /**@brief Get the number of ground samples in the map cell thread safely. */
+        unsigned int GetGroundCountSafe(const Eigen::Vector3d& coordinate,
                                   int zone_id, unsigned int resolution_id,
                                   unsigned int level = 0);
 };

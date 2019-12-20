@@ -20,12 +20,11 @@ namespace apollo {
 namespace localization {
 namespace msf {
 
-LosslessMapNodePool::LosslessMapNodePool(unsigned int pool_size,
-                                         unsigned int thread_size)
-    : BaseMapNodePool(pool_size, thread_size) {}
+LosslessMapNodePool::LosslessMapNodePool(unsigned int pool_size, unsigned int thread_size) : BaseMapNodePool(pool_size, thread_size) {}
 
-BaseMapNode* LosslessMapNodePool::AllocNewMapNode() {
-  return new LosslessMapNode();
+BaseMapNode* LosslessMapNodePool::AllocNewMapNode() 
+{
+        return new LosslessMapNode();
 }
 
 }  // namespace msf

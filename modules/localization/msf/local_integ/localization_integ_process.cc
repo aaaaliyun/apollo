@@ -243,139 +243,149 @@ void LocalizationIntegProcess::GetResult(IntegState *state,
         orientation_std_dev->set_z(std::sqrt(pva_covariance_[8][8]));
 }
 
-void LocalizationIntegProcess::GetResult(IntegState *state, InsPva *sins_pva,
-                                         double pva_covariance[9][9]) {
-  CHECK_NOTNULL(state);
-  CHECK_NOTNULL(sins_pva);
-  CHECK_NOTNULL(pva_covariance);
+void LocalizationIntegProcess::GetResult(IntegState *state, InsPva *sins_pva, double pva_covariance[9][9]) 
+{
+        CHECK_NOTNULL(state);
+        CHECK_NOTNULL(sins_pva);
+        CHECK_NOTNULL(pva_covariance);
 
-  *state = integ_state_;
-  *sins_pva = ins_pva_;
-  memcpy(pva_covariance, pva_covariance_, sizeof(double) * 9 * 9);
+        *state = integ_state_;
+        *sins_pva = ins_pva_;
+        memcpy(pva_covariance, pva_covariance_, sizeof(double) * 9 * 9);
 }
 
-void LocalizationIntegProcess::GetCorrectedImu(ImuData *imu_data) {
-  CHECK_NOTNULL(imu_data);
+void LocalizationIntegProcess::GetCorrectedImu(ImuData *imu_data) 
+{
+        CHECK_NOTNULL(imu_data);
 
-  *imu_data = corrected_imu_;
+        *imu_data = corrected_imu_;
 }
 
-void LocalizationIntegProcess::GetEarthParameter(
-    InertialParameter *earth_param) {
-  CHECK_NOTNULL(earth_param);
+void LocalizationIntegProcess::GetEarthParameter(InertialParameter *earth_param) 
+{
+        CHECK_NOTNULL(earth_param);
 
-  *earth_param = earth_param_;
+        *earth_param = earth_param_;
 }
 
-void LocalizationIntegProcess::MeasureDataProcess(
-    const MeasureData &measure_msg) {
-  measure_data_queue_mutex_.lock();
-  measure_data_queue_.push(measure_msg);
-  measure_data_queue_mutex_.unlock();
+void LocalizationIntegProcess::MeasureDataProcess(const MeasureData &measure_msg) 
+{
+        measure_data_queue_mutex_.lock();
+        measure_data_queue_.push(measure_msg);
+        measure_data_queue_mutex_.unlock();
 }
 
-void LocalizationIntegProcess::StartThreadLoop() {
-  keep_running_ = true;
-  measure_data_queue_size_ = 150;
-  cyber::Async(&LocalizationIntegProcess::MeasureDataThreadLoop, this);
+void LocalizationIntegProcess::StartThreadLoop() 
+{
+        keep_running_ = true;
+        measure_data_queue_size_ = 150;
+        cyber::Async(&LocalizationIntegProcess::MeasureDataThreadLoop, this);
 }
 
-void LocalizationIntegProcess::StopThreadLoop() {
-  if (keep_running_.load()) {
-    keep_running_ = false;
-  }
+void LocalizationIntegProcess::StopThreadLoop() 
+{
+        if (keep_running_.load()) 
+        {
+                keep_running_ = false;
+        }
 }
 
-void LocalizationIntegProcess::MeasureDataThreadLoop() {
-  AINFO << "Started measure data process thread";
-  while (keep_running_.load()) {
-    {
-      std::unique_lock<std::mutex> lock(measure_data_queue_mutex_);
-      int size = static_cast<int>(measure_data_queue_.size());
-      while (size > measure_data_queue_size_) {
-        measure_data_queue_.pop();
-        --size;
-      }
-      if (measure_data_queue_.empty()) {
-        lock.unlock();
-        cyber::Yield();
-        continue;
-      }
-    }
+void LocalizationIntegProcess::MeasureDataThreadLoop() 
+{
+        AINFO << "Started measure data process thread";
+        while (keep_running_.load()) 
+        {
+                {
+                        std::unique_lock<std::mutex> lock(measure_data_queue_mutex_);
+                        int size = static_cast<int>(measure_data_queue_.size());
+                        while (size > measure_data_queue_size_) 
+                        {
+                                measure_data_queue_.pop();
+                                --size;
+                        }
+                        if (measure_data_queue_.empty()) 
+                        {
+                                lock.unlock();
+                                cyber::Yield();
+                                continue;
+                        }
+                }
 
-    MeasureData measure;
-    int waiting_num = 0;
-    {
-      std::unique_lock<std::mutex> lock(measure_data_queue_mutex_);
-      measure = measure_data_queue_.front();
-      measure_data_queue_.pop();
-      waiting_num = static_cast<int>(measure_data_queue_.size());
-    }
+                MeasureData measure;
+                int waiting_num = 0;
+                {
+                        std::unique_lock<std::mutex> lock(measure_data_queue_mutex_);
+                        measure = measure_data_queue_.front();
+                        measure_data_queue_.pop();
+                        waiting_num = static_cast<int>(measure_data_queue_.size());
+                }
 
-    if (waiting_num > measure_data_queue_size_ / 4) {
-      AWARN << waiting_num << " measure are waiting to process.";
-    }
+                if (waiting_num > measure_data_queue_size_ / 4) 
+                {
+                        AWARN << waiting_num << " measure are waiting to process.";
+                }
 
-    MeasureDataProcessImpl(measure);
-  }
-  AINFO << "Exited measure data process thread";
+                MeasureDataProcessImpl(measure);
+        }
+        AINFO << "Exited measure data process thread";
 }
 
-void LocalizationIntegProcess::MeasureDataProcessImpl(
-    const MeasureData &measure_msg) {
-  common::time::Timer timer;
-  timer.Start();
+void LocalizationIntegProcess::MeasureDataProcessImpl(const MeasureData &measure_msg) 
+{
+        common::time::Timer timer;
+        timer.Start();
 
-  if (!CheckIntegMeasureData(measure_msg)) {
-    return;
-  }
+        if (!CheckIntegMeasureData(measure_msg)) 
+        {
+                return;
+        }
 
-  sins_->AddMeasurement(measure_msg);
+        sins_->AddMeasurement(measure_msg);
 
-  timer.End("time of integrated navigation measure update");
+        timer.End("time of integrated navigation measure update");
 }
 
-bool LocalizationIntegProcess::CheckIntegMeasureData(
-    const MeasureData &measure_data) {
-  if (measure_data.measure_type == MeasureType::ODOMETER_VEL_ONLY) {
-    AERROR << "receive a new odometry measurement!!!\n";
-  }
+bool LocalizationIntegProcess::CheckIntegMeasureData(const MeasureData &measure_data) 
+{
+        if (measure_data.measure_type == MeasureType::ODOMETER_VEL_ONLY) 
+        {
+                AERROR << "receive a new odometry measurement!!!\n";
+        }
 
-  ADEBUG << std::setprecision(16)
-         << "IntegratedLocalization Debug Log: measure data: "
-         << "[time:" << measure_data.time << "]"
-         << "[x:" << measure_data.gnss_pos.longitude * 57.295779513082323 << "]"
-         << "[y:" << measure_data.gnss_pos.latitude * 57.295779513082323 << "]"
-         << "[z:" << measure_data.gnss_pos.height << "]"
-         << "[ve:" << measure_data.gnss_vel.ve << "]"
-         << "[vn:" << measure_data.gnss_vel.vn << "]"
-         << "[vu:" << measure_data.gnss_vel.vu << "]"
-         << "[pitch:" << measure_data.gnss_att.pitch * 57.295779513082323 << "]"
-         << "[roll:" << measure_data.gnss_att.roll * 57.295779513082323 << "]"
-         << "[yaw:" << measure_data.gnss_att.yaw * 57.295779513082323 << "]"
-         << "[measure type:" << int(measure_data.measure_type) << "]";
+        ADEBUG << std::setprecision(16)
+               << "IntegratedLocalization Debug Log: measure data: "
+               << "[time:" << measure_data.time << "]"
+               << "[x:" << measure_data.gnss_pos.longitude * 57.295779513082323 << "]"
+               << "[y:" << measure_data.gnss_pos.latitude * 57.295779513082323 << "]"
+               << "[z:" << measure_data.gnss_pos.height << "]"
+               << "[ve:" << measure_data.gnss_vel.ve << "]"
+               << "[vn:" << measure_data.gnss_vel.vn << "]"
+               << "[vu:" << measure_data.gnss_vel.vu << "]"
+               << "[pitch:" << measure_data.gnss_att.pitch * 57.295779513082323 << "]"
+               << "[roll:" << measure_data.gnss_att.roll * 57.295779513082323 << "]"
+               << "[yaw:" << measure_data.gnss_att.yaw * 57.295779513082323 << "]"
+               << "[measure type:" << int(measure_data.measure_type) << "]";
 
-  return true;
+        return true;
 }
 
-bool LocalizationIntegProcess::LoadGnssAntennaExtrinsic(
-    const std::string &file_path, TransformD *extrinsic) const {
-  CHECK_NOTNULL(extrinsic);
+bool LocalizationIntegProcess::LoadGnssAntennaExtrinsic(const std::string &file_path, TransformD *extrinsic) const 
+{
+        CHECK_NOTNULL(extrinsic);
 
-  YAML::Node confige = YAML::LoadFile(file_path);
-  if (confige["leverarm"]) {
-    if (confige["leverarm"]["primary"]["offset"]) {
-      extrinsic->translation()(0) =
-          confige["leverarm"]["primary"]["offset"]["x"].as<double>();
-      extrinsic->translation()(1) =
-          confige["leverarm"]["primary"]["offset"]["y"].as<double>();
-      extrinsic->translation()(2) =
-          confige["leverarm"]["primary"]["offset"]["z"].as<double>();
-      return true;
-    }
-  }
+        YAML::Node confige = YAML::LoadFile(file_path);
+        if (confige["leverarm"]) 
+        {
+                if (confige["leverarm"]["primary"]["offset"]) 
+                {
+                        extrinsic->translation()(0) = confige["leverarm"]["primary"]["offset"]["x"].as<double>();
+                        extrinsic->translation()(1) = confige["leverarm"]["primary"]["offset"]["y"].as<double>();
+                        extrinsic->translation()(2) = confige["leverarm"]["primary"]["offset"]["z"].as<double>();
+                        return true;
+                }
+        }
 
-  return false;
+        return false;
 }
 
 }  // namespace msf

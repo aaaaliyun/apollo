@@ -39,34 +39,6 @@ bool Monitor::Init()
 {
         MonitorManager::Instance()->Init(node_);
 
-// <<<<<<< HEAD
-//         // Only the one CAN card corresponding to current mode will take effect.
-//         runners_.emplace_back(new EsdCanMonitor());
-//         runners_.emplace_back(new SocketCanMonitor());
-//         // To enable the GpsMonitor, you must add FLAGS_gps_component_name to the
-//         // mode's monitored_components.
-//         runners_.emplace_back(new GpsMonitor());
-//         // To enable the LocalizationMonitor, you must add
-//         // FLAGS_localization_component_name to the mode's monitored_components.
-//         runners_.emplace_back(new LocalizationMonitor());
-//         // Monitor if processes are running.
-//         runners_.emplace_back(new ProcessMonitor());
-//         // Monitor if channel messages are updated in time.
-//         runners_.emplace_back(new ChannelMonitor());
-//         // Monitor if resources are sufficient.
-//         runners_.emplace_back(new ResourceMonitor());
-
-//         // Monitor all changes made by each sub-monitor, and summarize to a final
-//         // overall status.
-//         runners_.emplace_back(new SummaryMonitor());
-//         // Check functional safety according to the summary.
-//         if (FLAGS_enable_functional_safety) 
-//         {
-//                 runners_.emplace_back(new FunctionalSafetyMonitor());
-//         }
-//         // Monitor message processing latencies across modules
-//         runners_.emplace_back(new LatencyMonitor());
-// =======
         // Only the one CAN card corresponding to current mode will take effect.
         runners_.emplace_back(new EsdCanMonitor());
         runners_.emplace_back(new SocketCanMonitor());
@@ -94,7 +66,6 @@ bool Monitor::Init()
         {
                 runners_.emplace_back(new FunctionalSafetyMonitor());
         }
-// >>>>>>> update_stream/master
 
         return true;
 }

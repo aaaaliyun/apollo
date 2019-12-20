@@ -151,32 +151,6 @@ uint64_t GetSystemMemoryValueFromLine(std::string stat_line)
         return std::stoll(stats[kMemoryValueIdx]);
 }
 
-// <<<<<<< HEAD
-// float GetSystemMemoryUsage() 
-// {
-//         const std::string system_mem_stat_file = "/proc/meminfo";
-//         const int mem_total = 0, mem_free = 1, buffers = 3, cached = 4, swap_total = 14, swap_free = 15, slab = 21;
-//         const auto stat_lines = GetStatsLines(system_mem_stat_file, slab + 1);
-//         if (stat_lines.size() <= slab) 
-//         {
-//                 AERROR << "failed to load contents from " << system_mem_stat_file;
-//                 return 0.f;
-//         }
-//         const auto total_memory = GetSystemMemoryValueFromLine(stat_lines[mem_total]);
-//         int64_t used_memory = 0;
-//         for (int cur_line = 0; cur_line <= slab; ++cur_line) 
-//         {
-//                 if (cur_line == mem_total || cur_line == swap_total) 
-//                 {
-//                         used_memory += GetSystemMemoryValueFromLine(stat_lines[cur_line]);
-//                 } 
-//                 else if (cur_line == mem_free || cur_line == buffers || cur_line == cached || cur_line == swap_free || cur_line == slab) 
-//                 {
-//                         used_memory -= GetSystemMemoryValueFromLine(stat_lines[cur_line]);
-//                 }
-//         }
-//         return 100.f * (static_cast<float>(used_memory) / total_memory);
-// =======
 float GetSystemMemoryUsage() 
 {
         const std::string system_mem_stat_file = "/proc/meminfo";
@@ -197,7 +171,6 @@ float GetSystemMemoryUsage()
                 }
         }
         return 100.f * (static_cast<float>(used_memory) / total_memory);
-// >>>>>>> update_stream/master
 }
 
 float GetSystemCPUUsage() 

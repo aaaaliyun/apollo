@@ -133,33 +133,6 @@ ClassFactoryVector GetAllClassFactoryObjectsOfLibrary(const std::string& library
         return library_class_factory_objs;
 }
 
-// <<<<<<< HEAD
-// void DestroyClassFactoryObjectsOfLibrary(const std::string& library_path, const ClassLoader* class_loader,
-//                                          ClassClassFactoryMap* class_factory_map) 
-// {
-//         for (ClassClassFactoryMap::iterator itr = class_factory_map->begin(); itr != class_factory_map->end();) 
-//         {
-//                 AbstractClassFactoryBase* class_factory_object = itr->second;
-//                 if (class_factory_object->GetRelativeLibraryPath() == library_path && class_factory_object->IsOwnedBy(class_loader)) 
-//                 {
-//                         class_factory_object->RemoveOwnedClassLoader(class_loader);
-//                         // when no anybody owner,delete && erase
-//                         if (!class_factory_object->IsOwnedByAnybody()) 
-//                         {
-//                                 class_factory_map->erase(itr++);
-//                                 delete class_factory_object;
-//                         } 
-//                         else 
-//                         {
-//                                 ++itr;
-//                         }
-//                 } 
-//                 else 
-//                 {
-//                         ++itr;
-//                 }
-//         }
-// =======
 void DestroyClassFactoryObjectsOfLibrary(const std::string& library_path, const ClassLoader* class_loader,
                                          ClassClassFactoryMap* class_factory_map) 
 {
@@ -185,7 +158,6 @@ void DestroyClassFactoryObjectsOfLibrary(const std::string& library_path, const 
                         ++itr;
                 }
         }
-// >>>>>>> update_stream/master
 }
 
 void DestroyClassFactoryObjectsOfLibrary(const std::string& library_path, const ClassLoader* loader) 

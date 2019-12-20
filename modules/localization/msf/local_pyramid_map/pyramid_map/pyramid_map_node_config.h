@@ -23,12 +23,13 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-class PyramidMapNodeConfig : public BaseMapNodeConfig {
- public:
-  PyramidMapNodeConfig();
-  ~PyramidMapNodeConfig();
+class PyramidMapNodeConfig : public BaseMapNodeConfig 
+{
+public:
+        PyramidMapNodeConfig();
+        ~PyramidMapNodeConfig();
 
-  virtual std::shared_ptr<BaseMapNodeConfig> Clone();
+        virtual std::shared_ptr<BaseMapNodeConfig> Clone();
 };
 
 }  // namespace pyramid_map

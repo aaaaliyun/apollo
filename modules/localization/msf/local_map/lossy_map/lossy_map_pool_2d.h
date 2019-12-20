@@ -27,18 +27,19 @@ namespace localization {
 namespace msf {
 
 /**@brief The memory pool for the data structure of BaseMapNode. */
-class LossyMapNodePool2D : public BaseMapNodePool {
- public:
-  /**@brief Constructor
-   * @param <pool_size> The memory pool size.
-   * @param <thread_size> The thread pool size.
-   */
-  LossyMapNodePool2D(unsigned int pool_size, unsigned int thread_size);
-  /**@brief Destructor */
-  virtual ~LossyMapNodePool2D() {}
+class LossyMapNodePool2D : public BaseMapNodePool 
+{
+public:
+        /**@brief Constructor
+        * @param <pool_size> The memory pool size.
+        * @param <thread_size> The thread pool size.
+        */
+        LossyMapNodePool2D(unsigned int pool_size, unsigned int thread_size);
+        /**@brief Destructor */
+        virtual ~LossyMapNodePool2D() {}
 
- private:
-  virtual BaseMapNode* AllocNewMapNode();
+private:
+        virtual BaseMapNode* AllocNewMapNode();
 };
 
 }  // namespace msf

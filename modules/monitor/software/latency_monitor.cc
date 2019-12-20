@@ -67,7 +67,6 @@ LatencyStat GenerateStat(const std::vector<uint64_t>& numbers)
         stat.set_aver_duration(sample_size == 0 ? 0 : static_cast<uint64_t>(sum / sample_size));
         stat.set_sample_size(sample_size);
         return stat;
-// >>>>>>> update_stream/master
 }
 
 void SetStat(const LatencyStat& src, LatencyStat* dst) 

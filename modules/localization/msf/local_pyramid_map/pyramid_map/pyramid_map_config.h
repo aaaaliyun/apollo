@@ -23,35 +23,36 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-class PyramidMapConfig : public BaseMapConfig {
- public:
-  explicit PyramidMapConfig(const std::string& map_version);
-  ~PyramidMapConfig();
+class PyramidMapConfig : public BaseMapConfig 
+{
+public:
+        explicit PyramidMapConfig(const std::string& map_version);
+        ~PyramidMapConfig();
 
-  bool has_intensity_ = true;
-  bool has_intensity_var_ = true;
-  bool has_altitude_ = true;
-  bool has_altitude_var_ = true;
-  bool has_ground_altitude_ = true;
-  bool has_count_ = true;
-  bool has_ground_count_ = true;
-  unsigned int resolution_num_ = 1;
-  unsigned int resolution_ratio_ = 2;
-  /**@brief coordinate type. */
-  std::string coordinate_type_ = "";
-  /**@brief During the visualization (for example, Call the function get_image()
-   * of map node layer), the maximum intensity value in the image. */
-  float max_intensity_value_ = 0.0;
+        bool has_intensity_ = true;
+        bool has_intensity_var_ = true;
+        bool has_altitude_ = true;
+        bool has_altitude_var_ = true;
+        bool has_ground_altitude_ = true;
+        bool has_count_ = true;
+        bool has_ground_count_ = true;
+        unsigned int resolution_num_ = 1;
+        unsigned int resolution_ratio_ = 2;
+        /**@brief coordinate type. */
+        std::string coordinate_type_ = "";
+        /**@brief During the visualization (for example, Call the function get_image()
+        * of map node layer), the maximum intensity value in the image. */
+        float max_intensity_value_ = 0.0;
 
-  /**@brief During the visualization (for example, Call the function get_image()
-   * of map node layer), the maximum intensity value in the image. */
-  float max_intensity_var_value_ = 0.0;
+        /**@brief During the visualization (for example, Call the function get_image()
+        * of map node layer), the maximum intensity value in the image. */
+        float max_intensity_var_value_ = 0.0;
 
- protected:
-  /**@brief Create the XML structure. */
-  virtual bool CreateXml(boost::property_tree::ptree* config) const;
-  /**@brief Load the map options from a XML structure. */
-  virtual bool LoadXml(const boost::property_tree::ptree& config);
+protected:
+        /**@brief Create the XML structure. */
+        virtual bool CreateXml(boost::property_tree::ptree* config) const;
+        /**@brief Load the map options from a XML structure. */
+        virtual bool LoadXml(const boost::property_tree::ptree& config);
 };
 
 }  // namespace pyramid_map

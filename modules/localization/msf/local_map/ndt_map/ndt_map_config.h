@@ -25,28 +25,29 @@ namespace localization {
 namespace msf {
 
 /**@brief The options of the reflectance map. */
-class NdtMapConfig : public BaseMapConfig {
- public:
-  /**@brief The constructor gives the default map settings. */
-  explicit NdtMapConfig(std::string map_version = "0.1");
-  ~NdtMapConfig() {}
+class NdtMapConfig : public BaseMapConfig 
+{
+public:
+        /**@brief The constructor gives the default map settings. */
+        explicit NdtMapConfig(std::string map_version = "0.1");
+        ~NdtMapConfig() {}
 
-  /**@brief Set single resolutions. */
-  void SetSingleResolutionZ(float resolution = 1.0f);
-  /**@brief Set multi resolutions. */
-  void SetMultiResolutionsZ();
+        /**@brief Set single resolutions. */
+        void SetSingleResolutionZ(float resolution = 1.0f);
+        /**@brief Set multi resolutions. */
+        void SetMultiResolutionsZ();
 
-  /**@brief The resolution of z-axis. */
-  std::vector<float> map_resolutions_z_;
+        /**@brief The resolution of z-axis. */
+        std::vector<float> map_resolutions_z_;
 
-  /**@brief Enable the compression. */
-  bool map_is_compression_;
+        /**@brief Enable the compression. */
+        bool map_is_compression_;
 
- protected:
-  /**@brief Create the XML structure. */
-  virtual void CreateXml(boost::property_tree::ptree* config) const;
-  /**@brief Load the map options from a XML structure. */
-  virtual void LoadXml(boost::property_tree::ptree* config);
+protected:
+        /**@brief Create the XML structure. */
+        virtual void CreateXml(boost::property_tree::ptree* config) const;
+        /**@brief Load the map options from a XML structure. */
+        virtual void LoadXml(boost::property_tree::ptree* config);
 };
 
 }  // namespace msf

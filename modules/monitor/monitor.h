@@ -30,16 +30,6 @@
 namespace apollo {
 namespace monitor {
 
-// <<<<<<< HEAD
-// class Monitor : public apollo::cyber::TimerComponent 
-// {
-// public:
-//         bool Init() override;
-//         bool Proc() override;
-
-// private:
-//         std::vector<std::unique_ptr<RecurrentRunner>> runners_;
-// =======
 class Monitor : public apollo::cyber::TimerComponent 
 {
 public:
@@ -48,7 +38,6 @@ public:
 
 private:
         std::vector<std::shared_ptr<RecurrentRunner>> runners_;
-// >>>>>>> update_stream/master
 };
 
 CYBER_REGISTER_COMPONENT(Monitor)

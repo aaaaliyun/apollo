@@ -33,67 +33,7 @@ namespace common {
 
 VehicleStateProvider::VehicleStateProvider() {}
 
-Status VehicleStateProvider::Update(
-    const localization::LocalizationEstimate &localization,
-// <<<<<<< HEAD
-//     const canbus::Chassis &chassis) 
-// {
-//         original_localization_ = localization;
-//         if (!ConstructExceptLinearVelocity(localization)) 
-//         {
-//                 std::string msg = absl::StrCat("Fail to update because ConstructExceptLinearVelocity error.",
-//                                                "localization:\n", localization.DebugString());
-//                 return Status(ErrorCode::LOCALIZATION_ERROR, msg);
-//         }
-//         if (localization.has_measurement_time()) 
-//         {
-//                 vehicle_state_.set_timestamp(localization.measurement_time());
-//         } 
-//         else if (localization.header().has_timestamp_sec()) 
-//         {
-//                 vehicle_state_.set_timestamp(localization.header().timestamp_sec());
-//         } 
-//         else if (chassis.has_header() && chassis.header().has_timestamp_sec()) 
-//         {
-//                 AERROR << "Unable to use location timestamp for vehicle state. Use chassis "
-//                           "time instead.";
-//                 vehicle_state_.set_timestamp(chassis.header().timestamp_sec());
-//         }
-
-//         if (chassis.has_gear_location()) 
-//         {
-//                 vehicle_state_.set_gear(chassis.gear_location());
-//         } 
-//         else 
-//         {
-//                 vehicle_state_.set_gear(canbus::Chassis::GEAR_NONE);
-//         }
-
-//         if (chassis.has_speed_mps()) 
-//         {
-//                 vehicle_state_.set_linear_velocity(chassis.speed_mps());
-//                 if (!FLAGS_reverse_heading_vehicle_state &&
-//                     vehicle_state_.gear() == canbus::Chassis::GEAR_REVERSE) 
-//                 {
-//                         vehicle_state_.set_linear_velocity(-vehicle_state_.linear_velocity());
-//                 }
-//         }
-
-//         static constexpr double kEpsilon = 1e-6;
-//         if (std::abs(vehicle_state_.linear_velocity()) < kEpsilon) 
-//         {
-//                 vehicle_state_.set_kappa(0.0);
-//         } 
-//         else 
-//         {
-//                 vehicle_state_.set_kappa(vehicle_state_.angular_velocity() / vehicle_state_.linear_velocity());
-//         }
-
-//         vehicle_state_.set_driving_mode(chassis.driving_mode());
-
-//         return Status::OK();
-// =======
-        const canbus::Chassis &chassis) 
+Status VehicleStateProvider::Update(const localization::LocalizationEstimate &localization, const canbus::Chassis &chassis) 
 {
         original_localization_ = localization;
         if (!ConstructExceptLinearVelocity(localization)) 
@@ -151,7 +91,6 @@ Status VehicleStateProvider::Update(
         vehicle_state_.set_driving_mode(chassis.driving_mode());
 
         return Status::OK();
-// >>>>>>> update_stream/master
 }
 
 bool VehicleStateProvider::ConstructExceptLinearVelocity(
@@ -277,11 +216,6 @@ double VehicleStateProvider::linear_acceleration() const
 
 double VehicleStateProvider::gear() const { return vehicle_state_.gear(); }
 
-// <<<<<<< HEAD
-// double VehicleStateProvider::timestamp() const 
-// {
-//         return vehicle_state_.timestamp();
-// =======
 double VehicleStateProvider::steering_percentage() const 
 {
         return vehicle_state_.steering_percentage();
@@ -290,7 +224,6 @@ double VehicleStateProvider::steering_percentage() const
 double VehicleStateProvider::timestamp() const 
 {
         return vehicle_state_.timestamp();
-// >>>>>>> update_stream/master
 }
 
 const localization::Pose &VehicleStateProvider::pose() const 

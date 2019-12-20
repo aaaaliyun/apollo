@@ -24,10 +24,12 @@ namespace msf {
  * @param <pool_size> The memory pool size.
  * @param <thread_size> The thread pool size.
  */
-NdtMapNodePool::NdtMapNodePool(unsigned int pool_size, unsigned int thread_size)
-    : BaseMapNodePool(pool_size, thread_size) {}
+NdtMapNodePool::NdtMapNodePool(unsigned int pool_size, unsigned int thread_size) : BaseMapNodePool(pool_size, thread_size) {}
 
-BaseMapNode* NdtMapNodePool::AllocNewMapNode() { return new NdtMapNode(); }
+BaseMapNode* NdtMapNodePool::AllocNewMapNode() 
+{ 
+        return new NdtMapNode(); 
+}
 
 }  // namespace msf
 }  // namespace localization
