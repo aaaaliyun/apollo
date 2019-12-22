@@ -32,21 +32,20 @@ class NdtMapMatrixHandlerSelector {
   static BaseMapMatrixHandler* AllocNdtMapMatrixHandler();
 };
 
-class NdtMapMatrixHandler : public BaseMapMatrixHandler {
- public:
-  NdtMapMatrixHandler();
-  virtual ~NdtMapMatrixHandler();
+class NdtMapMatrixHandler : public BaseMapMatrixHandler 
+{
+public:
+        NdtMapMatrixHandler();
+        virtual ~NdtMapMatrixHandler();
 
-  size_t LoadBinary(const unsigned char* buf,
-                    std::shared_ptr<BaseMapMatrix> matrix);
-  /**@brief Create the binary. Serialization of the object.
-   * @param <buf, buf_size> The buffer and its size.
-   * @param <return> The required or the used size of is returned.
-   */
-  size_t CreateBinary(const std::shared_ptr<BaseMapMatrix> matrix,
-                      unsigned char* buf, size_t buf_size);
-  /**@brief Get the binary size of the object. */
-  size_t GetBinarySize(const std::shared_ptr<BaseMapMatrix> matrix);
+        size_t LoadBinary(const unsigned char* buf, std::shared_ptr<BaseMapMatrix> matrix);
+        /**@brief Create the binary. Serialization of the object.
+        * @param <buf, buf_size> The buffer and its size.
+        * @param <return> The required or the used size of is returned.
+        */
+        size_t CreateBinary(const std::shared_ptr<BaseMapMatrix> matrix, unsigned char* buf, size_t buf_size);
+        /**@brief Get the binary size of the object. */
+        size_t GetBinarySize(const std::shared_ptr<BaseMapMatrix> matrix);
 };
 
 }  // namespace pyramid_map

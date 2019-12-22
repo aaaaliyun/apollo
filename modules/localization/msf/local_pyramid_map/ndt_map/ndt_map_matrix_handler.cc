@@ -34,35 +34,35 @@ NdtMapMatrixHandler::NdtMapMatrixHandler() {}
 NdtMapMatrixHandler::~NdtMapMatrixHandler() {}
 
 size_t NdtMapMatrixHandler::LoadBinary(const unsigned char* buf,
-                                       std::shared_ptr<BaseMapMatrix> matrix) {
-  if (!matrix) {
-    return 0;
-  }
-  std::shared_ptr<NdtMapMatrix> ndt_matrix =
-      std::dynamic_pointer_cast<NdtMapMatrix>(matrix);
-  size_t size = ndt_matrix->LoadBinary(buf);
-  return size;
+                                       std::shared_ptr<BaseMapMatrix> matrix) 
+{
+        if (!matrix) 
+        {
+                return 0;
+        }
+        std::shared_ptr<NdtMapMatrix> ndt_matrix = std::dynamic_pointer_cast<NdtMapMatrix>(matrix);
+        size_t size = ndt_matrix->LoadBinary(buf);
+        return size;
 }
 /**@brief Create the binary. Serialization of the object.
  * @param <buf, buf_size> The buffer and its size.
  * @param <return> The required or the used size of is returned.
  */
-size_t NdtMapMatrixHandler::CreateBinary(
-    const std::shared_ptr<BaseMapMatrix> matrix, unsigned char* buf,
-    size_t buf_size) {
-  if (!matrix) {
-    return 0;
-  }
-  const std::shared_ptr<NdtMapMatrix> ndt_matrix =
-      std::dynamic_pointer_cast<NdtMapMatrix>(matrix);
-  return ndt_matrix->CreateBinary(buf, buf_size);
+size_t NdtMapMatrixHandler::CreateBinary(const std::shared_ptr<BaseMapMatrix> matrix, unsigned char* buf, size_t buf_size) 
+{
+        if (!matrix) 
+        {
+                return 0;
+        }
+        const std::shared_ptr<NdtMapMatrix> ndt_matrix = std::dynamic_pointer_cast<NdtMapMatrix>(matrix);
+        return ndt_matrix->CreateBinary(buf, buf_size);
 }
+
 /**@brief Get the binary size of the object. */
-size_t NdtMapMatrixHandler::GetBinarySize(
-    const std::shared_ptr<BaseMapMatrix> matrix) {
-  const std::shared_ptr<NdtMapMatrix> ndt_matrix =
-      std::dynamic_pointer_cast<NdtMapMatrix>(matrix);
-  return ndt_matrix->GetBinarySize();
+size_t NdtMapMatrixHandler::GetBinarySize(const std::shared_ptr<BaseMapMatrix> matrix) 
+{
+        const std::shared_ptr<NdtMapMatrix> ndt_matrix = std::dynamic_pointer_cast<NdtMapMatrix>(matrix);
+        return ndt_matrix->GetBinarySize();
 }
 
 }  // namespace pyramid_map

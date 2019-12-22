@@ -23,158 +23,173 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-NdtMapSingleCell::NdtMapSingleCell() {
-  intensity_ = 0.0;
-  intensity_var_ = 0.0;
-  road_pt_count_ = 0;
-  count_ = 0;
-  centroid_ = Eigen::Vector3f::Zero();
-  centroid_average_cov_ = Eigen::Matrix3f::Zero();
-  centroid_icov_ = Eigen::Matrix3f::Identity();
-  is_icov_available_ = 0;
+NdtMapSingleCell::NdtMapSingleCell() 
+{
+        intensity_ = 0.0;
+        intensity_var_ = 0.0;
+        road_pt_count_ = 0;
+        count_ = 0;
+        centroid_ = Eigen::Vector3f::Zero();
+        centroid_average_cov_ = Eigen::Matrix3f::Zero();
+        centroid_icov_ = Eigen::Matrix3f::Identity();
+        is_icov_available_ = 0;
 }
 
-void NdtMapSingleCell::Reset() {
-  intensity_ = 0.0;
-  intensity_var_ = 0.0;
-  road_pt_count_ = 0;
-  count_ = 0;
-  centroid_ = Eigen::Vector3f::Zero();
-  centroid_average_cov_ = Eigen::Matrix3f::Zero();
-  centroid_icov_ = Eigen::Matrix3f::Identity();
-  is_icov_available_ = false;
+void NdtMapSingleCell::Reset() 
+{
+        intensity_ = 0.0;
+        intensity_var_ = 0.0;
+        road_pt_count_ = 0;
+        count_ = 0;
+        centroid_ = Eigen::Vector3f::Zero();
+        centroid_average_cov_ = Eigen::Matrix3f::Zero();
+        centroid_icov_ = Eigen::Matrix3f::Identity();
+        is_icov_available_ = false;
 }
 
-size_t NdtMapSingleCell::LoadBinary(const unsigned char* buf) {
-  const float* f_buf = reinterpret_cast<const float*>(buf);
-  intensity_ = *f_buf;
-  ++f_buf;
-  intensity_var_ = *f_buf;
-  ++f_buf;
-  const unsigned int* ui_buf = reinterpret_cast<const unsigned int*>(
-      reinterpret_cast<const void*>(f_buf));
-  road_pt_count_ = *ui_buf;
-  ++ui_buf;
-  count_ = *ui_buf;
-  ++ui_buf;
-  f_buf = reinterpret_cast<const float*>(reinterpret_cast<const void*>(ui_buf));
-  centroid_[0] = *f_buf;
-  ++f_buf;
-  centroid_[1] = *f_buf;
-  ++f_buf;
-  centroid_[2] = *f_buf;
-
-  for (unsigned int i = 0; i < 3; ++i) {
-    for (unsigned int j = 0; j < 3; ++j) {
-      ++f_buf;
-      centroid_average_cov_(i, j) = *f_buf;
-    }
-  }
-  if (count_ >= minimum_points_threshold_) {
-    for (unsigned int i = 0; i < 3; ++i) {
-      for (unsigned int j = 0; j < 3; ++j) {
+size_t NdtMapSingleCell::LoadBinary(const unsigned char* buf) 
+{
+        const float* f_buf = reinterpret_cast<const float*>(buf);
+        intensity_ = *f_buf;
         ++f_buf;
-        centroid_icov_(i, j) = *f_buf;
-      }
-    }
-    ++f_buf;
-    const unsigned char* uc_buf = reinterpret_cast<const unsigned char*>(f_buf);
-    is_icov_available_ = *uc_buf;
-  } else {
-    centroid_icov_ = Eigen::Matrix3f::Identity();
-    is_icov_available_ = 0;
-  }
-  return GetBinarySize();
-}
+        intensity_var_ = *f_buf;
+        ++f_buf;
+        const unsigned int* ui_buf = reinterpret_cast<const unsigned int*>(reinterpret_cast<const void*>(f_buf));
+        road_pt_count_ = *ui_buf;
+        ++ui_buf;
+        count_ = *ui_buf;
+        ++ui_buf;
+        f_buf = reinterpret_cast<const float*>(reinterpret_cast<const void*>(ui_buf));
+        centroid_[0] = *f_buf;
+        ++f_buf;
+        centroid_[1] = *f_buf;
+        ++f_buf;
+        centroid_[2] = *f_buf;
 
-size_t NdtMapSingleCell::CreateBinary(unsigned char* buf,
-                                      size_t buf_size) const {
-  size_t target_size = GetBinarySize();
-  if (buf_size >= target_size) {
-    float* p = reinterpret_cast<float*>(buf);
-    *p = intensity_;
-    ++p;
-    *p = intensity_var_;
-    ++p;
-    unsigned int* pp =
-        reinterpret_cast<unsigned int*>(reinterpret_cast<void*>(p));
-    *pp = road_pt_count_;
-    ++pp;
-    *pp = count_;
-    ++pp;
-    float* ppp = reinterpret_cast<float*>(reinterpret_cast<void*>(pp));
-    *ppp = centroid_[0];
-    ++ppp;
-    *ppp = centroid_[1];
-    ++ppp;
-    *ppp = centroid_[2];
-
-    for (unsigned int i = 0; i < 3; ++i) {
-      for (unsigned int j = 0; j < 3; ++j) {
-        ++ppp;
-        *ppp = centroid_average_cov_(i, j);
-      }
-    }
-    if (count_ >= minimum_points_threshold_) {
-      for (unsigned int i = 0; i < 3; ++i) {
-        for (unsigned int j = 0; j < 3; ++j) {
-          ++ppp;
-          *ppp = centroid_icov_(i, j);
+        for (unsigned int i = 0; i < 3; ++i) 
+        {
+                for (unsigned int j = 0; j < 3; ++j) 
+                {
+                        ++f_buf;
+                        centroid_average_cov_(i, j) = *f_buf;
+                }
         }
-      }
-      ++ppp;
-      unsigned char* pppp = reinterpret_cast<unsigned char*>(ppp);
-      *pppp = is_icov_available_;
-    }
-  }
-  return target_size;
+        if (count_ >= minimum_points_threshold_) 
+        {
+                for (unsigned int i = 0; i < 3; ++i) 
+                {
+                        for (unsigned int j = 0; j < 3; ++j) 
+                        {
+                                ++f_buf;
+                                centroid_icov_(i, j) = *f_buf;
+                        }
+                }
+                ++f_buf;
+                const unsigned char* uc_buf = reinterpret_cast<const unsigned char*>(f_buf);
+                is_icov_available_ = *uc_buf;
+        } 
+        else 
+        {
+                centroid_icov_ = Eigen::Matrix3f::Identity();
+                is_icov_available_ = 0;
+        }
+        return GetBinarySize();
 }
 
-size_t NdtMapSingleCell::GetBinarySize() const {
-  size_t sz = sizeof(float) * 2 + sizeof(unsigned int) * 2 + sizeof(float) * 3 +
-              sizeof(float) * 9;
-  if (count_ >= minimum_points_threshold_) {
-    sz += sizeof(float) * 9 + sizeof(unsigned char) * 1;
-  }
-  return sz;
+size_t NdtMapSingleCell::CreateBinary(unsigned char* buf, size_t buf_size) const 
+{
+        size_t target_size = GetBinarySize();
+        if (buf_size >= target_size) 
+        {
+                float* p = reinterpret_cast<float*>(buf);
+                *p = intensity_;
+                ++p;
+                *p = intensity_var_;
+                ++p;
+                unsigned int* pp = reinterpret_cast<unsigned int*>(reinterpret_cast<void*>(p));
+                *pp = road_pt_count_;
+                ++pp;
+                *pp = count_;
+                ++pp;
+                float* ppp = reinterpret_cast<float*>(reinterpret_cast<void*>(pp));
+                *ppp = centroid_[0];
+                ++ppp;      
+                *ppp = centroid_[1];
+                ++ppp;
+                *ppp = centroid_[2];
+
+                for (unsigned int i = 0; i < 3; ++i) 
+                {
+                        for (unsigned int j = 0; j < 3; ++j) 
+                        {
+                                ++ppp;
+                                *ppp = centroid_average_cov_(i, j);
+                        }
+                }
+                if (count_ >= minimum_points_threshold_) 
+                {
+                        for (unsigned int i = 0; i < 3; ++i) 
+                        {
+                                for (unsigned int j = 0; j < 3; ++j) 
+                                {
+                                        ++ppp;
+                                        *ppp = centroid_icov_(i, j);
+                                }
+                        }
+                        ++ppp;
+                        unsigned char* pppp = reinterpret_cast<unsigned char*>(ppp);
+                        *pppp = is_icov_available_;
+                }
+        }
+        return target_size;
 }
 
-NdtMapSingleCell& NdtMapSingleCell::operator=(const NdtMapSingleCell& ref) {
-  count_ = ref.count_;
-  intensity_ = ref.intensity_;
-  intensity_var_ = ref.intensity_var_;
-  road_pt_count_ = ref.road_pt_count_;
-  centroid_ = ref.centroid_;
-  centroid_average_cov_ = ref.centroid_average_cov_;
-  centroid_icov_ = ref.centroid_icov_;
-  is_icov_available_ = ref.is_icov_available_;
-  return *this;
+size_t NdtMapSingleCell::GetBinarySize() const 
+{
+        size_t sz = sizeof(float) * 2 + sizeof(unsigned int) * 2 + sizeof(float) * 3 + sizeof(float) * 9;
+        if (count_ >= minimum_points_threshold_) 
+        {
+                sz += sizeof(float) * 9 + sizeof(unsigned char) * 1;
+        }
+        return sz;
 }
 
-void NdtMapSingleCell::Reduce(NdtMapSingleCell* cell,
-                              const NdtMapSingleCell& cell_new) {
-  cell->MergeCell(cell_new);
+NdtMapSingleCell& NdtMapSingleCell::operator=(const NdtMapSingleCell& ref) 
+{
+        count_ = ref.count_;
+        intensity_ = ref.intensity_;
+        intensity_var_ = ref.intensity_var_;
+        road_pt_count_ = ref.road_pt_count_;
+        centroid_ = ref.centroid_;
+        centroid_average_cov_ = ref.centroid_average_cov_;
+        centroid_icov_ = ref.centroid_icov_;
+        is_icov_available_ = ref.is_icov_available_;
+        return *this;
 }
 
-void NdtMapSingleCell::AddSample(const float intensity, const float altitude,
-                                 const Eigen::Vector3f& centroid,
-                                 bool is_road) {
-  ++count_;
-  float v1 = intensity - intensity_;
-  intensity_ += v1 / static_cast<float>(count_);
-  float v2 = intensity - intensity_;
-  intensity_var_ = (static_cast<float>(count_ - 1) * intensity_var_ + v1 * v2) /
-                   static_cast<float>(count_);
+void NdtMapSingleCell::Reduce(NdtMapSingleCell* cell, const NdtMapSingleCell& cell_new) 
+{
+        cell->MergeCell(cell_new);
+}
 
-  if (is_road) {
-    ++road_pt_count_;
-  }
+void NdtMapSingleCell::AddSample(const float intensity, const float altitude, const Eigen::Vector3f& centroid, bool is_road) 
+{
+        ++count_;
+        float v1 = intensity - intensity_;
+        intensity_ += v1 / static_cast<float>(count_);
+        float v2 = intensity - intensity_;
+        intensity_var_ = (static_cast<float>(count_ - 1) * intensity_var_ + v1 * v2) / static_cast<float>(count_);
 
-  Eigen::Vector3f v3 = centroid - centroid_;
-  centroid_ += v3 / static_cast<float>(count_);
-  Eigen::Matrix3f v4 = centroid * centroid.transpose() - centroid_average_cov_;
-  centroid_average_cov_ += v4 / static_cast<float>(count_);
-  CentroidEigenSolver(centroid_average_cov_);
+        if (is_road) 
+        {
+                ++road_pt_count_;
+        }
+
+        Eigen::Vector3f v3 = centroid - centroid_;
+        centroid_ += v3 / static_cast<float>(count_);
+        Eigen::Matrix3f v4 = centroid * centroid.transpose() - centroid_average_cov_;
+        centroid_average_cov_ += v4 / static_cast<float>(count_);
+        CentroidEigenSolver(centroid_average_cov_);
 }
 
 void NdtMapSingleCell::MergeCell(const float intensity,
@@ -182,28 +197,27 @@ void NdtMapSingleCell::MergeCell(const float intensity,
                                  const unsigned int road_pt_count,
                                  const unsigned int count,
                                  const Eigen::Vector3f& centroid,
-                                 const Eigen::Matrix3f& centroid_cov) {
-  unsigned int new_count = count_ + count;
-  float p0 = static_cast<float>(count_) / static_cast<float>(new_count);
-  float p1 = static_cast<float>(count) / static_cast<float>(new_count);
-  float intensity_diff = intensity_ - intensity;
+                                 const Eigen::Matrix3f& centroid_cov) 
+{
+        unsigned int new_count = count_ + count;
+        float p0 = static_cast<float>(count_) / static_cast<float>(new_count);
+        float p1 = static_cast<float>(count) / static_cast<float>(new_count);
+        float intensity_diff = intensity_ - intensity;
 
-  intensity_ = intensity_ * p0 + intensity * p1;
-  intensity_var_ = intensity_var_ * p0 + intensity_var * p1 +
-                   intensity_diff * intensity_diff * p0 * p1;
+        intensity_ = intensity_ * p0 + intensity * p1;
+        intensity_var_ = intensity_var_ * p0 + intensity_var * p1 + intensity_diff * intensity_diff * p0 * p1;
 
-  centroid_[0] = centroid_[0] * p0 + centroid[0] * p1;
-  centroid_[1] = centroid_[1] * p0 + centroid[1] * p1;
-  centroid_[2] = centroid_[2] * p0 + centroid[2] * p1;
+        centroid_[0] = centroid_[0] * p0 + centroid[0] * p1;
+        centroid_[1] = centroid_[1] * p0 + centroid[1] * p1;
+        centroid_[2] = centroid_[2] * p0 + centroid[2] * p1;
 
-  count_ = new_count;
-  road_pt_count_ += road_pt_count;
+        count_ = new_count;
+        road_pt_count_ += road_pt_count;
 }
 
-void NdtMapSingleCell::MergeCell(const NdtMapSingleCell& cell_new) {
-  MergeCell(cell_new.intensity_, cell_new.intensity_var_,
-            cell_new.road_pt_count_, cell_new.count_, cell_new.centroid_,
-            cell_new.centroid_average_cov_);
+void NdtMapSingleCell::MergeCell(const NdtMapSingleCell& cell_new) 
+{
+        MergeCell(cell_new.intensity_, cell_new.intensity_var_, cell_new.road_pt_count_, cell_new.count_, cell_new.centroid_, cell_new.centroid_average_cov_);
 }
 
 void NdtMapSingleCell::CentroidEigenSolver(
