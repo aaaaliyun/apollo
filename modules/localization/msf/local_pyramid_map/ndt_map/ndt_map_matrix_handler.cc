@@ -26,15 +26,15 @@ NdtMapMatrixHandlerSelector::NdtMapMatrixHandlerSelector() {}
 
 NdtMapMatrixHandlerSelector::~NdtMapMatrixHandlerSelector() {}
 
-BaseMapMatrixHandler* NdtMapMatrixHandlerSelector::AllocNdtMapMatrixHandler() {
-  return new NdtMapMatrixHandler();
+BaseMapMatrixHandler* NdtMapMatrixHandlerSelector::AllocNdtMapMatrixHandler() 
+{
+        return new NdtMapMatrixHandler();
 }
 
 NdtMapMatrixHandler::NdtMapMatrixHandler() {}
 NdtMapMatrixHandler::~NdtMapMatrixHandler() {}
 
-size_t NdtMapMatrixHandler::LoadBinary(const unsigned char* buf,
-                                       std::shared_ptr<BaseMapMatrix> matrix) 
+size_t NdtMapMatrixHandler::LoadBinary(const unsigned char* buf, std::shared_ptr<BaseMapMatrix> matrix) 
 {
         if (!matrix) 
         {
