@@ -97,10 +97,11 @@ bool WebSocketHandler::SendBinaryData(Connection *conn, const std::string &data,
         return SendData(conn, data, skippable, MG_WEBSOCKET_OPCODE_BINARY);
 }
 
+
 bool WebSocketHandler::SendData(Connection *conn, const std::string &data, bool skippable, int op_code) 
 {
         std::shared_ptr<std::mutex> connection_lock;
-        {
+        {     
                 std::unique_lock<std::mutex> lock(mutex_);
                 if (!ContainsKey(connections_, conn)) 
                 {
@@ -123,7 +124,7 @@ bool WebSocketHandler::SendData(Connection *conn, const std::string &data, bool 
                 {
                         AWARN << "Skip sending a droppable message!";
                         return false;
-                }
+                }   
                 // Block to acquire the lock.
                 connection_lock->lock();
                 std::unique_lock<std::mutex> lock(mutex_);
@@ -134,8 +135,8 @@ bool WebSocketHandler::SendData(Connection *conn, const std::string &data, bool 
         }
 
         // Note that while we are holding the connection lock, the connection won't be
-        // closed and removed.
-        int ret;
+        // closesed and removed.
+        int ret = 0;
         PERF_BLOCK(absl::StrCat(name_, ": Writing ", data.size(), " bytes via websocket took"), 0.1) 
         {
                 ret = mg_websocket_write(conn, op_code, data.c_str(), data.size());
@@ -166,7 +167,7 @@ bool WebSocketHandler::SendData(Connection *conn, const std::string &data, bool 
                 }
                 AWARN << name_ << ": Failed to send data via websocket connection. Reason: " << msg;
                 return false;
-        }
+        }     
 
         return true;
 }
