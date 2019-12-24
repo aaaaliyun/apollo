@@ -16,8 +16,8 @@
 
 #include "modules/localization/ndt/ndt_localization.h"
 
-#include <yaml-cpp/yaml.h>
-#include <Eigen/Geometry>
+#include "Eigen/Geometry"
+#include "yaml-cpp/yaml.h"
 
 #include "cyber/common/file.h"
 #include "cyber/common/log.h"
@@ -268,10 +268,9 @@ void NDTLocalization::GetLocalizationStatus(LocalizationStatus* localization_sta
 
 bool NDTLocalization::IsServiceStarted() { return is_service_started_; }
 
+
 void NDTLocalization::FillLocalizationMsgHeader(LocalizationEstimate* localization) 
 {
-        DCHECK_NOTNULL(localization);
-
         auto* header = localization->mutable_header();
         double timestamp = apollo::common::time::Clock::NowInSeconds();
         header->set_module_name(module_name_);

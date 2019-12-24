@@ -27,12 +27,15 @@ BaseMapMatrix::~BaseMapMatrix() {}
 
 BaseMapMatrix::BaseMapMatrix(const BaseMapMatrix& map_matrix) {}
 
-bool BaseMapMatrix::GetIntensityImg(cv::Mat* intensity_img) const {
-  return false;
+bool BaseMapMatrix::GetIntensityImg(cv::Mat* intensity_img) const 
+{
+        return false;
 }
+
 /**@brief get altitude image of node. */
-bool BaseMapMatrix::GetAltitudeImg(cv::Mat* altitude_img) const {
-  return false;
+bool BaseMapMatrix::GetAltitudeImg(cv::Mat* altitude_img) const 
+{
+        return false;
 }
 
 }  // namespace pyramid_map

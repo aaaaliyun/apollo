@@ -89,9 +89,7 @@ Eigen::Vector3d NdtMapNode::GetCoordinate3D(unsigned int x, unsigned int y, int 
         return coord_3d;
 }
 
-Eigen::Vector3d NdtMapNode::GetCoordinateCenter3D(unsigned int x,
-                                                  unsigned int y,
-                                                  int altitude_index) const 
+Eigen::Vector3d NdtMapNode::GetCoordinateCenter3D(unsigned int x, unsigned int y, int altitude_index) const 
 {
         const Eigen::Vector2d& left_top_corner = GetLeftTopCorner();
         Eigen::Vector2d coord_2d;

@@ -191,10 +191,9 @@ void RTKLocalization::PrepareLocalizationMsg(const localization::Gps &gps_msg, L
         FillLocalizationStatusMsg(gps_status, localization_status);
 }
 
+
 void RTKLocalization::FillLocalizationMsgHeader(LocalizationEstimate *localization) 
 {
-        DCHECK_NOTNULL(localization);
-
         auto *header = localization->mutable_header();
         double timestamp = apollo::common::time::Clock::NowInSeconds();
         header->set_module_name(module_name_);
@@ -415,12 +414,8 @@ bool RTKLocalization::FindMatchingIMU(const double gps_timestamp_sec, CorrectedI
         return true;
 }
 
-bool RTKLocalization::InterpolateIMU(const CorrectedImu &imu1,
-                                     const CorrectedImu &imu2,
-                                     const double timestamp_sec,
-                                     CorrectedImu *imu_msg) 
+bool RTKLocalization::InterpolateIMU(const CorrectedImu &imu1, const CorrectedImu &imu2, const double timestamp_sec, CorrectedImu *imu_msg) 
 {
-        DCHECK_NOTNULL(imu_msg);
         if (!(imu1.header().has_timestamp_sec() && imu2.header().has_timestamp_sec())) 
         {
                 AERROR << "imu1 and imu2 has no header or no timestamp_sec in header";

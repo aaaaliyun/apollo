@@ -27,22 +27,23 @@ namespace msf {
 namespace pyramid_map {
 
 /**@brief The data structure of the map cells in a map node. */
-class BaseMapMatrix {
- public:
-  /**@brief The default constructor. */
-  BaseMapMatrix();
-  /**@brief The deconstructor. */
-  virtual ~BaseMapMatrix();
-  /**@brief The copy constructor. */
-  explicit BaseMapMatrix(const BaseMapMatrix& map_matrix);
-  /**@brief Initialize the map matrix. */
-  virtual void Init(const BaseMapConfig& config) = 0;
-  /**@brief Reset map cells data. */
-  virtual void Reset() = 0;
-  /**@brief get intensity image of node. */
-  virtual bool GetIntensityImg(cv::Mat* intensity_img) const;
-  /**@brief get altitude image of node. */
-  virtual bool GetAltitudeImg(cv::Mat* altitude_img) const;
+class BaseMapMatrix 
+{
+public:
+        /**@brief The default constructor. */
+        BaseMapMatrix();
+        /**@brief The deconstructor. */
+        virtual ~BaseMapMatrix();
+        /**@brief The copy constructor. */
+        explicit BaseMapMatrix(const BaseMapMatrix& map_matrix);
+        /**@brief Initialize the map matrix. */
+        virtual void Init(const BaseMapConfig& config) = 0;
+        /**@brief Reset map cells data. */
+        virtual void Reset() = 0;
+        /**@brief get intensity image of node. */
+        virtual bool GetIntensityImg(cv::Mat* intensity_img) const;
+        /**@brief get altitude image of node. */
+        virtual bool GetAltitudeImg(cv::Mat* altitude_img) const;
 };
 
 }  // namespace pyramid_map

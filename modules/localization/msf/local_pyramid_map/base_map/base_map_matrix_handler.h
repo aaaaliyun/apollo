@@ -24,23 +24,22 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-class BaseMapMatrixHandler {
- public:
-  BaseMapMatrixHandler() {}
-  virtual ~BaseMapMatrixHandler() {}
-  /**@brief Load the map cell from a binary chunk.
-   * @param <return> The size read (the real size of object).
-   */
-  virtual size_t LoadBinary(const unsigned char* buf,
-                            std::shared_ptr<BaseMapMatrix> matrix) = 0;
-  /**@brief Create the binary. Serialization of the object.
-   * @param <buf, buf_size> The buffer and its size.
-   * @param <return> The required or the used size of is returned.
-   */
-  virtual size_t CreateBinary(const std::shared_ptr<BaseMapMatrix> matrix,
-                              unsigned char* buf, size_t buf_size) = 0;
-  /**@brief Get the binary size of the object. */
-  virtual size_t GetBinarySize(const std::shared_ptr<BaseMapMatrix> matrix) = 0;
+class BaseMapMatrixHandler 
+{
+public:
+        BaseMapMatrixHandler() {}
+        virtual ~BaseMapMatrixHandler() {}
+        /**@brief Load the map cell from a binary chunk.
+        * @param <return> The size read (the real size of object).
+        */
+        virtual size_t LoadBinary(const unsigned char* buf, std::shared_ptr<BaseMapMatrix> matrix) = 0;
+        /**@brief Create the binary. Serialization of the object.
+        * @param <buf, buf_size> The buffer and its size.
+        * @param <return> The required or the used size of is returned.
+        */
+        virtual size_t CreateBinary(const std::shared_ptr<BaseMapMatrix> matrix, unsigned char* buf, size_t buf_size) = 0;
+        /**@brief Get the binary size of the object. */
+        virtual size_t GetBinarySize(const std::shared_ptr<BaseMapMatrix> matrix) = 0;
 };
 
 }  // namespace pyramid_map

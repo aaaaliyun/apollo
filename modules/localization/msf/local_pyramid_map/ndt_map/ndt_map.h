@@ -26,10 +26,11 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-class NdtMap : public BaseMap {
- public:
-  explicit NdtMap(NdtMapConfig* config);
-  ~NdtMap();
+class NdtMap : public BaseMap 
+{
+public:
+        explicit NdtMap(NdtMapConfig* config);
+        ~NdtMap();
 };
 
 }  // namespace pyramid_map
