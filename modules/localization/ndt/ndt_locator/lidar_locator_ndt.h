@@ -38,31 +38,33 @@
 #endif
 #ifdef VIS_USE_OPENCV_ON
 
-#include "opencv2/opencv.hpp"
-void color_mapping(float value, float midvalue, unsigned char* r, unsigned char* g, unsigned char* b) 
+#include <opencv2/opencv.hpp>
+
+void color_mapping(float value, float midvalue, unsigned char* r,
+                   unsigned char* g, unsigned char* b) 
 {
-        if (value > 1.f) 
-        {
-                value = 1.f;
+  	if (value > 1.f) 
+	{
+    		value = 1.f;
         } 
-        else if (value < 0.f) 
-        {
-                value = 0.f;
-        }
+	else if (value < 0.f) 
+	{
+        	value = 0.f;
+  	}
         if (value > midvalue) 
-        {
-                value = (value - midvalue) / (1.f - midvalue);
-                *r = value * 255.0;
-                *g = (1.0 - value) * 255.0;
-                *b = 0.0;
+	{
+               value = (value - midvalue) / (1.f - midvalue);
+               *r = value * 255.0;
+               *g = (1.0 - value) * 255.0;
+               *b = 0.0;
         } 
         else 
-        {
-                value /= midvalue;
-                *r = 0.0;
-                *g = value * 255.0;
-                *b = (1 - value) * 255.0;
-        }
+	{
+              value /= midvalue;
+              *r = 0.0;
+              *g = value * 255.0;
+              *b = (1 - value) * 255.0;
+       }
 }
 #endif
 
