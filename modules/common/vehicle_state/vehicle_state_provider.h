@@ -46,8 +46,8 @@ namespace common {
  *        It includes basic information and computation
  *        about the state of the vehicle.
  */
-class VehicleStateProvider 
-{
+
+class VehicleStateProvider {
 public:
         /**
         * @brief Constructor by information of localization and chassis.
@@ -93,7 +93,7 @@ public:
 
         /**
         * @brief Get the kappa of vehicle position.
-        *  the poistive or negative sign is decided by the vehicle heading vector
+        *  the positive or negative sign is decided by the vehicle heading vector
         *  along the path
         * @return The kappa of vehicle position.
         */
@@ -139,7 +139,7 @@ public:
         */
         double angular_velocity() const;
 
-        /**   
+        /**
         * @brief Get the vehicle's linear acceleration.
         * @return The vehicle's linear acceleration.
         */

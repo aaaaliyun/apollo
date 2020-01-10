@@ -23,6 +23,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "cyber/common/file.h"
+#include "cyber/common/log.h"
 #include "gtest/gtest_prod.h"
 
 #include "modules/routing/proto/routing.pb.h"
@@ -45,7 +46,6 @@
 
 namespace apollo {
 namespace planning {
-
 using apollo::canbus::Chassis;
 using apollo::common::EngageAdvice;
 using apollo::common::ErrorCode;
@@ -188,6 +188,9 @@ void OnLanePlanning::GenerateStopTrajectory(ADCTrajectory* ptr_trajectory_pb) {
 
 void OnLanePlanning::RunOnce(const LocalView& local_view,
                              ADCTrajectory* const ptr_trajectory_pb) {
+  // when rerouting, reference line might not be updated. In this case, planning
+  // module maintains not-ready until be restarted.
+  static bool failed_to_update_reference_line = false;
   local_view_ = local_view;
   const double start_timestamp = Clock::NowInSeconds();
   const double start_system_timestamp =
@@ -234,10 +237,29 @@ void OnLanePlanning::RunOnce(const LocalView& local_view,
 
   if (util::IsDifferentRouting(last_routing_, *local_view_.routing)) {
     last_routing_ = *local_view_.routing;
+    ADEBUG << "last_routing_:" << last_routing_.ShortDebugString();
     History::Instance()->Clear();
     PlanningContext::Instance()->mutable_planning_status()->Clear();
     reference_line_provider_->UpdateRoutingResponse(*local_view_.routing);
     planner_->Init(config_);
+  }
+
+  failed_to_update_reference_line =
+      (!reference_line_provider_->UpdatedReferenceLine());
+
+  // early return when reference line fails to update after rerouting
+  if (failed_to_update_reference_line) {
+    std::string msg("Failed to updated reference line after rerouting.");
+    AERROR << msg;
+    ptr_trajectory_pb->mutable_decision()
+        ->mutable_main_decision()
+        ->mutable_not_ready()
+        ->set_reason(msg);
+    status.Save(ptr_trajectory_pb->mutable_header()->mutable_status());
+    ptr_trajectory_pb->set_gear(canbus::Chassis::GEAR_DRIVE);
+    FillPlanningPb(start_timestamp, ptr_trajectory_pb);
+    GenerateStopTrajectory(ptr_trajectory_pb);
+    return;
   }
 
   // Update reference line provider and reset pull over if necessary
@@ -269,6 +291,7 @@ void OnLanePlanning::RunOnce(const LocalView& local_view,
   }
   ptr_trajectory_pb->mutable_latency_stats()->set_init_frame_time_ms(
       Clock::NowInSeconds() - start_timestamp);
+
   if (!status.ok()) {
     AERROR << status.ToString();
     if (FLAGS_publish_estop) {
