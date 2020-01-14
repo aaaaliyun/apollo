@@ -17,6 +17,7 @@
 #include "modules/routing/topo_creator/node_creator.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace apollo {
 namespace routing {
@@ -93,11 +94,12 @@ void InitNodeInfo(const Lane& lane, const std::string& road_id, Node* const node
         }
 }
 
+
 void InitNodeCost(const Lane& lane, const RoutingConfig& routing_config, Node* const node) 
 {
         double lane_length = GetLaneLength(lane);
-        double speed_limit = (lane.has_speed_limit()) ? lane.speed_limit() : routing_config.base_speed();
-        double ratio = (speed_limit >= routing_config.base_speed()) ? (1 / sqrt(speed_limit / routing_config.base_speed())) : 1.0;
+        double speed_limit = lane.has_speed_limit() ? lane.speed_limit() : routing_config.base_speed();
+        double ratio = speed_limit >= routing_config.base_speed() ? std::sqrt(routing_config.base_speed() / speed_limit) : 1.0;
         double cost = lane_length * ratio;
         if (lane.has_turn()) 
         {
@@ -113,7 +115,7 @@ void InitNodeCost(const Lane& lane, const RoutingConfig& routing_config, Node* c
                 {
                         cost += routing_config.uturn_penalty();
                 }
-        }
+        }     
         node->set_cost(cost);
 }
 
