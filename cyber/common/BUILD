@@ -33,7 +33,7 @@ cc_test(
     deps = [
         "//cyber",
         "//cyber/proto:unit_test_cc_proto",
-        "@gtest//:main",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 
@@ -42,7 +42,7 @@ cc_library(
     hdrs = ["log.h"],
     deps = [
         "//cyber:binary",
-        "@glog",
+        "@com_google_glog//:glog",
     ],
 )
 
@@ -52,7 +52,7 @@ cc_test(
     srcs = ["log_test.cc"],
     deps = [
         "//cyber",
-        "@gtest//:main",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 
@@ -82,7 +82,7 @@ cc_test(
     srcs = ["macros_test.cc"],
     deps = [
         "//cyber",
-        "@gtest//:main",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 

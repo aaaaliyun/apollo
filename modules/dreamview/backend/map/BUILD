@@ -13,7 +13,7 @@ cc_library(
         "//modules/map/pnc_map",
         "//third_party/json",
         "@boost",
-        "@glog",
+        "@com_google_glog//:glog",
     ],
 )
 
@@ -26,7 +26,7 @@ cc_test(
     ],
     deps = [
         ":map_service",
-        "@gtest//:main",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 
