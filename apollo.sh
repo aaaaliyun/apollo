@@ -151,7 +151,7 @@ function build() {
   info "Building on $MACHINE_ARCH..."
 
   MACHINE_ARCH=$(uname -m)
-  JOB_ARG="--jobs=3 --ram_utilization_factor 80"
+  JOB_ARG="--jobs=$(nproc) --ram_utilization_factor 80"
   if [ "$MACHINE_ARCH" == 'aarch64' ]; then
     JOB_ARG="--jobs=3"
   fi
@@ -469,7 +469,7 @@ function gen_coverage() {
 }
 
 function run_test() {
-  JOB_ARG="--jobs=3 --ram_utilization_factor 80"
+  JOB_ARG="--jobs=$(nproc) --ram_utilization_factor 80"
 
   generate_build_targets
   if [ "$USE_GPU" == "1" ]; then
