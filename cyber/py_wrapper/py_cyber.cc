@@ -127,8 +127,7 @@ PyObject *cyber_new_PyWriter(PyObject *self, PyObject *args)
         uint32_t qos_depth = 1;
 
         PyObject *node_pyobj = nullptr;
-        if (!PyArg_ParseTuple(args, const_cast<char *>("ssIO:new_PyWriter"),
-                        &channel_name, &data_type, &qos_depth, &node_pyobj)) 
+        if (!PyArg_ParseTuple(args, const_cast<char *>("ssIO:new_PyWriter"), &channel_name, &data_type, &qos_depth, &node_pyobj)) 
         {
                 Py_INCREF(Py_None);
                 return Py_None;
@@ -236,9 +235,7 @@ PyObject *cyber_PyReader_read(PyObject *self, PyObject *args)
                 Py_INCREF(Py_None);
                 return Py_None;
         }
-
         PyReader *reader = PyObjectToPtr<PyReader *>(pyobj_reader, "apollo_cyber_pyreader");
-
         if (nullptr == reader) 
         {
                 AERROR << "cyber_PyReader_read:PyReader ptr is null!";
@@ -369,8 +366,7 @@ PyObject *cyber_new_PyService(PyObject *self, PyObject *args)
                 return Py_None;
         }
 
-        PyService *service = new PyService((std::string const &)*channel_name,
-                                           (std::string const &)*data_type, node);
+        PyService *service = new PyService((std::string const &)*channel_name, (std::string const &)*data_type, node);
         PyObject *pyobj_service = PyCapsule_New(service, "apollo_cyber_pyservice", nullptr);
         return pyobj_service;
 }
@@ -511,8 +507,7 @@ PyObject *cyber_PyNode_create_writer(PyObject *self, PyObject *args)
                 return Py_None;
         }
 
-        PyWriter *writer = reinterpret_cast<PyWriter *>((node->create_writer((std::string const &)channel_name,
-                                                        (std::string const &)type_name, qos_depth)));
+        PyWriter *writer = reinterpret_cast<PyWriter *>((node->create_writer((std::string const &)channel_name, (std::string const &)type_name, qos_depth)));
 
         if (nullptr == writer) 
         {
@@ -546,7 +541,7 @@ PyObject *cyber_PyNode_create_reader(PyObject *self, PyObject *args)
         }
 
         PyReader *reader = reinterpret_cast<PyReader *>((node->create_reader((std::string const &)channel_name, (std::string const &)type_name)));
-        CHECK(reader) << "PyReader is NULL!";
+        ACHECK(reader) << "PyReader is NULL!";
 
         PyObject *pyobj_reader = PyCapsule_New(reader, "apollo_cyber_pyreader", nullptr);
         return pyobj_reader;
@@ -585,9 +580,7 @@ PyObject *cyber_PyNode_create_service(PyObject *self, PyObject *args)
         char *type_name = nullptr;
         PyObject *pyobj_node = nullptr;
 
-        if (!PyArg_ParseTuple(args,
-                              const_cast<char *>("Oss:cyber_PyNode_create_service"),
-                              &pyobj_node, &channel_name, &type_name)) 
+        if (!PyArg_ParseTuple(args, const_cast<char *>("Oss:cyber_PyNode_create_service"), &pyobj_node, &channel_name, &type_name)) 
         {
                 AERROR << "cyber_PyNode_create_service:PyArg_ParseTuple failed!";
                 Py_INCREF(Py_None);
@@ -641,7 +634,6 @@ PyObject *cyber_PyNode_register_message(PyObject *self, PyObject *args)
                 Py_INCREF(Py_None);
                 return Py_None;
         }
-
         PyNode *node = PyObjectToPtr<PyNode *>(pyobj_node, "apollo_cyber_pynode");
         if (nullptr == node) 
         {
@@ -649,7 +641,6 @@ PyObject *cyber_PyNode_register_message(PyObject *self, PyObject *args)
                 Py_INCREF(Py_None);
                 return Py_None;
         }
-
         std::string desc_str(desc, len);
         node->register_message((std::string const &)desc_str);
         Py_INCREF(Py_None);
@@ -661,7 +652,7 @@ PyObject *cyber_PyChannelUtils_get_msg_type(PyObject *self, PyObject *args)
         char *channel_name = nullptr;
         Py_ssize_t len = 0;
         unsigned char sleep_s = 0;
-        if (!PyArg_ParseTuple(args, const_cast<char *>("s#B:cyber_PyChannelUtils_get_msg_type"), &channel_name, &len, &sleep_s)) 
+        if (!PyArg_ParseTuple( args, const_cast<char *>("s#B:cyber_PyChannelUtils_get_msg_type"), &channel_name, &len, &sleep_s)) 
         {
                 AERROR << "cyber_PyChannelUtils_get_msg_type failed!";
                 return PYOBJECT_NULL_STRING;

@@ -535,7 +535,9 @@ int HDMapImpl::GetPNCJunctions(const apollo::common::math::Vec2d& point, double 
         return 0;
 }
 
-int HDMapImpl::GetNearestLane(const PointENU& point, LaneInfoConstPtr* nearest_lane, double* nearest_s, double* nearest_l) const 
+int HDMapImpl::GetNearestLane(const PointENU& point,
+                              LaneInfoConstPtr* nearest_lane, double* nearest_s,
+                              double* nearest_l) const 
 {
         return GetNearestLane({point.x(), point.y()}, nearest_lane, nearest_s, nearest_l);
 }
@@ -552,7 +554,7 @@ int HDMapImpl::GetNearestLane(const Vec2d& point, LaneInfoConstPtr* nearest_lane
         }
         const Id& lane_id = segment_object->object()->id();
         *nearest_lane = GetLaneById(lane_id);
-        CHECK(*nearest_lane);
+        ACHECK(*nearest_lane);
         const int id = segment_object->id();
         const auto& segment = (*nearest_lane)->segments()[id];
         Vec2d nearest_pt;
@@ -563,20 +565,16 @@ int HDMapImpl::GetNearestLane(const Vec2d& point, LaneInfoConstPtr* nearest_lane
         return 0;
 }
 
-int HDMapImpl::GetNearestLaneWithHeading(
-    const PointENU& point, const double distance, const double central_heading,
-    const double max_heading_difference, LaneInfoConstPtr* nearest_lane,
-    double* nearest_s, double* nearest_l) const 
+int HDMapImpl::GetNearestLaneWithHeading(const PointENU& point, const double distance, const double central_heading, const double max_heading_difference, 
+                                         LaneInfoConstPtr* nearest_lane, double* nearest_s, double* nearest_l) const 
 {
         return GetNearestLaneWithHeading({point.x(), point.y()}, distance,
                                           central_heading, max_heading_difference,
                                           nearest_lane, nearest_s, nearest_l);
 }
 
-int HDMapImpl::GetNearestLaneWithHeading(
-    const Vec2d& point, const double distance, const double central_heading,
-    const double max_heading_difference, LaneInfoConstPtr* nearest_lane,
-    double* nearest_s, double* nearest_l) const 
+int HDMapImpl::GetNearestLaneWithHeading(const Vec2d& point, const double distance, const double central_heading,
+                                         const double max_heading_difference, LaneInfoConstPtr* nearest_lane, double* nearest_s, double* nearest_l) const 
 {
         CHECK_NOTNULL(nearest_lane);
         CHECK_NOTNULL(nearest_s);

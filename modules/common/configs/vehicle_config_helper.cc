@@ -32,10 +32,11 @@ VehicleConfigHelper::VehicleConfigHelper() {}
 
 void VehicleConfigHelper::Init() { Init(FLAGS_vehicle_config_path); }
 
+
 void VehicleConfigHelper::Init(const std::string &config_file) 
 {
         VehicleConfig params;
-        CHECK(cyber::common::GetProtoFromFile(config_file, &params)) << "Unable to parse vehicle config file " << config_file;
+        ACHECK(cyber::common::GetProtoFromFile(config_file, &params)) << "Unable to parse vehicle config file " << config_file;
         Init(params);
 }
 

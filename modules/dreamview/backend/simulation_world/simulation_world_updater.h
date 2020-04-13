@@ -112,8 +112,6 @@ private:
 
         void RegisterMessageHandlers();
 
-        std::unique_ptr<cyber::Timer> timer_;
-
         SimulationWorldService sim_world_service_;
         const MapService *map_service_ = nullptr;
         WebSocketHandler *websocket_ = nullptr;
@@ -137,6 +135,8 @@ private:
         // Mutex to protect concurrent access to simulation_world_json_.
         // NOTE: Use boost until we have std version of rwlock support.
         boost::shared_mutex mutex_;
+
+        std::unique_ptr<cyber::Timer> timer_;
 };
 
 }  // namespace dreamview

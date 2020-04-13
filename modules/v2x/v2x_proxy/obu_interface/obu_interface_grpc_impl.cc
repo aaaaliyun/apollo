@@ -35,11 +35,11 @@ ObuInterFaceGrpcImpl::ObuInterFaceGrpcImpl()
         grpc_client_ = std::make_shared<GrpcClientImpl>(grpc::CreateChannel(FLAGS_grpc_client_host + ":" + FLAGS_grpc_client_port, grpc::InsecureChannelCredentials()));
         grpc_client_init_flag_ = grpc_client_->InitFlag();
         bool res_client = InitialClient();
-        CHECK(res_client) << "ObuInterFaceGrpcImpl grpc client initial failed";
+        ACHECK(res_client) << "ObuInterFaceGrpcImpl grpc client initial failed";
         grpc_server_ = std::make_shared<GrpcServerImpl>();
         grpc_server_init_flag_ = grpc_server_->InitFlag();
         bool res_server = InitialServer();
-        CHECK(res_server) << "ObuInterFaceGrpcImpl grpc server initial failed";
+        ACHECK(res_server) << "ObuInterFaceGrpcImpl grpc server initial failed";
         init_succ_ = true;
 }
 

@@ -45,7 +45,10 @@ HMI::HMI(WebSocketHandler* websocket, MapService* map_service,
         }
 }
 
-void HMI::Start() { hmi_worker_->Start(); }
+void HMI::Start() 
+{ 
+        hmi_worker_->Start(); 
+}
 
 void HMI::Stop() { hmi_worker_->Stop(); }
 
@@ -107,7 +110,7 @@ void HMI::RegisterMessageHandlers()
                 if (hmi_action == HMIAction::CHANGE_MAP) 
                 {
                         // Reload simulation map after changing map.
-                        CHECK(map_service_->ReloadMap(true)) << "Failed to load new simulation map: " << value;
+                        ACHECK(map_service_->ReloadMap(true)) << "Failed to load new simulation map: " << value;
                 } 
                 else if (hmi_action == HMIAction::CHANGE_VEHICLE) 
                 {
@@ -141,10 +144,8 @@ void HMI::RegisterMessageHandlers()
                 std::string event_msg;
                 std::vector<std::string> event_types;
                 bool is_reportable;
-                if (JsonUtil::GetNumber(json, "event_time_ms", &event_time_ms) &&
-                    JsonUtil::GetString(json, "event_msg", &event_msg) &&
-                    JsonUtil::GetStringVector(json, "event_type", &event_types) &&
-                    JsonUtil::GetBoolean(json, "is_reportable", &is_reportable)) 
+                if (JsonUtil::GetNumber(json, "event_time_ms", &event_time_ms) && JsonUtil::GetString(json, "event_msg", &event_msg) &&
+                    JsonUtil::GetStringVector(json, "event_type", &event_types) && JsonUtil::GetBoolean(json, "is_reportable", &is_reportable)) 
                 {
                         hmi_worker_->SubmitDriveEvent(event_time_ms, event_msg, event_types, is_reportable);
                         monitor_log_buffer_.INFO("Drive event added.");

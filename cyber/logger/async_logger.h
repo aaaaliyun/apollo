@@ -27,11 +27,14 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "cyber/common/macros.h"
 #include "glog/logging.h"
+
+#include "cyber/logger/log_file_object.h"
 
 namespace apollo {
 namespace cyber {
@@ -110,7 +113,7 @@ public:
         * @brief Get the current LOG file size.
         * The return value is an approximate value since some
         * logged data may not have been flushed to disk yet.
-        *    
+        *
         * @return the log file size
         */
         uint32_t LogSize() override;
@@ -195,6 +198,7 @@ private:
         enum State { INITTED, RUNNING, STOPPED };
         std::atomic<State> state_ = {INITTED};
         std::atomic_flag flag_ = ATOMIC_FLAG_INIT;
+        std::unordered_map<std::string, std::unique_ptr<LogFileObject>> module_logger_map_;
 
         DISALLOW_COPY_AND_ASSIGN(AsyncLogger);
 };

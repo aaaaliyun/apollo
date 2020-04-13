@@ -71,12 +71,10 @@ void InitLogger(const char* binary_name)
         async_logger->Start();
 }
 
+
 void StopLogger() 
 {
-        if (async_logger != nullptr) 
-        {
-                async_logger->Stop();
-        }
+        delete async_logger;
 }
 
 }  // namespace

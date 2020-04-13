@@ -156,7 +156,7 @@ Status UtilXmlParser::ParsePoint(const tinyxml2::XMLElement& xml_node, PbPoint3D
         CHECK_NOTNULL(pt);
 
         const auto sub_node = xml_node.FirstChildElement("centerPoint");
-        CHECK(sub_node != nullptr);
+        ACHECK(sub_node != nullptr);
         int checker = tinyxml2::XML_SUCCESS;
         double ptx = 0.0;
         double pty = 0.0;

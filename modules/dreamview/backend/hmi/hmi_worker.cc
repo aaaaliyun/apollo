@@ -110,6 +110,7 @@ Map<std::string, std::string> ListFilesAsDict(std::string_view dir, std::string_
 }
 
 template <class FlagType, class ValueType>
+
 void SetGlobalFlag(std::string_view flag_name, const ValueType& value, FlagType* flag) 
 {
         static constexpr char kGlobalFlagfile[] = "/apollo/modules/common/data/global_flagfile.txt";
@@ -118,7 +119,7 @@ void SetGlobalFlag(std::string_view flag_name, const ValueType& value, FlagType*
                 *flag = value;
                 // Overwrite global flagfile.
                 std::ofstream fout(kGlobalFlagfile, std::ios_base::app);
-                CHECK(fout) << "Fail to open global flagfile " << kGlobalFlagfile;
+                ACHECK(fout) << "Fail to open global flagfile " << kGlobalFlagfile;
                 fout << "\n--" << flag_name << "=" << value << std::endl;
         }
 }
@@ -155,26 +156,58 @@ void HMIWorker::Start()
         thread_future_ = cyber::Async(&HMIWorker::StatusUpdateThreadLoop, this);
 }
 
-void HMIWorker::Stop() 
-{
-        stop_ = true;
-        if (thread_future_.valid()) 
-        {
-                thread_future_.get();
-        }
-}
-
 HMIConfig HMIWorker::LoadConfig() 
 {
         HMIConfig config;
         // Get available modes, maps and vehicles by listing data directory.
         *config.mutable_modes() = ListFilesAsDict(FLAGS_hmi_modes_config_path, ".pb.txt");
-        CHECK(!config.modes().empty()) << "No modes config loaded from " << FLAGS_hmi_modes_config_path;
+        ACHECK(!config.modes().empty()) << "No modes config loaded from " << FLAGS_hmi_modes_config_path;
 
         *config.mutable_maps() = ListDirAsDict(FLAGS_maps_data_path);
         *config.mutable_vehicles() = ListDirAsDict(FLAGS_vehicles_config_path);
         AINFO << "Loaded HMI config: " << config.DebugString();
         return config;
+}
+
+HMIMode HMIWorker::LoadMode(const std::string& mode_config_path) 
+{
+        HMIMode mode;
+        ACHECK(cyber::common::GetProtoFromFile(mode_config_path, &mode)) << "Unable to parse HMIMode from file " << mode_config_path;
+        // Translate cyber_modules to regular modules.
+        for (const auto& iter : mode.cyber_modules()) 
+        {
+                const std::string& module_name = iter.first;
+                const CyberModule& cyber_module = iter.second;
+                // Each cyber module should have at least one dag file.
+                ACHECK(!cyber_module.dag_files().empty()) << "None dag file is provided for " << module_name << " module in " << mode_config_path;
+
+                Module& module = LookupOrInsert(mode.mutable_modules(), module_name, {});
+                module.set_required_for_safety(cyber_module.required_for_safety());
+
+                // Construct start_command:
+                //     nohup mainboard -p <process_group> -d <dag> ... &
+                module.set_start_command("nohup mainboard");
+                const auto& process_group = cyber_module.process_group();
+                if (!process_group.empty()) 
+                {
+                        absl::StrAppend(module.mutable_start_command(), " -p ", process_group);
+                }
+                for (const std::string& dag : cyber_module.dag_files()) 
+                {
+                        absl::StrAppend(module.mutable_start_command(), " -d ", dag);
+                }
+                absl::StrAppend(module.mutable_start_command(), " &");
+
+                // Construct stop_command: pkill -f '<dag[0]>'
+                const std::string& first_dag = cyber_module.dag_files(0);
+                module.set_stop_command(absl::StrCat("pkill -f \"", first_dag, "\""));
+                // Construct process_monitor_config.
+                module.mutable_process_monitor_config()->add_command_keywords("mainboard");
+                module.mutable_process_monitor_config()->add_command_keywords(first_dag);
+        }
+        mode.clear_cyber_modules();
+        AINFO << "Loaded HMI mode: " << mode.DebugString();
+        return mode;
 }
 
 HMIMode HMIWorker::LoadMode(const std::string& mode_config_path) 
@@ -509,7 +542,7 @@ void HMIWorker::ChangeVehicle(const std::string& vehicle_name)
         }
         ResetMode();
 
-        CHECK(VehicleManager::Instance()->UseVehicle(*vehicle_dir));
+  ACHECK(VehicleManager::Instance()->UseVehicle(*vehicle_dir));
 }
 
 void HMIWorker::ChangeMode(const std::string& mode_name) 

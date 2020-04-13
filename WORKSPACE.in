@@ -51,12 +51,12 @@ new_local_repository(
     path = "/home/tmp/google_styleguide",
 )
 
-#ad-rss-lib
-new_git_repository(
+# ad-rss-lib
+new_http_archive(
     name = "ad_rss_lib",
     build_file = "third_party/rss_lib.BUILD",
-    tag = "v1.1.0",
-    remote = "https://github.com/intel/ad-rss-lib",
+    strip_prefix = "ad-rss-lib-1.1.0",
+    url = "file:///home/tmp/ad_rss_lib-1.1.0.tar.gz",
 )
 
 # eigen
@@ -130,7 +130,7 @@ new_local_repository(
 
 # YAML-CPP
 new_http_archive(
-    name = "yaml_cpp",
+    name = "com_github_jbeder_yaml_cpp",
     build_file = "third_party/yaml_cpp.BUILD",
     strip_prefix = "yaml-cpp-yaml-cpp-0.5.3",
     url = "file:///home/tmp/yaml-cpp-0.5.3.zip",
@@ -155,7 +155,7 @@ new_local_repository(
 new_local_repository(
     name = "ipopt",
     build_file = "third_party/ipopt.BUILD",
-    path = "/usr/local/ipopt/include/coin",
+    path = "/usr/local/ipopt/include",
 )
 
 # ADOL-C

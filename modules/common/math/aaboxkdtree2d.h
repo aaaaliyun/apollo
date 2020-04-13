@@ -60,6 +60,7 @@ struct AABoxKDTreeParams
 template <class ObjectType>
 class AABoxKDTree2dNode 
 {
+
 public:
         using ObjectPtr = const ObjectType *;
         /**
@@ -71,7 +72,7 @@ public:
         */
         AABoxKDTree2dNode(const std::vector<ObjectPtr> &objects, const AABoxKDTreeParams &params, int depth) : depth_(depth) 
         {
-                CHECK(!objects.empty());
+                ACHECK(!objects.empty());
 
                 ComputeBoundary(objects);
                 ComputePartition();
@@ -95,6 +96,155 @@ public:
                 else 
                 {
                         InitObjects(objects);
+                }
+        }
+
+        /**
+        * @brief Get the nearest object to a target point by the KD-tree
+        *        rooted at this node.
+        * @param point The target point. Search it's nearest object.
+        * @return The nearest object to the target point.
+        */
+        ObjectPtr GetNearestObject(const Vec2d &point) const 
+        {
+                ObjectPtr nearest_object = nullptr;
+                double min_distance_sqr = std::numeric_limits<double>::infinity();
+                GetNearestObjectInternal(point, &min_distance_sqr, &nearest_object);
+                return nearest_object;
+        }
+
+        /**
+        * @brief Get objects within a distance to a point by the KD-tree
+        *        rooted at this node.
+        * @param point The center point of the range to search objects.
+        * @param distance The radius of the range to search objects.
+        * @return All objects within the specified distance to the specified point.
+        */
+        std::vector<ObjectPtr> GetObjects(const Vec2d &point, const double distance) const 
+        {
+                std::vector<ObjectPtr> result_objects;
+                GetObjectsInternal(point, distance, Square(distance), &result_objects);
+                return result_objects;
+        }
+
+        /**
+        * @brief Get the axis-aligned bounding box of the objects.
+        * @return The axis-aligned bounding box of the objects.
+        */
+        AABox2d GetBoundingBox() const 
+        {
+                return AABox2d({min_x_, min_y_}, {max_x_, max_y_});
+        }
+
+private:
+        void InitObjects(const std::vector<ObjectPtr> &objects) 
+        {
+                num_objects_ = static_cast<int>(objects.size());
+                objects_sorted_by_min_ = objects;
+                objects_sorted_by_max_ = objects;
+                std::sort(objects_sorted_by_min_.begin(), objects_sorted_by_min_.end(), [&](ObjectPtr obj1, ObjectPtr obj2) 
+                {
+                        return partition_ == PARTITION_X ? obj1->aabox().min_x() < obj2->aabox().min_x() : obj1->aabox().min_y() < obj2->aabox().min_y();
+                });
+                std::sort(objects_sorted_by_max_.begin(), objects_sorted_by_max_.end(), [&](ObjectPtr obj1, ObjectPtr obj2) 
+                {
+                        return partition_ == PARTITION_X ? obj1->aabox().max_x() > obj2->aabox().max_x() : obj1->aabox().max_y() > obj2->aabox().max_y();
+                });
+                objects_sorted_by_min_bound_.reserve(num_objects_);
+                for (ObjectPtr object : objects_sorted_by_min_) 
+                {
+                        objects_sorted_by_min_bound_.push_back(partition_ == PARTITION_X ? object->aabox().min_x() : object->aabox().min_y());
+                }
+                objects_sorted_by_max_bound_.reserve(num_objects_);
+                for (ObjectPtr object : objects_sorted_by_max_) 
+                {
+                        objects_sorted_by_max_bound_.push_back(partition_ == PARTITION_X ? object->aabox().max_x() : object->aabox().max_y());
+                }
+        }
+
+        bool SplitToSubNodes(const std::vector<ObjectPtr> &objects, const AABoxKDTreeParams &params) 
+        {
+                if (params.max_depth >= 0 && depth_ >= params.max_depth) 
+                {
+                        return false;
+                }
+                if (static_cast<int>(objects.size()) <= std::max(1, params.max_leaf_size)) 
+                {
+                        return false;
+                }
+                if (params.max_leaf_dimension >= 0.0 && std::max(max_x_ - min_x_, max_y_ - min_y_) <= params.max_leaf_dimension) 
+                {
+                        return false;
+                }
+                return true;
+        }
+
+        double LowerDistanceSquareToPoint(const Vec2d &point) const 
+        {
+                double dx = 0.0;
+                if (point.x() < min_x_) 
+                {
+                        dx = min_x_ - point.x();
+                } 
+                else if (point.x() > max_x_) 
+                {
+                        dx = point.x() - max_x_;
+                }
+                double dy = 0.0;
+                if (point.y() < min_y_) 
+                {
+                        dy = min_y_ - point.y();
+                } 
+                else if (point.y() > max_y_) 
+                {
+                        dy = point.y() - max_y_;
+                }
+                return dx * dx + dy * dy;
+        }
+
+        double UpperDistanceSquareToPoint(const Vec2d &point) const 
+        {
+                const double dx = (point.x() > mid_x_ ? (point.x() - min_x_) : (point.x() - max_x_));
+                const double dy = (point.y() > mid_y_ ? (point.y() - min_y_) : (point.y() - max_y_));
+                return dx * dx + dy * dy;
+        }
+
+        void GetAllObjects(std::vector<ObjectPtr> *const result_objects) const 
+        {
+                result_objects->insert(result_objects->end(), objects_sorted_by_min_.begin(), objects_sorted_by_min_.end());
+                if (left_subnode_ != nullptr) 
+                {
+                        left_subnode_->GetAllObjects(result_objects);
+                }
+                if (right_subnode_ != nullptr) 
+                {
+                        right_subnode_->GetAllObjects(result_objects);
+                }
+        }
+
+        //MARK:
+        void GetObjectsInternal(const Vec2d &point, const double distance, const double distance_sqr, std::vector<ObjectPtr> *const result_objects) const 
+        {
+                if (LowerDistanceSquareToPoint(point) > distance_sqr) 
+                {
+                        return;
+                }
+                if (UpperDistanceSquareToPoint(point) <= distance_sqr) 
+                {
+                        GetAllObjects(result_objects);
+                        return;
+                }
+                const double pvalue = (partition_ == PARTITION_X ? point.x() : point.y());
+                if (pvalue < partition_position_) 
+                {
+                        const double limit = pvalue + distance;
+                        for (int i = 0; i < num_objects_; ++i) 
+                        {
+                                if (objects_sorted_by_min_bound_[i] > limit) 
+                                {
+                                        break;
+                                }
+                        }
                 }
         }
 
@@ -364,23 +514,67 @@ private:
                         }
                 }
         }
+      }
+    }
+    if (*min_distance_sqr <= kMathEpsilon) {
+      return;
+    }
+    if (search_left_first) {
+      if (right_subnode_ != nullptr) {
+        right_subnode_->GetNearestObjectInternal(point, min_distance_sqr,
+                                                 nearest_object);
+      }
+    } else {
+      if (left_subnode_ != nullptr) {
+        left_subnode_->GetNearestObjectInternal(point, min_distance_sqr,
+                                                nearest_object);
+      }
+    }
+  }
 
-        void ComputeBoundary(const std::vector<ObjectPtr> &objects) 
-        {
-                min_x_ = std::numeric_limits<double>::infinity();
-                min_y_ = std::numeric_limits<double>::infinity();
-                max_x_ = -std::numeric_limits<double>::infinity();
-                max_y_ = -std::numeric_limits<double>::infinity();
-                for (ObjectPtr object : objects) 
-                {
-                        min_x_ = std::fmin(min_x_, object->aabox().min_x());
-                        max_x_ = std::fmax(max_x_, object->aabox().max_x());
-                        min_y_ = std::fmin(min_y_, object->aabox().min_y());
-                        max_y_ = std::fmax(max_y_, object->aabox().max_y());
-                }
-                mid_x_ = (min_x_ + max_x_) / 2.0;
-                mid_y_ = (min_y_ + max_y_) / 2.0;
-                CHECK(!std::isinf(max_x_) && !std::isinf(max_y_) && !std::isinf(min_x_) && !std::isinf(min_y_)) << "the provided object box size is infinity";
+  void ComputeBoundary(const std::vector<ObjectPtr> &objects) {
+    min_x_ = std::numeric_limits<double>::infinity();
+    min_y_ = std::numeric_limits<double>::infinity();
+    max_x_ = -std::numeric_limits<double>::infinity();
+    max_y_ = -std::numeric_limits<double>::infinity();
+    for (ObjectPtr object : objects) {
+      min_x_ = std::fmin(min_x_, object->aabox().min_x());
+      max_x_ = std::fmax(max_x_, object->aabox().max_x());
+      min_y_ = std::fmin(min_y_, object->aabox().min_y());
+      max_y_ = std::fmax(max_y_, object->aabox().max_y());
+    }
+    mid_x_ = (min_x_ + max_x_) / 2.0;
+    mid_y_ = (min_y_ + max_y_) / 2.0;
+    ACHECK(!std::isinf(max_x_) && !std::isinf(max_y_) && !std::isinf(min_x_) &&
+           !std::isinf(min_y_))
+        << "the provided object box size is infinity";
+  }
+
+  void ComputePartition() {
+    if (max_x_ - min_x_ >= max_y_ - min_y_) {
+      partition_ = PARTITION_X;
+      partition_position_ = (min_x_ + max_x_) / 2.0;
+    } else {
+      partition_ = PARTITION_Y;
+      partition_position_ = (min_y_ + max_y_) / 2.0;
+    }
+  }
+
+  void PartitionObjects(const std::vector<ObjectPtr> &objects,
+                        std::vector<ObjectPtr> *const left_subnode_objects,
+                        std::vector<ObjectPtr> *const right_subnode_objects) {
+    left_subnode_objects->clear();
+    right_subnode_objects->clear();
+    std::vector<ObjectPtr> other_objects;
+    if (partition_ == PARTITION_X) {
+      for (ObjectPtr object : objects) {
+        if (object->aabox().max_x() <= partition_position_) {
+          left_subnode_objects->push_back(object);
+        } else if (object->aabox().min_x() >= partition_position_) {
+          right_subnode_objects->push_back(object);
+        } else {
+          other_objects.push_back(object);
+>>>>>>> update_stream/master
         }
 
         void ComputePartition() 

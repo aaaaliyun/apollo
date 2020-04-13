@@ -86,7 +86,7 @@ Status OnLanePlanning::Init(const PlanningConfig& config) {
 
   planner_dispatcher_->Init();
 
-  CHECK(apollo::cyber::common::GetProtoFromFile(
+  ACHECK(apollo::cyber::common::GetProtoFromFile(
       FLAGS_traffic_rule_config_filename, &traffic_rule_configs_))
       << "Failed to load traffic rule config file "
       << FLAGS_traffic_rule_config_filename;
@@ -99,7 +99,7 @@ Status OnLanePlanning::Init(const PlanningConfig& config) {
 
   // load map
   hdmap_ = HDMapUtil::BaseMapPtr();
-  CHECK(hdmap_) << "Failed to load map";
+  ACHECK(hdmap_) << "Failed to load map";
 
   // instantiate reference line provider
   reference_line_provider_ = std::make_unique<ReferenceLineProvider>(hdmap_);
@@ -211,7 +211,9 @@ void OnLanePlanning::RunOnce(const LocalView& local_view,
   VehicleState vehicle_state =
       VehicleStateProvider::Instance()->vehicle_state();
   const double vehicle_state_timestamp = vehicle_state.timestamp();
-  DCHECK_GE(start_timestamp, vehicle_state_timestamp);
+  DCHECK_GE(start_timestamp, vehicle_state_timestamp)
+      << "start_timestamp is behind vehicle_state_timestamp by "
+      << start_timestamp - vehicle_state_timestamp << " secs";
 
   if (!status.ok() || !util::IsVehicleStateValid(vehicle_state)) {
     std::string msg(

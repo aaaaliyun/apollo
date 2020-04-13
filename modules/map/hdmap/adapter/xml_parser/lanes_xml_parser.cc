@@ -171,8 +171,7 @@ Status LanesXmlParser::ParseLaneSection(const tinyxml2::XMLElement& xml_node,
         return Status::OK();
 }
 
-Status LanesXmlParser::ParseLane(const tinyxml2::XMLElement& xml_node,
-                                 LaneInternal* lane_internal) 
+Status LanesXmlParser::ParseLane(const tinyxml2::XMLElement& xml_node, LaneInternal* lane_internal) 
 {
         CHECK_NOTNULL(lane_internal);
 
@@ -216,7 +215,7 @@ Status LanesXmlParser::ParseLane(const tinyxml2::XMLElement& xml_node,
         if (sub_node) 
         {
                 PbLaneBoundary* lane_boundary = lane->mutable_right_boundary();
-                CHECK(lane_boundary != nullptr);
+                ACHECK(lane_boundary != nullptr);
                 success = UtilXmlParser::ParseCurve(*sub_node, lane_boundary->mutable_curve());
                 if (!success.ok()) 
                 {

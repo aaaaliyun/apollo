@@ -51,11 +51,11 @@ constexpr double kEpsilon = 0.1;
 bool IsPointValid(const PointENU &point) 
 {
         /* if (point.x() > kMaxXCoordinate || point.x() < kMinXCoordinate) {
-        return false;
+                return false;
         }
 
         if (point.y() > kMaxYCoordinate || point.y() < kMinYCoordinate) {
-        return false;
+                return false;
         } */
 
         return true;
@@ -88,7 +88,7 @@ void PointsFromCurve(const Curve &input_curve, std::vector<Vec2d> *points)
                 {
                         for (const auto &point : curve.line_segment().point()) 
                         {
-                                CHECK(IsPointValid(point)) << "invalid map point: " << point.DebugString();
+                                ACHECK(IsPointValid(point)) << "invalid map point: " << point.DebugString();
                                 points->emplace_back(point.x(), point.y());
                         }
                 } 
@@ -106,7 +106,7 @@ apollo::common::math::Polygon2d ConvertToPolygon2d(const Polygon &polygon)
         points.reserve(polygon.point_size());
         for (const auto &point : polygon.point()) 
         {
-                CHECK(IsPointValid(point)) << "invalid map point:" << point.DebugString();
+                ACHECK(IsPointValid(point)) << "invalid map point:" << point.DebugString();
                 points.emplace_back(point.x(), point.y());
         }
         RemoveDuplicates(&points);
@@ -161,7 +161,7 @@ void LaneInfo::Init()
 
         accumulated_s_.push_back(s);
         total_length_ = s;
-        CHECK(!unit_directions_.empty());
+        ACHECK(!unit_directions_.empty());
         unit_directions_.push_back(unit_directions_.back());
         for (const auto &direction : unit_directions_) 
         {
@@ -171,7 +171,7 @@ void LaneInfo::Init()
         {
                 overlap_ids_.emplace_back(overlap_id.id());
         }
-        CHECK(!segments_.empty());
+        ACHECK(!segments_.empty());
 
         sampled_left_width_.clear();
         sampled_right_width_.clear();
@@ -618,9 +618,20 @@ void LaneInfo::CreateKDTree()
         lane_segment_kdtree_.reset(new LaneSegmentKDTree(segment_box_list_, params));
 }
 
-JunctionInfo::JunctionInfo(const Junction &junction) : junction_(junction) 
+void SignalInfo::Init() 
 {
-        Init();
+        for (const auto &stop_line : signal_.stop_line()) 
+        {
+                SegmentsFromCurve(stop_line, &segments_);
+        }
+        ACHECK(!segments_.empty());
+        std::vector<Vec2d> points;
+        for (const auto &segment : segments_) 
+        {
+                points.emplace_back(segment.start());
+                points.emplace_back(segment.end());
+        }
+        CHECK_GT(points.size(), 0);
 }
 
 void JunctionInfo::Init() 
@@ -683,9 +694,13 @@ void SignalInfo::Init()
         CHECK_GT(points.size(), 0);
 }
 
-CrosswalkInfo::CrosswalkInfo(const Crosswalk &crosswalk) : crosswalk_(crosswalk) 
+void StopSignInfo::init() 
 {
-        Init();
+        for (const auto &stop_line : stop_sign_.stop_line()) 
+        {
+                SegmentsFromCurve(stop_line, &segments_);
+        }
+        ACHECK(!segments_.empty());
 }
 
 void CrosswalkInfo::Init() 
@@ -764,7 +779,7 @@ void YieldSignInfo::Init()
                 SegmentsFromCurve(stop_line, &segments_);
         }
         // segments_from_curve(yield_sign_.stop_line(), &segments_);
-        CHECK(!segments_.empty());
+        ACHECK(!segments_.empty());
 }
 
 ClearAreaInfo::ClearAreaInfo(const ClearArea &clear_area) : clear_area_(clear_area) 
@@ -789,7 +804,7 @@ void SpeedBumpInfo::Init()
         {
                 SegmentsFromCurve(stop_line, &segments_);
         }
-        CHECK(!segments_.empty());
+        ACHECK(!segments_.empty());
 }
 
 OverlapInfo::OverlapInfo(const Overlap &overlap) : overlap_(overlap) {}

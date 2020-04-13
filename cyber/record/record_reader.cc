@@ -210,12 +210,13 @@ uint64_t RecordReader::GetMessageNumber(const std::string& channel_name) const
         return search->second.message_number();
 }
 
+
 const std::string& RecordReader::GetMessageType(const std::string& channel_name) const 
 {
         auto search = channel_info_.find(channel_name);
         if (search == channel_info_.end()) 
         {
-                return null_type_;
+                return kEmptyString;
         }
         return search->second.message_type();
 }
@@ -225,7 +226,7 @@ const std::string& RecordReader::GetProtoDesc(const std::string& channel_name) c
         auto search = channel_info_.find(channel_name);
         if (search == channel_info_.end()) 
         {
-                return null_type_;
+                return kEmptyString;
         }
         return search->second.proto_desc();
 }

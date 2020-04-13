@@ -84,7 +84,7 @@ void SimulationWorldUpdater::RegisterMessageHandlers()
                         else 
                         {
                                 AERROR << "Failed to parse MapElementIds from json";
-                        }     
+                        }
                 }
         });
 
@@ -108,8 +108,7 @@ void SimulationWorldUpdater::RegisterMessageHandlers()
                 } 
                 else 
                 {
-                        AERROR << "Failed to parse navigation info from string. String size: "
-                               << data.size();
+                        AERROR << "Failed to parse navigation info from string. String size: " << data.size();
                 }
         });
 
@@ -124,8 +123,7 @@ void SimulationWorldUpdater::RegisterMessageHandlers()
 
                 if (!radius->is_number()) 
                 {
-                        AERROR << "Expect radius with type 'number', but was "
-                               << radius->type_name();
+                        AERROR << "Expect radius with type 'number', but was " << radius->type_name();
                         return;
                 }
 
@@ -147,7 +145,7 @@ void SimulationWorldUpdater::RegisterMessageHandlers()
                 Json response = CheckRoutingPoint(json);
                 response["type"] = "RoutingPointCheckResult";
                 websocket_->SendData(conn, response.dump());
-        });       
+        });
 
         websocket_->RegisterMessageHandler("SendRoutingRequest", [this](const Json &json, WebSocketHandler::Connection *conn) 
         {
@@ -213,7 +211,10 @@ void SimulationWorldUpdater::RegisterMessageHandlers()
                         {
                                 Json place;
                                 place["name"] = landmark.name();
-                                place["parkingSpaceId"] = landmark.parking_space_id();
+
+                                Json parking_info = apollo::common::util::JsonUtil::ProtoToTypedJson("parkingInfo", landmark.parking_info());
+                                place["parkingInfo"] = parking_info["data"];
+
                                 Json waypoint_list;
                                 for (const auto &waypoint : landmark.waypoint()) 
                                 {
@@ -223,12 +224,14 @@ void SimulationWorldUpdater::RegisterMessageHandlers()
                                         waypoint_list.push_back(point);
                                 }
                                 place["waypoint"] = waypoint_list;
+
                                 poi_list.push_back(place);
                         }
                 } 
                 else 
                 {
-                        sim_world_service_.PublishMonitorMessage(MonitorMessageItem::ERROR, "Failed to load default POI. Please make sure the file exists at " +  EndWayPointFile());
+                        sim_world_service_.PublishMonitorMessage(MonitorMessageItem::ERROR,
+                                                   "Failed to load default POI. Please make sure the file exists at " + EndWayPointFile());
                 }
                 response["poi"] = poi_list;
                 websocket_->SendData(conn, response.dump());
@@ -257,7 +260,7 @@ void SimulationWorldUpdater::RegisterMessageHandlers()
                         else 
                         {
                                 sim_control_->Stop();
-                        }             
+                        }
                 }
         });
         websocket_->RegisterMessageHandler("RequestDataCollectionProgress", [this](const Json &json, WebSocketHandler::Connection *conn) 
@@ -329,8 +332,7 @@ bool SimulationWorldUpdater::ConstructRoutingRequest(const Json &json, RoutingRe
         {
                 if (!map_service_->ConstructLaneWayPointWithHeading(start["x"], start["y"], start["heading"], routing_request->add_waypoint())) 
                 {
-                        AERROR << "Failed to prepare a routing request with heading: "
-                               << start["heading"] << " cannot locate start point on map.";
+                        AERROR << "Failed to prepare a routing request with heading: " << start["heading"] << " cannot locate start point on map.";
                         return false;
                 }
         } 
@@ -338,8 +340,7 @@ bool SimulationWorldUpdater::ConstructRoutingRequest(const Json &json, RoutingRe
         {
                 if (!map_service_->ConstructLaneWayPoint(start["x"], start["y"], routing_request->add_waypoint())) 
                 {
-                        AERROR << "Failed to prepare a routing request:"
-                               << " cannot locate start point on map.";
+                        AERROR << "Failed to prepare a routing request:" << " cannot locate start point on map.";
                         return false;
                 }
         }
@@ -381,21 +382,23 @@ bool SimulationWorldUpdater::ConstructRoutingRequest(const Json &json, RoutingRe
         }
         if (!map_service_->ConstructLaneWayPoint(end["x"], end["y"], routing_request->add_waypoint())) 
         {
-                AERROR << "Failed to prepare a routing request:"
-                       << " cannot locate end point on map.";
+                AERROR << "Failed to prepare a routing request:" << " cannot locate end point on map.";
                 return false;
         }
 
-        // set parking space
-        if (ContainsKey(json, "parkingSpaceId") && json.find("parkingSpaceId")->is_string()) 
+        // set parking info
+        if (ContainsKey(json, "parkingInfo")) 
         {
-                routing_request->mutable_parking_space()->mutable_id()->set_id(json["parkingSpaceId"]);
+                auto *requested_parking_info = routing_request->mutable_parking_info();
+                if (!JsonStringToMessage(json["parkingInfo"].dump(), requested_parking_info).ok()) 
+                {
+                        AERROR << "Failed to prepare a routing request: invalid parking info." << json["parkingInfo"].dump();
+                        return false;
+                }
         }
 
-        AINFO << "Constructed RoutingRequest to be sent:\n"
-              << routing_request->DebugString();
-
-        return true;  
+        AINFO << "Constructed RoutingRequest to be sent:\n" << routing_request->DebugString();
+        return true;
 }
 
 bool SimulationWorldUpdater::ValidateCoordinate(const nlohmann::json &json) 

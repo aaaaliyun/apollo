@@ -34,9 +34,9 @@ using apollo::planning::DrivingAction;
 using apollo::planning::PadMessage;
 using apollo::planning::ScenarioConfig;
 using ::google::protobuf::util::MessageToJsonString;
-using modules::teleop::network::ModemInfo;
-using modules::teleop::teleop::DaemonServiceCmd;
-using modules::teleop::teleop::DaemonServiceRpt;
+using modules::teleop::daemon::DaemonCmd;
+using modules::teleop::daemon::DaemonRpt;
+using modules::teleop::modem::ModemInfo;
 
 // modem ids
 const std::string modem0_id = "0";
@@ -52,13 +52,13 @@ const std::string start_cmd = "start";
 const std::string stop_cmd = "kill";
 
 // channels
-const std::string modem0_channel = "/apollo/teleop/network/modem0";
-const std::string modem1_channel = "/apollo/teleop/network/modem1";
-const std::string modem2_channel = "/apollo/teleop/network/modem2";
-const std::string remote_daemon_cmd_channel = "/apollo/teleop/remote/daemon_service/cmd";
-const std::string remote_daemon_rpt_channel = "/apollo/teleop/remote/daemon_service/rpt";
-const std::string local_daemon_cmd_channel = "/apollo/teleop/local/daemon_service/cmd";
-const std::string local_daemon_rpt_channel = "/apollo/teleop/local/daemon_service/rpt";
+const std::string modem0_channel = "/apollo/teleop/modem/modem0";
+const std::string modem1_channel = "/apollo/teleop/modem/modem1";
+const std::string modem2_channel = "/apollo/teleop/modem/modem2";
+const std::string remote_daemon_cmd_channel = "/apollo/teleop/daemon/remote/cmd";
+const std::string remote_daemon_rpt_channel = "/apollo/teleop/daemon/remote/rpt";
+const std::string local_daemon_cmd_channel = "/apollo/teleop/daemon/local/cmd";
+const std::string local_daemon_rpt_channel = "/apollo/teleop/daemon/local/rpt";
 const std::string planning_channel = "/apollo/planning";
 const std::string planning_pad_channel = "/apollo/planning/pad";
 
@@ -106,16 +106,16 @@ void TeleopService::Start()
                 UpdatePlanning(msg);
         });
 
-        remote_daemon_cmd_writer_ = node_->CreateWriter<DaemonServiceCmd>(remote_daemon_cmd_channel);
+        remote_daemon_cmd_writer_ = node_->CreateWriter<DaemonCmd>(remote_daemon_cmd_channel);
 
-        local_daemon_cmd_writer_ = node_->CreateWriter<DaemonServiceCmd>(local_daemon_cmd_channel);
+        local_daemon_cmd_writer_ = node_->CreateWriter<DaemonCmd>(local_daemon_cmd_channel);
 
-        remote_daemon_rpt_reader_ = node_->CreateReader<DaemonServiceRpt>(remote_daemon_rpt_channel, [this](const std::shared_ptr<DaemonServiceRpt> &msg) 
+        remote_daemon_rpt_reader_ = node_->CreateReader<DaemonRpt>(remote_daemon_rpt_channel, [this](const std::shared_ptr<DaemonRpt> &msg) 
         {
                 UpdateCarDaemonRpt(msg);
         });
 
-        local_daemon_rpt_reader_ = node_->CreateReader<DaemonServiceRpt>(local_daemon_rpt_channel, [this](const std::shared_ptr<DaemonServiceRpt> &msg) 
+        local_daemon_rpt_reader_ = node_->CreateReader<DaemonRpt>(local_daemon_rpt_channel, [this](const std::shared_ptr<DaemonRpt> &msg) 
         {
                 UpdateOperatorDaemonRpt(msg);
         });
@@ -307,7 +307,7 @@ void TeleopService::UpdateModem(const std::string &modem_id,
 }
 
 // callback for messages that originate from the remote computer
-void TeleopService::UpdateCarDaemonRpt(const std::shared_ptr<DaemonServiceRpt> &daemon_rpt) 
+void TeleopService::UpdateCarDaemonRpt(const std::shared_ptr<DaemonRpt> &daemon_rpt) 
 {
         {
                 bool videoIsRunning = false;
@@ -342,10 +342,10 @@ void TeleopService::UpdateCarDaemonRpt(const std::shared_ptr<DaemonServiceRpt> &
                         boost::unique_lock<boost::shared_mutex> writer_lock(mutex_);
                         teleop_status_["video"] = videoIsRunning;
                         teleop_status_["audio"] = voipIsRunning;
-
-                        // video currently running
+                        
                         if (teleop_status_["video"]) 
                         {
+                                // video currently running
                                 if (teleop_status_["video_starting"]) 
                                 {
                                         // video has started
@@ -357,9 +357,9 @@ void TeleopService::UpdateCarDaemonRpt(const std::shared_ptr<DaemonServiceRpt> &
                                         sendStopVideo = true;
                                 }
                         }
-                        // video not running
                         else 
                         {
+                                // video not running
                                 if (teleop_status_["video_starting"]) 
                                 {
                                         // not started yet
@@ -371,9 +371,10 @@ void TeleopService::UpdateCarDaemonRpt(const std::shared_ptr<DaemonServiceRpt> &
                                         teleop_status_["video_stopping"] = false;
                                 }
                         }
-                        // audio currently running
+                        
                         if (teleop_status_["audio"]) 
                         {
+                                // audio currently running
                                 if (teleop_status_["audio_starting"]) 
                                 {
                                         // audio has started
@@ -381,12 +382,13 @@ void TeleopService::UpdateCarDaemonRpt(const std::shared_ptr<DaemonServiceRpt> &
                                 } 
                                 else if (teleop_status_["audio_stopping"]) 
                                 {
-                                        sendStopAudio = true;         
-                                }               
+                                        sendStopAudio = true;
+                                }
                         }
-                        // audio not running
+                        
                         else 
                         {
+                                // audio not running
                                 if (teleop_status_["audio_starting"]) 
                                 {
                                         // not started yet
@@ -399,19 +401,10 @@ void TeleopService::UpdateCarDaemonRpt(const std::shared_ptr<DaemonServiceRpt> &
                                 }
                         }
                 }
-                if (sendStartVideo || sendStopVideo) 
-                {
-                        SendVideoStreamCmd(sendStartVideo);
-                }
-                if (sendStartAudio || sendStopAudio) 
-                {
-                        SendAudioStreamCmd(sendStartAudio);
-                }
         }
 }
 
-// callback for messages that originate from this computer
-void TeleopService::UpdateOperatorDaemonRpt(const std::shared_ptr<DaemonServiceRpt> &daemon_rpt) 
+void TeleopService::UpdateOperatorDaemonRpt(const std::shared_ptr<DaemonRpt> &daemon_rpt) 
 {
         {
                 bool voipIsRunning = false;
@@ -426,13 +419,15 @@ void TeleopService::UpdateOperatorDaemonRpt(const std::shared_ptr<DaemonServiceR
                 }
                 bool sendStartMic = false;
                 bool sendStopMic = false;
-                // scope for the lock
+                
                 {
+                        // scope for the lock
                         boost::unique_lock<boost::shared_mutex> writer_lock(mutex_);
                         teleop_status_["mic"] = voipIsRunning;
-                        // mic currently running
+                        
                         if (teleop_status_["mic"]) 
                         {
+                                // mic currently running
                                 if (teleop_status_["mic_starting"]) 
                                 {
                                         // mic has started
@@ -458,16 +453,12 @@ void TeleopService::UpdateOperatorDaemonRpt(const std::shared_ptr<DaemonServiceR
                                 }
                         }
                 }
-                if (sendStartMic || sendStopMic) 
-                {
-                        SendMicStreamCmd(sendStartMic);
-                }
         }
 }
 
 void TeleopService::SendVideoStreamCmd(bool start_stop) 
 {
-        DaemonServiceCmd msg;
+        DaemonCmd msg;
         if (start_stop) 
         {
                 msg.set_cmd(start_cmd);
@@ -495,7 +486,7 @@ void TeleopService::SendVideoStreamCmd(bool start_stop)
 
 void TeleopService::SendAudioStreamCmd(bool start_stop) 
 {
-        DaemonServiceCmd msg;
+        DaemonCmd msg;
         if (start_stop) 
         {
                 msg.set_cmd(start_cmd);
@@ -516,7 +507,7 @@ void TeleopService::SendMicStreamCmd(bool start_stop)
 {
         // by switching on or off the voip_encoder in the local console
         // we are controlling the mic
-        DaemonServiceCmd msg;
+        DaemonCmd msg;
         if (start_stop) 
         {
                 msg.set_cmd(start_cmd);

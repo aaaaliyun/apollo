@@ -21,9 +21,10 @@ limitations under the License.
 #include "modules/map/hdmap/adapter/xml_parser/util_xml_parser.h"
 
 namespace {
+
 bool IsRoadBelongToJunction(const std::string& road_id) 
 {
-        CHECK(!road_id.empty());
+        ACHECK(!road_id.empty());
         return road_id != "-1";
 }
 }  // namespace

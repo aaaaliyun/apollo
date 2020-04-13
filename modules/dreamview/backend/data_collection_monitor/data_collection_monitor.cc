@@ -126,12 +126,11 @@ void DataCollectionMonitor::LoadConfiguration()
         std::string data_collection_config_path = vehicle_dir + "/data_collection_table.pb.txt";
         if (!PathExists(data_collection_config_path)) 
         {
-                AWARN << "No corresponding data collection table file found in "
-                      << vehicle_dir << ". Using default one instead.";
+                AWARN << "No corresponding data collection table file found in " << vehicle_dir << ". Using default one instead.";
                 data_collection_config_path = FLAGS_default_data_collection_config_path;
         }
 
-        CHECK(cyber::common::GetProtoFromFile(data_collection_config_path, &data_collection_table_)) << "Unable to parse data collection configuration from file " << data_collection_config_path;
+        ACHECK(cyber::common::GetProtoFromFile(data_collection_config_path, &data_collection_table_)) << "Unable to parse data collection configuration from file " << data_collection_config_path;
 
         ConstructCategories();
 

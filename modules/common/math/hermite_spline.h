@@ -54,10 +54,9 @@ private:
 template <typename T, std::size_t N>
 inline HermiteSpline<T, N>::HermiteSpline(std::array<T, (N + 1) / 2> x0,
                                           std::array<T, (N + 1) / 2> x1,
-                                          const double z0, const double z1)
-    : x0_(std::move(x0)), x1_(std::move(x1)), z0_(z0), delta_z_(z1 - z0) 
+                                          const double z0, const double z1) : x0_(std::move(x0)), x1_(std::move(x1)), z0_(z0), delta_z_(z1 - z0) 
 {
-        CHECK(N == 3 || N == 5) << "Error: currently we only support cubic and quintic hermite splines!";
+        ACHECK(N == 3 || N == 5) << "Error: currently we only support cubic and quintic hermite splines!";
 }
 
 template <typename T, std::size_t N>

@@ -89,6 +89,12 @@ void ModuleArgument::GetOptions(const int argc, char* const argv[])
         }
         AINFO << "command: " << cmd;
 
+        if (1 == argc) 
+        {
+                DisplayUsage();
+                exit(0);
+        }
+
         do 
         {
                 int opt = getopt_long(argc, argv, short_opts.c_str(), long_opts, &long_index);
@@ -98,33 +104,47 @@ void ModuleArgument::GetOptions(const int argc, char* const argv[])
                 }
                 switch (opt) 
                 {
-                case 'd':
-                        dag_conf_list_.emplace_back(std::string(optarg));
-                        for (int i = optind; i < argc; i++) 
-                        {
-                                if (*argv[i] != '-') 
+                        case 'd':
+                                dag_conf_list_.emplace_back(std::string(optarg));
+                                for (int i = optind; i < argc; i++) 
                                 {
-                                        dag_conf_list_.emplace_back(std::string(argv[i]));
-                                } 
-                                else 
-                                {
-                                        break;
+                                        if (*argv[i] != '-') 
+                                        {
+                                                dag_conf_list_.emplace_back(std::string(argv[i]));
+                                        } 
+                                        else 
+                                        {
+                                                break;
+                                        }
                                 }
-                        }
-                        break;
-                case 'p':
-                        process_group_ = std::string(optarg);
-                        break;
-                case 's':
-                        sched_name_ = std::string(optarg);
-                        break;
-                case 'h':
-                        DisplayUsage();
-                        exit(0);
-                default:
-                        break;
+                                break;
+                        case 'p':
+                                process_group_ = std::string(optarg);
+                                break;
+                        case 's':
+                                sched_name_ = std::string(optarg);
+                                break;
+                        case 'h':
+                                DisplayUsage();
+                                exit(0);
+                        default:
+                                break;
                 }
         } while (true);
+
+        if (optind < argc) 
+        {
+                AINFO << "Found non-option ARGV-element \"" << argv[optind++] << "\"";
+                DisplayUsage();
+                exit(1);
+        }
+
+        if (dag_conf_list_.empty()) 
+        {
+                AINFO << "-d parameter must be specified";
+                DisplayUsage();
+                exit(1);
+        }
 }
 
 }  // namespace mainboard

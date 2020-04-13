@@ -61,7 +61,22 @@ bool RTKLocalizationComponent::InitConfig()
         broadcast_tf_child_frame_id_ = rtk_config.broadcast_tf_child_frame_id();
 
         localization_->InitConfig(rtk_config);
+        return true;
+}
 
+bool RTKLocalizationComponent::InitIO() 
+{
+        corrected_imu_listener_ = node_->CreateReader<localization::CorrectedImu>(imu_topic_, std::bind(&RTKLocalization::ImuCallback, localization_.get(), std::placeholders::_1));
+        ACHECK(corrected_imu_listener_);
+
+        gps_status_listener_ = node_->CreateReader<drivers::gnss::InsStat>(gps_status_topic_, std::bind(&RTKLocalization::GpsStatusCallback, localization_.get(), std::placeholders::_1));
+        ACHECK(gps_status_listener_);
+
+        localization_talker_ = node_->CreateWriter<LocalizationEstimate>(localization_topic_);
+        ACHECK(localization_talker_);
+
+        localization_status_talker_ = node_->CreateWriter<LocalizationStatus>(localization_status_topic_);
+        ACHECK(localization_status_talker_);
         return true;
 }
 

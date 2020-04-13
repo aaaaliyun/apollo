@@ -54,6 +54,7 @@ void Poller::Shutdown()
         Clear();
 }
 
+
 bool Poller::Register(const PollRequest& req) 
 {
         if (is_shutdown_.load()) 
@@ -67,7 +68,7 @@ bool Poller::Register(const PollRequest& req)
                 return false;
         }
 
-        PollCtrlParam ctrl_param;
+        PollCtrlParam ctrl_param{};
         ctrl_param.fd = req.fd;
         ctrl_param.event.data.fd = req.fd;
         ctrl_param.event.events = req.events;
@@ -138,13 +139,11 @@ bool Poller::Init()
                 AERROR << "create pipe failed, " << strerror(errno);
                 return false;
         }
-
         if (fcntl(pipe_fd_[0], F_SETFL, O_NONBLOCK) == -1) 
         {
                 AERROR << "set nonblock failed, " << strerror(errno);
                 return false;
         }
-
         if (fcntl(pipe_fd_[1], F_SETFL, O_NONBLOCK) == -1) 
         {
                 AERROR << "set nonblock failed, " << strerror(errno);
@@ -156,16 +155,13 @@ bool Poller::Init()
         request->fd = pipe_fd_[0];
         request->events = EPOLLIN;
         request->timeout_ms = -1;
-        request->callback = [this](const PollResponse&) 
-        {
+        request->callback = [this](const PollResponse&) {
                 char c = 0;
-                while (read(pipe_fd_[0], &c, 1) > 0) 
-                {
-                }
+                while (read(pipe_fd_[0], &c, 1) > 0) {}
         };
         requests_[request->fd] = request;
 
-        PollCtrlParam ctrl_param;
+        PollCtrlParam ctrl_param{};
         ctrl_param.operation = EPOLL_CTL_ADD;
         ctrl_param.fd = pipe_fd_[0];
         ctrl_param.event.data.fd = pipe_fd_[0];

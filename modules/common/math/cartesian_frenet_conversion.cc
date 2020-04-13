@@ -83,13 +83,9 @@ void CartesianFrenetConverter::frenet_to_cartesian(
     const double rkappa, const double rdkappa,
     const std::array<double, 3>& s_condition,
     const std::array<double, 3>& d_condition, double* const ptr_x,
-    double* const ptr_y, double* const ptr_theta, double* const ptr_kappa,
-    double* const ptr_v, double* const ptr_a) 
+    double* const ptr_y, double* const ptr_theta, double* const ptr_kappa, double* const ptr_v, double* const ptr_a) 
 {
-        CHECK(std::abs(rs - s_condition[0]) < 1.0e-6) << "The reference point s and s_condition[0] don't match";
-
-        const double cos_theta_r = std::cos(rtheta);
-        const double sin_theta_r = std::sin(rtheta);
+        ACHECK(std::abs(rs - s_condition[0]) < 1.0e-6) << "The reference point s and s_condition[0] don't match";
 
         *ptr_x = rx - sin_theta_r * d_condition[0];
         *ptr_y = ry + cos_theta_r * d_condition[0];

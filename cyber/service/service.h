@@ -40,6 +40,7 @@ namespace cyber {
  */
 template <typename Request, typename Response>
 class Service : public ServiceBase {
+
 public:
         using ServiceCallback = std::function<void(const std::shared_ptr<Request>&, std::shared_ptr<Response>&)>;
         /**
@@ -50,7 +51,11 @@ public:
         * @param service_callback reference of `ServiceCallback` object
         */
         Service(const std::string& node_name, const std::string& service_name, const ServiceCallback& service_callback)
-                : ServiceBase(service_name), node_name_(node_name), service_callback_(service_callback), request_channel_(service_name + SRV_CHANNEL_REQ_SUFFIX), response_channel_(service_name + SRV_CHANNEL_RES_SUFFIX) {}
+                : ServiceBase(service_name), 
+                node_name_(node_name), 
+                service_callback_(service_callback), 
+                request_channel_(service_name + SRV_CHANNEL_REQ_SUFFIX), 
+                response_channel_(service_name + SRV_CHANNEL_RES_SUFFIX) {}
 
         /**
         * @brief Construct a new Service object
@@ -59,17 +64,19 @@ public:
         * @param service_name the service name we provide
         * @param service_callback rvalue reference of `ServiceCallback` object
         */
-        Service(const std::string& node_name, const std::string& service_name, ServiceCallback&& service_callback) : ServiceBase(service_name), node_name_(node_name), service_callback_(service_callback), request_channel_(service_name + SRV_CHANNEL_REQ_SUFFIX), response_channel_(service_name + SRV_CHANNEL_RES_SUFFIX) {}
+        Service(const std::string& node_name, const std::string& service_name, ServiceCallback&& service_callback)
+                : ServiceBase(service_name), 
+                node_name_(node_name), 
+                service_callback_(service_callback), 
+                request_channel_(service_name + SRV_CHANNEL_REQ_SUFFIX), 
+                response_channel_(service_name + SRV_CHANNEL_RES_SUFFIX) {}
 
         /**
         * @brief Forbid default constructing
         */
         Service() = delete;
 
-        ~Service() 
-        {
-                destroy();
-        }
+        ~Service() { destroy(); }
 
         /**
         * @brief Init the Service

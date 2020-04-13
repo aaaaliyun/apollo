@@ -60,7 +60,7 @@ char* program_path()
 GlobalData::GlobalData() 
 {
         InitHostInfo();
-        CHECK(InitConfig());
+        ACHECK(InitConfig());
         process_id_ = getpid();
         char* prog_path = program_path();
         if (prog_path) 
@@ -68,7 +68,7 @@ GlobalData::GlobalData()
                 process_group_ = GetFileName(prog_path) + "_" + std::to_string(process_id_);
                 free(prog_path);
         } 
-        else
+        else 
         {
                 process_group_ = "cyber_default_" + std::to_string(process_id_);
         }
@@ -78,7 +78,7 @@ GlobalData::GlobalData()
         if (run_mode_val != nullptr) 
         {
                 std::string run_mode_str(run_mode_val);
-                if (run_mode_str == "simulation")
+                if (run_mode_str == "simulation") 
                 {
                         is_reality_mode_ = false;
                 }

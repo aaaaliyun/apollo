@@ -117,11 +117,11 @@ int main(int32_t argc, char** argv)
         const auto map_file = apollo::hdmap::BaseMapFile();
         if (absl::EndsWith(map_file, ".xml")) 
         {
-                CHECK(OpendriveAdapter::LoadData(map_file, &map_pb));
+                ACHECK(OpendriveAdapter::LoadData(map_file, &map_pb));
         } 
         else 
         {
-                CHECK(GetProtoFromFile(map_file, &map_pb)) << "Fail to open: " << map_file;
+                ACHECK(GetProtoFromFile(map_file, &map_pb)) << "Fail to open: " << map_file;
         }
 
         DownsampleMap(&map_pb);

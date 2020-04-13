@@ -20,11 +20,11 @@
 
 #include "modules/planning/tasks/optimizers/piecewise_jerk_speed/piecewise_jerk_speed_nonlinear_optimizer.h"
 
+#include <coin/IpIpoptApplication.hpp>
+#include <coin/IpSolveStatistics.hpp>
+
 #include <algorithm>
 #include <string>
-
-#include "IpIpoptApplication.hpp"
-#include "IpSolveStatistics.hpp"
 
 #include "modules/common/proto/pnc_point.pb.h"
 #include "modules/common/vehicle_state/vehicle_state_provider.h"
@@ -49,7 +49,7 @@ PiecewiseJerkSpeedNonlinearOptimizer::PiecewiseJerkSpeedNonlinearOptimizer(
     : SpeedOptimizer(config),
       smoothed_speed_limit_(0.0, 0.0, 0.0),
       smoothed_path_curvature_(0.0, 0.0, 0.0) {
-  CHECK(config_.has_piecewise_jerk_nonlinear_speed_config());
+  ACHECK(config_.has_piecewise_jerk_nonlinear_speed_config());
 }
 
 Status PiecewiseJerkSpeedNonlinearOptimizer::Process(

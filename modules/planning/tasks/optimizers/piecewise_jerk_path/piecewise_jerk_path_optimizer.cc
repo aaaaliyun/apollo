@@ -37,7 +37,7 @@ using apollo::common::VehicleConfigHelper;
 
 PiecewiseJerkPathOptimizer::PiecewiseJerkPathOptimizer(const TaskConfig& config)
     : PathOptimizer(config) {
-  CHECK(config_.has_piecewise_jerk_path_config());
+  ACHECK(config_.has_piecewise_jerk_path_config());
 }
 
 common::Status PiecewiseJerkPathOptimizer::Process(
@@ -147,13 +147,12 @@ common::Status PiecewiseJerkPathOptimizer::Process(
       // final_path_data might carry info from upper stream
       PathData path_data = *final_path_data;
       path_data.SetReferenceLine(&reference_line);
-      path_data.SetFrenetPath(std::move(frenet_frame_path));
       if (FLAGS_use_front_axe_center_in_path_planning) {
         auto discretized_path = DiscretizedPath(
             ConvertPathPointRefFromFrontAxeToRearAxe(path_data));
-        path_data = *final_path_data;
-        path_data.SetReferenceLine(&reference_line);
         path_data.SetDiscretizedPath(discretized_path);
+      } else {
+        path_data.SetFrenetPath(std::move(frenet_frame_path));
       }
       path_data.set_path_label(path_boundary.label());
       path_data.set_blocking_obstacle_id(path_boundary.blocking_obstacle_id());
@@ -270,9 +269,9 @@ FrenetFramePath PiecewiseJerkPathOptimizer::ToPiecewiseJerkPath(
     const std::vector<double>& x, const std::vector<double>& dx,
     const std::vector<double>& ddx, const double delta_s,
     const double start_s) const {
-  CHECK(!x.empty());
-  CHECK(!dx.empty());
-  CHECK(!ddx.empty());
+  ACHECK(!x.empty());
+  ACHECK(!dx.empty());
+  ACHECK(!ddx.empty());
 
   PiecewiseJerkTrajectory1d piecewise_jerk_traj(x.front(), dx.front(),
                                                 ddx.front());

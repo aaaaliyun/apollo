@@ -94,14 +94,15 @@ bool BaseMapNode::Save()
         paths.push_back(buf);
         path = path + buf;
 
-        paths.push_back(map_node_config_->node_index_.zone_id_ > 0 ? "/north" : "/south");
+        paths.push_back(map_node_config_->node_index_.zone_id_ > 0 ? "/north"
+                                                             : "/south");
         path = path + paths.back();
 
         snprintf(buf, sizeof(buf), "/%02d", abs(map_node_config_->node_index_.zone_id_));
         paths.push_back(buf);
         path = path + buf;
 
-        snprintf(buf, sizeof(buf), "/%08d", abs(map_node_config_->node_index_.m_));
+        snprintf(buf, sizeof(buf), "/%08d", map_node_config_->node_index_.m_);
         paths.push_back(buf);
         path = path + buf;
 
@@ -110,7 +111,7 @@ bool BaseMapNode::Save()
                 return false;
         }
 
-        snprintf(buf, sizeof(buf), "/%08d", abs(map_node_config_->node_index_.n_));
+        snprintf(buf, sizeof(buf), "/%08d", map_node_config_->node_index_.n_);
         path = path + buf;
 
         FILE* file = fopen(path.c_str(), "wb");
@@ -145,14 +146,14 @@ bool BaseMapNode::Load()
         snprintf(buf, sizeof(buf), "/%02d", abs(map_node_config_->node_index_.zone_id_));
         paths.push_back(buf);
         path = path + buf;
-        snprintf(buf, sizeof(buf), "/%08d", abs(map_node_config_->node_index_.m_));
+        snprintf(buf, sizeof(buf), "/%08d", map_node_config_->node_index_.m_);
         paths.push_back(buf);
         path = path + buf;
         if (!CheckMapDirectoryRecursively(paths)) 
         {
                 return false;
         }
-        snprintf(buf, sizeof(buf), "/%08d", abs(map_node_config_->node_index_.n_));
+        snprintf(buf, sizeof(buf), "/%08d", map_node_config_->node_index_.n_);
         path = path + buf;
         return Load(path.c_str());
 }
@@ -460,7 +461,7 @@ bool BaseMapNode::SaveIntensityImage() const
         paths.push_back(buf);
         path = path + buf;
 
-        snprintf(buf, sizeof(buf), "/%08d", abs(map_node_config_->node_index_.m_));
+        snprintf(buf, sizeof(buf), "/%08d", map_node_config_->node_index_.m_);
         paths.push_back(buf);
         path = path + buf;
 
@@ -469,7 +470,7 @@ bool BaseMapNode::SaveIntensityImage() const
                 return false;
         }
 
-        snprintf(buf, sizeof(buf), "/%08d.png", abs(map_node_config_->node_index_.n_));
+        snprintf(buf, sizeof(buf), "/%08d.png", map_node_config_->node_index_.n_);
         path = path + buf;
 
         bool success = SaveIntensityImage(path);
@@ -508,7 +509,7 @@ bool BaseMapNode::SaveAltitudeImage() const
         paths.push_back(buf);
         path = path + buf;
 
-        snprintf(buf, sizeof(buf), "/%08d", abs(map_node_config_->node_index_.m_));
+        snprintf(buf, sizeof(buf), "/%08d", map_node_config_->node_index_.m_);
         paths.push_back(buf);
         path = path + buf;
 
@@ -517,7 +518,7 @@ bool BaseMapNode::SaveAltitudeImage() const
                 return false;
         }
 
-        snprintf(buf, sizeof(buf), "/%08d.png", abs(map_node_config_->node_index_.n_));
+        snprintf(buf, sizeof(buf), "/%08d.png", map_node_config_->node_index_.n_);
         path = path + buf;
 
         bool success = SaveAltitudeImage(path);

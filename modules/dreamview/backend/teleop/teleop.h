@@ -25,9 +25,9 @@
 #ifdef TELEOP
 #include "modules/planning/proto/pad_msg.pb.h"
 #include "modules/planning/proto/planning.pb.h"
-#include "modules/teleop/network/proto/modem_info.pb.h"
-#include "modules/teleop/teleop/proto/daemon_service_cmd.pb.h"
-#include "modules/teleop/teleop/proto/daemon_service_rpt.pb.h"
+#include "modules/teleop/daemon/proto/daemon_cmd.pb.h"
+#include "modules/teleop/daemon/proto/daemon_rpt.pb.h"
+#include "modules/teleop/modem/proto/modem_info.pb.h"
 #endif
 
 #include "modules/dreamview/backend/handlers/websocket_handler.h"
@@ -47,6 +47,7 @@ private:
         void SendStatus(WebSocketHandler::Connection *conn);
 
 #ifdef TELEOP
+
         // send a command to the remote daemon to start or stop
         // video encoders and voip encoders
         void SendAudioStreamCmd(bool start_stop);
@@ -57,7 +58,7 @@ private:
         void SendPullOverCmd();
         void SendResumeCruiseCmd();
 
-        void UpdateModemInfo(const std::shared_ptr<modules::teleop::network::ModemInfo> &modem_info);
+        void UpdateModemInfo(const std::shared_ptr<modules::teleop::modem::ModemInfo> &modem_info);
 #endif
 
         std::unique_ptr<cyber::Node> node_;
@@ -65,26 +66,28 @@ private:
         WebSocketHandler *websocket_;
 
 #ifdef TELEOP
+
         // modem info readers and callback
-        std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>> modem0_info_reader_;
-        std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>> modem1_info_reader_;
-        std::shared_ptr<cyber::Reader<modules::teleop::network::ModemInfo>> modem2_info_reader_;
+        std::shared_ptr<cyber::Reader<modules::teleop::modem::ModemInfo>> modem0_info_reader_;
+        std::shared_ptr<cyber::Reader<modules::teleop::modem::ModemInfo>> modem1_info_reader_;
+        std::shared_ptr<cyber::Reader<modules::teleop::modem::ModemInfo>> modem2_info_reader_;
         // modem info callback
-        void UpdateModem(const std::string &modem_id, const std::shared_ptr<modules::teleop::network::ModemInfo> &modem_info);
+        void UpdateModem(const std::string &modem_id, const std::shared_ptr<modules::teleop::modem::ModemInfo> &modem_info);
         // planning message reader
         std::shared_ptr<cyber::Reader<apollo::planning::ADCTrajectory>> planning_reader_;
 
         // daemon report readers and callback
-        void UpdateCarDaemonRpt(const std::shared_ptr<modules::teleop::teleop::DaemonServiceRpt> &rpt);
-        void UpdateOperatorDaemonRpt(const std::shared_ptr<modules::teleop::teleop::DaemonServiceRpt> &rpt);
-        std::shared_ptr<cyber::Reader<modules::teleop::teleop::DaemonServiceRpt>> remote_daemon_rpt_reader_;
-        std::shared_ptr<cyber::Reader<modules::teleop::teleop::DaemonServiceRpt>> local_daemon_rpt_reader_;
+        void UpdateCarDaemonRpt(const std::shared_ptr<modules::teleop::daemon::DaemonRpt> &rpt);
+        void UpdateOperatorDaemonRpt(const std::shared_ptr<modules::teleop::daemon::DaemonRpt> &rpt);
+        std::shared_ptr<cyber::Reader<modules::teleop::daemon::DaemonRpt>> remote_daemon_rpt_reader_;
+        std::shared_ptr<cyber::Reader<modules::teleop::daemon::DaemonRpt>> local_daemon_rpt_reader_;
         // daemon commands writers
-        std::shared_ptr<cyber::Writer<modules::teleop::teleop::DaemonServiceCmd>> remote_daemon_cmd_writer_;
-        std::shared_ptr<cyber::Writer<modules::teleop::teleop::DaemonServiceCmd>> local_daemon_cmd_writer_;
+        std::shared_ptr<cyber::Writer<modules::teleop::daemon::DaemonCmd>> remote_daemon_cmd_writer_;
+        std::shared_ptr<cyber::Writer<modules::teleop::daemon::DaemonCmd>> local_daemon_cmd_writer_;
 
         // planning driving actions  and feedback
         std::shared_ptr<cyber::Writer<apollo::planning::PadMessage>> pad_message_writer_;
+        
         void UpdatePlanning(const std::shared_ptr<apollo::planning::ADCTrajectory> &msg);
 #endif
 

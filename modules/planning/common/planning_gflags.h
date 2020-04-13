@@ -40,6 +40,7 @@ DECLARE_string(scenario_traffic_light_unprotected_right_turn_config_file);
 DECLARE_string(scenario_traffic_light_unprotected_right_turn_config_file);
 DECLARE_string(scenario_valet_parking_config_file);
 DECLARE_string(scenario_yield_sign_config_file);
+DECLARE_string(scenario_test_learning_model_config_file);
 
 DECLARE_bool(enable_scenario_bare_intersection);
 DECLARE_bool(enable_scenario_emergency_pull_over);
@@ -47,6 +48,7 @@ DECLARE_bool(enable_scenario_emergency_stop);
 DECLARE_bool(enable_scenario_park_and_go);
 DECLARE_bool(enable_scenario_pull_over);
 DECLARE_bool(enable_scenario_stop_sign);
+DECLARE_bool(enable_scenario_test_learning_model);
 DECLARE_bool(enable_scenario_traffic_light);
 DECLARE_bool(enable_scenario_yield_sign);
 
@@ -210,6 +212,8 @@ DECLARE_double(fallback_total_time);
 DECLARE_double(fallback_time_unit);
 
 DECLARE_double(speed_bump_speed_limit);
+DECLARE_double(default_city_road_speed_limit);
+DECLARE_double(default_highway_speed_limit);
 
 // navigation mode
 DECLARE_bool(enable_planning_pad_msg);
@@ -264,3 +268,5 @@ DECLARE_bool(use_smoothed_dp_guide_line);
 DECLARE_bool(use_soft_bound_in_nonlinear_speed_opt);
 
 DECLARE_bool(use_front_axe_center_in_path_planning);
+
+DECLARE_bool(use_road_boundary_from_map);

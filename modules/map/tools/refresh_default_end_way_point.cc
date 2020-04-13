@@ -33,20 +33,18 @@
 namespace apollo {
 namespace hdmap {
 
-apollo::common::PointENU SLToXYZ(const std::string& lane_id, const double s,
-                                 const double l) 
+apollo::common::PointENU SLToXYZ(const std::string& lane_id, const double s, const double l) 
 {
         const auto lane_info = HDMapUtil::BaseMap().GetLaneById(MakeMapId(lane_id));
-        CHECK(lane_info);
+        ACHECK(lane_info);
         return lane_info->GetSmoothPoint(s);
 }
 
-void XYZToSL(const apollo::common::PointENU& point, std::string* lane_id,
-             double* s, double* l) 
+void XYZToSL(const apollo::common::PointENU& point, std::string* lane_id, double* s, double* l) 
 {
-        CHECK(lane_id);
-        CHECK(s);
-        CHECK(l);
+        ACHECK(lane_id);
+        ACHECK(s);
+        ACHECK(l);
         LaneInfoConstPtr lane = nullptr;
 
         CHECK_EQ(HDMapUtil::BaseMap().GetNearestLane(point, &lane, s, l), 0);
@@ -65,7 +63,7 @@ double XYZDistance(const apollo::common::PointENU& p1,
 void RefreshDefaultEndPoint() 
 {
         apollo::routing::POI old_poi;
-        CHECK(cyber::common::GetProtoFromASCIIFile(EndWayPointFile(), &old_poi));
+        ACHECK(cyber::common::GetProtoFromASCIIFile(EndWayPointFile(), &old_poi));
 
         apollo::routing::POI new_poi;
         for (const auto& old_landmark : old_poi.landmark()) 
@@ -100,14 +98,13 @@ void RefreshDefaultEndPoint()
                         pose->set_z(new_xyz.z());
                         *new_landmark->add_waypoint() = new_end_point;
 
-                        AINFO << "\n ============ from ============ \n"
-                              << old_end_point.DebugString()
+                        AINFO << "\n ============ from ============ \n" << old_end_point.DebugString()
                               << "\n ============ to ============ \n"
                               << new_end_point.DebugString() << "XYZ distance is "
                               << XYZDistance(old_xyz, new_xyz);
                 }
         }
-        CHECK(cyber::common::SetProtoToASCIIFile(new_poi, EndWayPointFile()));
+        ACHECK(cyber::common::SetProtoToASCIIFile(new_poi, EndWayPointFile()));
 }
 
 }  // namespace hdmap

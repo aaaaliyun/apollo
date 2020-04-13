@@ -173,45 +173,6 @@ template <typename Request, typename Response>
 void Client<Request, Response>::Destroy() {}
 
 template <typename Request, typename Response>
-// <<<<<<< HEAD
-// bool Client<Request, Response>::Init() 
-// {
-//         proto::RoleAttributes role;
-//         role.set_node_name(node_name_);
-//         role.set_channel_name(request_channel_);
-//         auto channel_id = common::GlobalData::RegisterChannel(request_channel_);
-//         role.set_channel_id(channel_id);
-//         role.mutable_qos_profile()->CopyFrom(transport::QosProfileConf::QOS_PROFILE_SERVICES_DEFAULT);
-//         auto transport = transport::Transport::Instance();
-//         request_transmitter_ = transport->CreateTransmitter<Request>(role, proto::OptionalMode::RTPS);
-//         if (request_transmitter_ == nullptr) 
-//         {
-//                 AERROR << "Create request pub failed.";
-//                 return false;
-//         }
-//         writer_id_ = request_transmitter_->id();
-
-//         response_callback_ = std::bind(&Client<Request, Response>::HandleResponse, this, std::placeholders::_1, std::placeholders::_2);
-
-//         role.set_channel_name(response_channel_);
-//         channel_id = common::GlobalData::RegisterChannel(response_channel_);
-//         role.set_channel_id(channel_id);
-
-//         response_receiver_ = transport->CreateReceiver<Response>(role, [=](const std::shared_ptr<Response>& request, const transport::MessageInfo& message_info, const proto::RoleAttributes& reader_attr) 
-//         {
-//                 (void)message_info;
-//                 (void)reader_attr;
-//                 response_callback_(request, message_info);
-//         }, proto::OptionalMode::RTPS);
-
-//         if (response_receiver_ == nullptr) 
-//         {
-//                 AERROR << "Create response sub failed.";
-//                 request_transmitter_.reset();
-//                 return false;
-//         }
-//         return true;
-// =======
 bool Client<Request, Response>::Init() 
 {
         proto::RoleAttributes role;
