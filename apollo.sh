@@ -138,9 +138,9 @@ function build() {
   info "Building on $MACHINE_ARCH..."
 
   MACHINE_ARCH=$(uname -m)
-  JOB_ARG="--jobs=3 --ram_utilization_factor 80"
+  JOB_ARG="--jobs=8 --ram_utilization_factor 80"
   if [ "$MACHINE_ARCH" == 'aarch64' ]; then
-    JOB_ARG="--jobs=3"
+    JOB_ARG="--jobs=8"
   fi
   info "Building with $JOB_ARG for $MACHINE_ARCH"
 
@@ -185,9 +185,9 @@ function cibuild_extended() {
   cd /apollo
   info "Building modules ..."
 
-  JOB_ARG="--jobs=12"
+  JOB_ARG="--jobs=8"
   if [ "$MACHINE_ARCH" == 'aarch64' ]; then
-    JOB_ARG="--jobs=3"
+    JOB_ARG="--jobs=8"
   fi
 
   info "Building with $JOB_ARG for $MACHINE_ARCH"
@@ -224,9 +224,9 @@ function cibuild() {
 
   info "Building modules ..."
 
-  JOB_ARG="--jobs=12"
+  JOB_ARG="--jobs=8"
   if [ "$MACHINE_ARCH" == 'aarch64' ]; then
-    JOB_ARG="--jobs=3"
+    JOB_ARG="--jobs=8"
   fi
 
   info "Building with $JOB_ARG for $MACHINE_ARCH"
@@ -495,7 +495,7 @@ function citest_basic() {
 #  "
   BUILD_TARGETS=`bazel query //modules/... union //cyber/... except //modules/tools/visualizer/... except //modules/v2x/... except //modules/drivers/video/tools/decode_video/... except //modules/map/tools/map_datachecker/... `
 
-  JOB_ARG="--jobs=12 --ram_utilization_factor 80"
+  JOB_ARG="--jobs=8 --ram_utilization_factor 80"
 
   BUILD_TARGETS="`echo "$BUILD_TARGETS" | grep "modules\/" | grep "test" \
           | grep -v "modules\/planning" \
@@ -534,7 +534,7 @@ function citest_extended() {
     `bazel query //modules/prediction/... union //modules/control/...`
   "
 
-  JOB_ARG="--jobs=12 --ram_utilization_factor 80"
+  JOB_ARG="--jobs=8 --ram_utilization_factor 80"
 
   BUILD_TARGETS="`echo "$BUILD_TARGETS" | grep "test"`"
 
