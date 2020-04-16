@@ -66,3 +66,5 @@ docs/demo_guide/*.record
 
 # Bash Environment
 .dev_bash_hist
+
+start.sh
