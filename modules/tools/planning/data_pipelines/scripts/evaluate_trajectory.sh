@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ###############################################################################
-# Copyright 2017 The Apollo Authors. All Rights Reserved.
+# Copyright 2020 The Apollo Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 # limitations under the License.
 ###############################################################################
 
+SRC_DIR=$1
+TARGET_DIR=$2
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+set -e
 
-cd "${DIR}/.."
+source /apollo/scripts/apollo_base.sh
+source /apollo/cyber/setup.bash
 
-source "$DIR/apollo_base.sh"
+sudo mkdir -p ${TARGET_DIR}
 
-# run function from apollo_base.sh
-# run command_name module_name
-# run third_party_perception "$@" --use_navigation_mode
-cyber_launch stop modules/third_party_perception/launch/third_party_perception.launch
-cyber_launch start modules/third_party_perception/launch/third_party_perception.launch
+/apollo/bazel-bin/modules/planning/pipeline/evaluate_trajectory \
+    --flagfile=/apollo/modules/planning/conf/planning.conf \
+    --planning_source_dirs=${SRC_DIR} \
+    --planning_data_dir=${TARGET_DIR} \
