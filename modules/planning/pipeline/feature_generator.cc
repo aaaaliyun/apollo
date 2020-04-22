@@ -81,7 +81,7 @@ void FeatureGenerator::WriteOutLearningData(
     record_file_name_ = "00000";
   }
   const std::string file_name = absl::StrCat(
-      FLAGS_planning_data_dir, record_file_name_, ".",
+      FLAGS_planning_data_dir, "/", record_file_name_, ".",
       learning_data_file_index, ".bin");
   if (FLAGS_enable_binary_learning_data) {
     cyber::common::SetProtoToBinaryFile(learning_data, file_name);
@@ -158,6 +158,7 @@ void FeatureGenerator::OnPrediction(
   }
 
   // erase obstacle history if obstacle not exist in current predictio msg
+  /* comment out to relax this check for now
   std::unordered_map<int, std::list<PerceptionObstacleFeature>>::iterator
       it = obstacle_history_map_.begin();
   while (it != obstacle_history_map_.end()) {
@@ -169,6 +170,7 @@ void FeatureGenerator::OnPrediction(
       ++it;
     }
   }
+  */
 
   // add to obstacle history
   for (const auto& m : prediction_obstacles_map_) {
@@ -285,15 +287,16 @@ void FeatureGenerator::GetADCCurrentInfo(ADCCurrentInfo* adc_curr_info) {
   adc_curr_info->adc_cur_heading_ = adc_cur_pose.heading();
 }
 
-void FeatureGenerator::GenerateObstacleTrajectoryPoint(
+void FeatureGenerator::GenerateObstacleTrajectory(
     const int obstacle_id,
     const ADCCurrentInfo& adc_curr_info,
     ObstacleFeature* obstacle_feature) {
+  auto obstacle_trajectory = obstacle_feature->mutable_obstacle_trajectory();
   const auto& obstacle_history = obstacle_history_map_[obstacle_id];
   for (const auto& obj_traj_point : obstacle_history) {
-    auto obstacle_trajectory_point =
-        obstacle_feature->add_obstacle_trajectory_point();
-    obstacle_trajectory_point->set_timestamp_sec(
+    auto perception_obstacle_history =
+        obstacle_trajectory->add_perception_obstacle_history();
+    perception_obstacle_history->set_timestamp_sec(
         obj_traj_point.timestamp_sec());
 
     // convert position to relative coordinate
@@ -303,7 +306,7 @@ void FeatureGenerator::GenerateObstacleTrajectoryPoint(
                            obj_traj_point.position().y()),
             adc_curr_info.adc_cur_position_,
             adc_curr_info.adc_cur_heading_);
-    auto position = obstacle_trajectory_point->mutable_position();
+    auto position = perception_obstacle_history->mutable_position();
     position->set_x(relative_posistion.first);
     position->set_y(relative_posistion.second);
 
@@ -311,7 +314,7 @@ void FeatureGenerator::GenerateObstacleTrajectoryPoint(
     const double relative_theta =
         util::WorldAngleToObjAngle(obj_traj_point.theta(),
                                      adc_curr_info.adc_cur_heading_);
-    obstacle_trajectory_point->set_theta(relative_theta);
+    perception_obstacle_history->set_theta(relative_theta);
 
     // convert velocity to relative coordinate
     const auto& relative_velocity =
@@ -320,7 +323,7 @@ void FeatureGenerator::GenerateObstacleTrajectoryPoint(
                            obj_traj_point.velocity().y()),
             adc_curr_info.adc_cur_velocity_,
             adc_curr_info.adc_cur_heading_);
-    auto velocity = obstacle_trajectory_point->mutable_velocity();
+    auto velocity = perception_obstacle_history->mutable_velocity();
     velocity->set_x(relative_velocity.first);
     velocity->set_y(relative_velocity.second);
 
@@ -331,7 +334,7 @@ void FeatureGenerator::GenerateObstacleTrajectoryPoint(
                            obj_traj_point.acceleration().y()),
             adc_curr_info.adc_cur_acc_,
             adc_curr_info.adc_cur_heading_);
-    auto acceleration = obstacle_trajectory_point->mutable_acceleration();
+    auto acceleration = perception_obstacle_history->mutable_acceleration();
     acceleration->set_x(relative_acc.first);
     acceleration->set_y(relative_acc.second);
 
@@ -344,7 +347,7 @@ void FeatureGenerator::GenerateObstacleTrajectoryPoint(
                              obj_traj_point.polygon_point(i).y()),
               adc_curr_info.adc_cur_position_,
               adc_curr_info.adc_cur_heading_);
-      auto polygon_point = obstacle_trajectory_point->add_polygon_point();
+      auto polygon_point = perception_obstacle_history->add_polygon_point();
       polygon_point->set_x(relative_point.first);
       polygon_point->set_y(relative_point.second);
     }
@@ -370,6 +373,7 @@ void FeatureGenerator::GenerateObstaclePrediction(
     auto trajectory = obstacle_prediction->add_trajectory();
     trajectory->set_probability(obstacle_trajectory.probability());
 
+    // TrajectoryPoint
     for (int j = 0; j < obstacle_trajectory.trajectory_point_size(); ++j) {
       const auto& obstacle_trajectory_point =
           obstacle_trajectory.trajectory_point(j);
@@ -423,7 +427,7 @@ void FeatureGenerator::GenerateObstacleFeature(
     obstacle_feature->set_type(perception_obstale.type());
 
     // obstacle history trajectory points
-    GenerateObstacleTrajectoryPoint(m.first, adc_curr_info, obstacle_feature);
+    GenerateObstacleTrajectory(m.first, adc_curr_info, obstacle_feature);
 
     // obstacle prediction
     GenerateObstaclePrediction(m.second, adc_curr_info, obstacle_feature);
@@ -473,7 +477,6 @@ void FeatureGenerator::GenerateADCTrajectoryPoints(
     const std::list<LocalizationEstimate>& localizations,
     LearningDataFrame* learning_data_frame) {
 
-  // use a vector to help reverse traverse list of mutable field
   std::vector<LocalizationEstimate> localization_samples;
   for (const auto& le : localizations) {
     localization_samples.insert(localization_samples.begin(), le);
@@ -495,13 +498,13 @@ void FeatureGenerator::GenerateADCTrajectoryPoints(
   double yield_sign_distance = 0.0;
 
   int trajectory_point_index = 0;
+  std::vector<ADCTrajectoryPoint> adc_trajectory_points;
   for (const auto& localization_sample : localization_samples) {
-    auto adc_trajectory_point =
-        learning_data_frame->add_adc_trajectory_point();
-    adc_trajectory_point->set_timestamp_sec(
+    ADCTrajectoryPoint adc_trajectory_point;
+    adc_trajectory_point.set_timestamp_sec(
         localization_sample.measurement_time());
 
-    auto trajectory_point = adc_trajectory_point->mutable_trajectory_point();
+    auto trajectory_point = adc_trajectory_point.mutable_trajectory_point();
     auto& pose = localization_sample.pose();
     trajectory_point->mutable_path_point()->set_x(pose.position().x());
     trajectory_point->mutable_path_point()->set_y(pose.position().y());
@@ -518,7 +521,7 @@ void FeatureGenerator::GenerateADCTrajectoryPoints(
         pose.linear_acceleration().y() * pose.linear_acceleration().y());
     trajectory_point->set_a(a);
 
-    auto planning_tag = adc_trajectory_point->mutable_planning_tag();
+    auto planning_tag = adc_trajectory_point.mutable_planning_tag();
 
     // planning_tag: lane_turn
     const auto& cur_point = common::util::PointFactory::ToPointENU(
@@ -535,145 +538,149 @@ void FeatureGenerator::GenerateADCTrajectoryPoints(
     }
     planning_tag->set_lane_turn(lane_turn);
 
+    if (FLAGS_enable_overlap_tag) {
+      // planning_tag: overlap tags
+      double point_distance = 0.0;
+      if (trajectory_point_index > 0) {
+        auto& next_point =
+            adc_trajectory_points[trajectory_point_index-1]
+                                 .trajectory_point().path_point();
+        point_distance = common::util::DistanceXY(next_point, cur_point);
+      }
 
-    if (!FLAGS_enable_overlap_tag) {
-      continue;
-    }
+      common::PointENU hdmap_point;
+      hdmap_point.set_x(cur_point.x());
+      hdmap_point.set_y(cur_point.y());
 
-    // planning_tag: overlap tags
-    double point_distance = 0.0;
-    if (trajectory_point_index > 0) {
-      auto& next_point =
-          learning_data_frame->adc_trajectory_point(trajectory_point_index-1)
-                               .trajectory_point().path_point();
-      point_distance = common::util::DistanceXY(next_point, cur_point);
-    }
-
-    common::PointENU hdmap_point;
-    hdmap_point.set_x(cur_point.x());
-    hdmap_point.set_y(cur_point.y());
-
-    // clear area
-    planning_tag->clear_clear_area();
-    std::vector<ClearAreaInfoConstPtr> clear_areas;
-    if (HDMapUtil::BaseMap().GetClearAreas(hdmap_point,
-                                           kSearchRadius,
-                                           &clear_areas) == 0 &&
-        clear_areas.size() > 0) {
-      clear_area_id = clear_areas.front()->id().id();
-      clear_area_distance = 0.0;
-    } else {
+      // clear area
+      planning_tag->clear_clear_area();
+      std::vector<ClearAreaInfoConstPtr> clear_areas;
+      if (HDMapUtil::BaseMap().GetClearAreas(hdmap_point,
+                                             kSearchRadius,
+                                             &clear_areas) == 0 &&
+          clear_areas.size() > 0) {
+        clear_area_id = clear_areas.front()->id().id();
+        clear_area_distance = 0.0;
+      } else {
+        if (!clear_area_id.empty()) {
+          clear_area_distance += point_distance;
+        }
+      }
       if (!clear_area_id.empty()) {
-        clear_area_distance += point_distance;
+        planning_tag->mutable_clear_area()->set_id(clear_area_id);
+        planning_tag->mutable_clear_area()->set_distance(clear_area_distance);
       }
-    }
-    if (!clear_area_id.empty()) {
-      planning_tag->mutable_clear_area()->set_id(clear_area_id);
-      planning_tag->mutable_clear_area()->set_distance(clear_area_distance);
-    }
 
-    // crosswalk
-    planning_tag->clear_crosswalk();
-    std::vector<CrosswalkInfoConstPtr> crosswalks;
-    if (HDMapUtil::BaseMap().GetCrosswalks(hdmap_point,
-                                           kSearchRadius,
-                                           &crosswalks) == 0 &&
-        crosswalks.size() > 0) {
-      crosswalk_id = crosswalks.front()->id().id();
-      crosswalk_distance = 0.0;
-    } else {
+      // crosswalk
+      planning_tag->clear_crosswalk();
+      std::vector<CrosswalkInfoConstPtr> crosswalks;
+      if (HDMapUtil::BaseMap().GetCrosswalks(hdmap_point,
+                                             kSearchRadius,
+                                             &crosswalks) == 0 &&
+          crosswalks.size() > 0) {
+        crosswalk_id = crosswalks.front()->id().id();
+        crosswalk_distance = 0.0;
+      } else {
+        if (!crosswalk_id.empty()) {
+          crosswalk_distance += point_distance;
+        }
+      }
       if (!crosswalk_id.empty()) {
-        crosswalk_distance += point_distance;
+        planning_tag->mutable_crosswalk()->set_id(crosswalk_id);
+        planning_tag->mutable_crosswalk()->set_distance(crosswalk_distance);
       }
-    }
-    if (!crosswalk_id.empty()) {
-      planning_tag->mutable_crosswalk()->set_id(crosswalk_id);
-      planning_tag->mutable_crosswalk()->set_distance(crosswalk_distance);
-    }
 
-    // pnc_junction
-    std::vector<PNCJunctionInfoConstPtr> pnc_junctions;
-    if (HDMapUtil::BaseMap().GetPNCJunctions(hdmap_point,
-                                           kSearchRadius,
-                                           &pnc_junctions) == 0 &&
-        pnc_junctions.size() > 0) {
-      pnc_junction_id = pnc_junctions.front()->id().id();
-      pnc_junction_distance = 0.0;
-    } else {
+      // pnc_junction
+      std::vector<PNCJunctionInfoConstPtr> pnc_junctions;
+      if (HDMapUtil::BaseMap().GetPNCJunctions(hdmap_point,
+                                             kSearchRadius,
+                                             &pnc_junctions) == 0 &&
+          pnc_junctions.size() > 0) {
+        pnc_junction_id = pnc_junctions.front()->id().id();
+        pnc_junction_distance = 0.0;
+      } else {
+        if (!pnc_junction_id.empty()) {
+          pnc_junction_distance += point_distance;
+        }
+      }
       if (!pnc_junction_id.empty()) {
-        pnc_junction_distance += point_distance;
+        planning_tag->mutable_pnc_junction()->set_id(pnc_junction_id);
+        planning_tag->mutable_pnc_junction()->set_distance(
+            pnc_junction_distance);
       }
-    }
-    if (!pnc_junction_id.empty()) {
-      planning_tag->mutable_pnc_junction()->set_id(pnc_junction_id);
-      planning_tag->mutable_pnc_junction()->set_distance(pnc_junction_distance);
-    }
 
-    // signal
-    std::vector<SignalInfoConstPtr> signals;
-    if (HDMapUtil::BaseMap().GetSignals(hdmap_point,
-                                        kSearchRadius,
-                                        &signals) == 0 &&
-        signals.size() > 0) {
-      signal_id = signals.front()->id().id();
-      signal_distance = 0.0;
-    } else {
-      if (!signal_id.empty()) {
-        signal_distance += point_distance;
-      }
-    }
-    if (!signal_id.empty()) {
-      planning_tag->mutable_signal()->set_id(signal_id);
-      planning_tag->mutable_signal()->set_distance(signal_distance);
-    }
-
-    // stop sign
-    std::vector<StopSignInfoConstPtr> stop_signs;
-    if (HDMapUtil::BaseMap().GetStopSigns(hdmap_point,
+      // signal
+      std::vector<SignalInfoConstPtr> signals;
+      if (HDMapUtil::BaseMap().GetSignals(hdmap_point,
                                           kSearchRadius,
-                                          &stop_signs) == 0 &&
-        stop_signs.size() > 0) {
-      stop_sign_id = stop_signs.front()->id().id();
-      stop_sign_distance = 0.0;
-    } else {
+                                          &signals) == 0 &&
+          signals.size() > 0) {
+        signal_id = signals.front()->id().id();
+        signal_distance = 0.0;
+      } else {
+        if (!signal_id.empty()) {
+          signal_distance += point_distance;
+        }
+      }
+      if (!signal_id.empty()) {
+        planning_tag->mutable_signal()->set_id(signal_id);
+        planning_tag->mutable_signal()->set_distance(signal_distance);
+      }
+
+      // stop sign
+      std::vector<StopSignInfoConstPtr> stop_signs;
+      if (HDMapUtil::BaseMap().GetStopSigns(hdmap_point,
+                                            kSearchRadius,
+                                            &stop_signs) == 0 &&
+          stop_signs.size() > 0) {
+        stop_sign_id = stop_signs.front()->id().id();
+        stop_sign_distance = 0.0;
+      } else {
+        if (!stop_sign_id.empty()) {
+          stop_sign_distance += point_distance;
+        }
+      }
       if (!stop_sign_id.empty()) {
-        stop_sign_distance += point_distance;
+        planning_tag->mutable_stop_sign()->set_id(stop_sign_id);
+        planning_tag->mutable_stop_sign()->set_distance(stop_sign_distance);
       }
-    }
-    if (!stop_sign_id.empty()) {
-      planning_tag->mutable_stop_sign()->set_id(stop_sign_id);
-      planning_tag->mutable_stop_sign()->set_distance(stop_sign_distance);
-    }
 
-    // yield sign
-    std::vector<YieldSignInfoConstPtr> yield_signs;
-    if (HDMapUtil::BaseMap().GetYieldSigns(hdmap_point,
-                                         kSearchRadius,
-                                         &yield_signs) == 0 &&
-        yield_signs.size() > 0) {
-      yield_sign_id = yield_signs.front()->id().id();
-      yield_sign_distance = 0.0;
-    } else {
+      // yield sign
+      std::vector<YieldSignInfoConstPtr> yield_signs;
+      if (HDMapUtil::BaseMap().GetYieldSigns(hdmap_point,
+                                           kSearchRadius,
+                                           &yield_signs) == 0 &&
+          yield_signs.size() > 0) {
+        yield_sign_id = yield_signs.front()->id().id();
+        yield_sign_distance = 0.0;
+      } else {
+        if (!yield_sign_id.empty()) {
+          yield_sign_distance += point_distance;
+        }
+      }
       if (!yield_sign_id.empty()) {
-        yield_sign_distance += point_distance;
+        planning_tag->mutable_yield_sign()->set_id(yield_sign_id);
+        planning_tag->mutable_yield_sign()->set_distance(yield_sign_distance);
       }
     }
-    if (!yield_sign_id.empty()) {
-      planning_tag->mutable_yield_sign()->set_id(yield_sign_id);
-      planning_tag->mutable_yield_sign()->set_distance(yield_sign_distance);
-    }
 
+    adc_trajectory_points.push_back(adc_trajectory_point);
     ++trajectory_point_index;
   }
 
-  // planning_tag
-  if (learning_data_frame->adc_trajectory_point_size() >0) {
+  // update learning data
+  if (adc_trajectory_points.size() >0) {
     learning_data_frame->mutable_planning_tag()->set_lane_turn(
-        learning_data_frame->adc_trajectory_point(0).planning_tag()
-                                                    .lane_turn());
+        adc_trajectory_points[0].planning_tag().lane_turn());
   }
+  std::reverse(adc_trajectory_points.begin(), adc_trajectory_points.end());
+  for (const auto& trajectory_point : adc_trajectory_points) {
+    auto adc_trajectory_point = learning_data_frame->add_adc_trajectory_point();
+    adc_trajectory_point->CopyFrom(trajectory_point);
+  }
+
   // AINFO << "number of ADC trajectory points in one frame: "
-  //       << trajectory_point_index;
+  //      << trajectory_point_index;
 }
 
 void FeatureGenerator::GenerateLearningDataFrame() {
