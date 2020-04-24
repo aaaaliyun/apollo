@@ -16,6 +16,8 @@
 
 #include "modules/planning/pipeline/evaluator.h"
 
+#include <sstream>
+
 #include "cyber/common/file.h"
 #include "modules/planning/common/trajectory/discretized_trajectory.h"
 
@@ -29,12 +31,27 @@ DEFINE_bool(enable_evaluate_obstacle_trajectory, true,
 namespace apollo {
 namespace planning {
 
-using apollo::common::TrajectoryPoint;
-
 void Evaluator::Init() {
+  log_file_.open(FLAGS_planning_data_dir + "/output_data_evaluated.log",
+                 std::ios_base::out | std::ios_base::app);
+  start_time_ = std::chrono::system_clock::now();
+  std::time_t now = std::time(nullptr);
+  log_file_ << "UTC date and time: " << std::asctime(std::gmtime(&now))
+            << "Local date and time: "
+            << std::asctime(std::localtime(&now));
+}
+
+void Evaluator::Close() {
+  auto end_time = std::chrono::system_clock::now();
+  std::chrono::duration<double> elapsed_seconds = end_time - start_time_;
+  log_file_ << "Time elapsed(sec): " << elapsed_seconds.count()
+            << std::endl << std::endl;
+  log_file_.close();
 }
 
 void Evaluator::Evaluate(const std::string& source_file) {
+  log_file_ << "Processing: " << source_file << std::endl;
+
   const std::string& source_filename =
       source_file.substr(source_file.find_last_of("/") + 1);
 
@@ -69,37 +86,34 @@ void Evaluator::Evaluate(const std::string& source_file) {
                                          learning_data_frame);
   }
 
-  WriteOutLearningData(source_filename, learning_data_);
+  WriteOutData(source_filename, learning_data_);
 }
 
-void Evaluator::WriteOutLearningData(
+void Evaluator::WriteOutData(
     const std::string& source_filename,
     const LearningData& learning_data) {
   const std::string file =
       FLAGS_planning_data_dir + "/" + source_filename;
   cyber::common::SetProtoToBinaryFile(learning_data, file);
-  cyber::common::SetProtoToASCIIFile(learning_data, file + ".txt");
+  // cyber::common::SetProtoToASCIIFile(learning_data, file + ".txt");
   learning_data_.Clear();
-}
-
-void Evaluator::Close() {
 }
 
 void Evaluator::EvaluateTrajectoryByTime(
     const std::vector<std::pair<double, TrajectoryPointFeature>>& trajectory,
     const double start_point_timestamp_sec,
     const double delta_time,
-    std::vector<std::pair<double, TrajectoryPointFeature>>*
-        evaluated_trajectory) {
+    std::vector<TrajectoryPoint>* evaluated_trajectory) {
   if (trajectory.empty() ||
-      fabs(trajectory.front().first - trajectory.back().first) < 1.0) {
+      fabs(trajectory.front().first - trajectory.back().first) <
+          FLAGS_trajectory_delta_t) {
     return;
   }
 
-  std::vector<TrajectoryPoint> updated_trajectory;
+  std::vector<apollo::common::TrajectoryPoint> updated_trajectory;
   for (const auto& tp : trajectory) {
     // TrajectoryPointFeature => common::Trajectory
-    TrajectoryPoint trajectory_point;
+    apollo::common::TrajectoryPoint trajectory_point;
     auto path_point = trajectory_point.mutable_path_point();
     path_point->set_x(tp.second.path_point().x());
     path_point->set_y(tp.second.path_point().y());
@@ -134,22 +148,25 @@ void Evaluator::EvaluateTrajectoryByTime(
     double relative_time = i * delta_time;
     auto tp = discretized_trajectory.Evaluate(relative_time);
 
-    // common::TrajectoryPoint => TrajectoryPointFeature
-    TrajectoryPointFeature trajectory_point;
-    trajectory_point.mutable_path_point()->set_x(tp.path_point().x());
-    trajectory_point.mutable_path_point()->set_y(tp.path_point().y());
-    trajectory_point.mutable_path_point()->set_z(tp.path_point().z());
-    trajectory_point.mutable_path_point()->set_theta(tp.path_point().theta());
-    trajectory_point.mutable_path_point()->set_s(tp.path_point().s());
-    trajectory_point.mutable_path_point()->set_lane_id(
-        tp.path_point().lane_id());
-    trajectory_point.set_v(tp.v());
-    trajectory_point.set_a(tp.a());
-    trajectory_point.set_relative_time(tp.relative_time());
-    trajectory_point.mutable_gaussian_info()->CopyFrom(tp.gaussian_info());
+    // common::TrajectoryPoint => TrajectoryPoint
+    TrajectoryPoint trajectory_point;
+    trajectory_point.set_timestamp_sec(timestamp_sec);
+    auto path_point =
+        trajectory_point.mutable_trajectory_point()->mutable_path_point();
+    path_point->set_x(tp.path_point().x());
+    path_point->set_y(tp.path_point().y());
+    path_point->set_z(tp.path_point().z());
+    path_point->set_theta(tp.path_point().theta());
+    path_point->set_s(tp.path_point().s());
+    path_point->set_lane_id(tp.path_point().lane_id());
+    trajectory_point.mutable_trajectory_point()->set_v(tp.v());
+    trajectory_point.mutable_trajectory_point()->set_a(tp.a());
+    trajectory_point.mutable_trajectory_point()->set_relative_time(
+        tp.relative_time());
+    trajectory_point.mutable_trajectory_point()->mutable_gaussian_info()
+                                               ->CopyFrom(tp.gaussian_info());
 
-    evaluated_trajectory->push_back(
-        std::make_pair(timestamp_sec, trajectory_point));
+    evaluated_trajectory->push_back(trajectory_point);
   }
 }
 
@@ -163,33 +180,64 @@ void Evaluator::EvaluateADCTrajectory(
     trajectory.push_back(std::make_pair(adc_tp.timestamp_sec(),
                                         adc_tp.trajectory_point()));
   }
-  if (trajectory.size() < 3 ||
-      fabs(trajectory.front().first - trajectory.back().first) <=
-          FLAGS_trajectory_delta_t) {
+
+  if (trajectory.size() <= 1) {
+    std::ostringstream msg;
+    msg << "too few adc_trajectory_point. frame_num{"
+        << learning_data_frame->frame_num() << "] size["
+        << trajectory.size() << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
     return;
   }
 
-  std::vector<std::pair<double, TrajectoryPointFeature>> evaluated_trajectory;
+  learning_data_frame->clear_adc_trajectory_point();
+  if (fabs(trajectory.front().first - start_point_timestamp_sec) <=
+      FLAGS_trajectory_delta_t) {
+    auto adc_trajectory_point = learning_data_frame->add_adc_trajectory_point();
+    adc_trajectory_point->set_timestamp_sec(trajectory.back().first);
+    adc_trajectory_point->mutable_trajectory_point()->CopyFrom(
+        trajectory.back().second);
+
+    std::ostringstream msg;
+    msg << "too short adc_trajectory. frame_num["
+        << learning_data_frame->frame_num() << "] size["
+        << trajectory.size() << "] timestamp_diff["
+        << start_point_timestamp_sec - trajectory.front().first << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
+    return;
+  }
+
+  std::vector<TrajectoryPoint> evaluated_trajectory;
   EvaluateTrajectoryByTime(trajectory,
                            start_point_timestamp_sec,
                            FLAGS_trajectory_delta_t,
-                           &evaluated_trajectory);
-  ADEBUG << "orig adc_trajectory["
-         << learning_data_frame->adc_trajectory_point_size()
+                            &evaluated_trajectory);
+  ADEBUG << "frame_num[" << learning_data_frame->frame_num()
+         << "] orig adc_trajectory[" << trajectory.size()
          << "] evaluated[" << evaluated_trajectory.size() << "]";
 
-  // update learning_data
-  learning_data_frame->clear_adc_trajectory_point();
   for (const auto& tp : evaluated_trajectory) {
     auto adc_trajectory_point = learning_data_frame->add_adc_trajectory_point();
-    adc_trajectory_point->set_timestamp_sec(tp.first);
-    adc_trajectory_point->mutable_trajectory_point()->CopyFrom(tp.second);
+    adc_trajectory_point->set_timestamp_sec(tp.timestamp_sec());
+    adc_trajectory_point->mutable_trajectory_point()
+                        ->CopyFrom(tp.trajectory_point());
   }
 }
 
 void Evaluator::EvaluateADCFutureTrajectory(
     const double start_point_timestamp_sec,
     LearningDataFrame* learning_data_frame) {
+  const int size =
+      learning_data_frame->output().adc_future_trajectory_point_size();
+  if (size < 60) {
+    std::ostringstream msg;
+    msg << "less adc_future_trajectory_points. frame_num["
+        << learning_data_frame->frame_num() << "] size[" << size << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
+  }
   std::vector<std::pair<double, TrajectoryPointFeature>> trajectory;
   for (int i = 0; i <
       learning_data_frame->output().adc_future_trajectory_point_size(); i++) {
@@ -198,31 +246,46 @@ void Evaluator::EvaluateADCFutureTrajectory(
     trajectory.push_back(std::make_pair(adc_tp.timestamp_sec(),
                                         adc_tp.trajectory_point()));
   }
-  if (trajectory.size() < 3 ||
-      fabs(trajectory.front().first - trajectory.back().first) <=
-          FLAGS_trajectory_delta_t) {
+
+  learning_data_frame->mutable_output()->clear_adc_future_trajectory_point();
+  if (trajectory.size() <= 1) {
+    std::ostringstream msg;
+    msg << "too short adc_future_trajectory. frame_num["
+        << learning_data_frame->frame_num() << "] size["
+        << trajectory.size() << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
+    return;
+  }
+  if (fabs(trajectory.back().first - start_point_timestamp_sec) <=
+      FLAGS_trajectory_delta_t) {
+    std::ostringstream msg;
+    msg << "too short adc_future_trajectory. frame_num["
+        << learning_data_frame->frame_num() << "] size["
+        << trajectory.size() << "] timestamp_diff["
+        << trajectory.back().first - start_point_timestamp_sec << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
     return;
   }
 
-  std::vector<std::pair<double, TrajectoryPointFeature>> evaluated_trajectory;
+  std::vector<TrajectoryPoint> evaluated_trajectory;
   EvaluateTrajectoryByTime(trajectory,
                            start_point_timestamp_sec,
                            FLAGS_trajectory_delta_t,
                            &evaluated_trajectory);
 
-  ADEBUG << "orig adc_future_trajectory["
-        << learning_data_frame->output().adc_future_trajectory_point_size()
-        << "] evaluated[" << evaluated_trajectory.size() << "]";
+  ADEBUG << "frame_num[" << learning_data_frame->frame_num()
+         << "] orig adc_future_trajectory[" << trajectory.size()
+         << "] evaluated[" << evaluated_trajectory.size() << "]";
 
-  // update learning_data
-  learning_data_frame->mutable_output()->clear_adc_future_trajectory_point();
   for (const auto& tp : evaluated_trajectory) {
     auto adc_future_trajectory_point =
         learning_data_frame->mutable_output()
                            ->add_adc_future_trajectory_point();
-    adc_future_trajectory_point->set_timestamp_sec(tp.first);
+    adc_future_trajectory_point->set_timestamp_sec(tp.timestamp_sec());
     adc_future_trajectory_point->mutable_trajectory_point()
-                               ->CopyFrom(tp.second);
+                               ->CopyFrom(tp.trajectory_point());
   }
 }
 
@@ -234,6 +297,7 @@ void Evaluator::EvaluateObstacleTrajectory(
   }
 
   for (int i = 0; i < learning_data_frame->obstacle_size(); ++i) {
+    const int obstacle_id = learning_data_frame->obstacle(i).id();
     const auto obstacle_trajectory =
         learning_data_frame->obstacle(i).obstacle_trajectory();
     std::vector<std::pair<double, TrajectoryPointFeature>> trajectory;
@@ -269,20 +333,25 @@ void Evaluator::EvaluateObstacleTrajectory(
       trajectory.push_back(std::make_pair(perception_obstacle.timestamp_sec(),
                                           trajectory_point));
     }
-    if (trajectory.size() < 3 ||
-        fabs(trajectory.front().first - trajectory.back().first) <=
-            FLAGS_trajectory_delta_t) {
+    if (fabs(trajectory.front().first - start_point_timestamp_sec) <=
+        FLAGS_trajectory_delta_t) {
+      ADEBUG << "too short obstacle_trajectory. frame_num["
+             << learning_data_frame->frame_num()
+             << "] obstacle_id[" << obstacle_id << "] size["
+             << trajectory.size() << "] timestamp_diff["
+             << start_point_timestamp_sec - trajectory.front().first << "]";
       continue;
     }
 
-    std::vector<std::pair<double, TrajectoryPointFeature>> evaluated_trajectory;
+    std::vector<TrajectoryPoint> evaluated_trajectory;
     EvaluateTrajectoryByTime(trajectory,
                              start_point_timestamp_sec,
                              FLAGS_trajectory_delta_t,
                              &evaluated_trajectory);
 
-    ADEBUG << "orig obstacle_trajectory["
-           << obstacle_trajectory.perception_obstacle_history_size()
+    ADEBUG << "frame_num[" << learning_data_frame->frame_num()
+           << "] obstacle_id[" << obstacle_id
+           << "] orig obstacle_trajectory[" << trajectory.size()
            << "] evaluated[" << evaluated_trajectory.size() << "]";
 
     // update learning_data
@@ -294,7 +363,9 @@ void Evaluator::EvaluateObstacleTrajectory(
           learning_data_frame->mutable_obstacle(i)
                              ->mutable_obstacle_trajectory()
                              ->add_evaluated_trajectory_point();
-      evaluated_trajectory_point->CopyFrom(tp.second);
+      evaluated_trajectory_point->set_timestamp_sec(tp.timestamp_sec());
+      evaluated_trajectory_point->mutable_trajectory_point()
+                                ->CopyFrom(tp.trajectory_point());
     }
   }
 }
@@ -307,9 +378,9 @@ void Evaluator::EvaluateObstaclePredictionTrajectory(
   }
 
   for (int i = 0; i < learning_data_frame->obstacle_size(); ++i) {
+    const int obstacle_id = learning_data_frame->obstacle(i).id();
     const auto obstacle_prediction =
          learning_data_frame->obstacle(i).obstacle_prediction();
-
     for (int j = 0; j < obstacle_prediction.trajectory_size(); ++j) {
       const auto obstacle_prediction_trajectory =
           obstacle_prediction.trajectory(j);
@@ -318,26 +389,33 @@ void Evaluator::EvaluateObstaclePredictionTrajectory(
       for (int k = 0; k <
           obstacle_prediction_trajectory.trajectory_point_size(); ++k) {
         const double timestamp_sec = obstacle_prediction.timestamp_sec() +
-            obstacle_prediction_trajectory.trajectory_point(k).relative_time();
+            obstacle_prediction_trajectory.trajectory_point(k)
+                                          .trajectory_point()
+                                          .relative_time();
         trajectory.push_back(std::make_pair(
             timestamp_sec,
-            obstacle_prediction_trajectory.trajectory_point(k)));
+            obstacle_prediction_trajectory.trajectory_point(k)
+                                          .trajectory_point()));
       }
-      if (trajectory.size() < 3 ||
-          fabs(trajectory.front().first - trajectory.back().first) <=
-              FLAGS_trajectory_delta_t) {
+      if (fabs(trajectory.back().first - start_point_timestamp_sec) <=
+          FLAGS_trajectory_delta_t) {
+        ADEBUG << "too short obstacle_prediction_trajectory. frame_num["
+               << learning_data_frame->frame_num()
+               << "] obstacle_id[" << obstacle_id << "] size["
+               << trajectory.size() << "] timestamp_diff["
+               << trajectory.back().first - start_point_timestamp_sec << "]";
         continue;
       }
 
-      std::vector<std::pair<double, TrajectoryPointFeature>>
-          evaluated_trajectory;
+      std::vector<TrajectoryPoint> evaluated_trajectory;
       EvaluateTrajectoryByTime(trajectory,
                                start_point_timestamp_sec,
                                FLAGS_trajectory_delta_t,
                                &evaluated_trajectory);
 
-      ADEBUG << "orig obstacle_prediction_trajectory["
-             << obstacle_prediction_trajectory.trajectory_point_size()
+      ADEBUG << "frame_num[" << learning_data_frame->frame_num()
+             << "] obstacle_id[" << obstacle_id
+             << "orig obstacle_prediction_trajectory[" << trajectory.size()
              << "] evaluated[" << evaluated_trajectory.size() << "]";
 
       // update learning_data
@@ -351,7 +429,10 @@ void Evaluator::EvaluateObstaclePredictionTrajectory(
                                ->mutable_obstacle_prediction()
                                ->mutable_trajectory(j)
                                ->add_trajectory_point();
-        obstacle_prediction_trajectory_point->CopyFrom(tp.second);
+        obstacle_prediction_trajectory_point->set_timestamp_sec(
+            tp.timestamp_sec());
+        obstacle_prediction_trajectory_point->mutable_trajectory_point()
+                                            ->CopyFrom(tp.trajectory_point());
       }
     }
   }

@@ -27,7 +27,7 @@ message PlanningTag {
 }
 
 message ChassisFeature {
-  optional double timestamp_sec = 1;
+  optional double message_timestamp_sec = 1;
 
   // Features from chassis
   // Vehicle Speed in meters per second.
@@ -49,7 +49,7 @@ message ChassisFeature {
 }
 
 message LocalizationFeature {
-  optional double timestamp_sec = 1;
+  optional double message_timestamp_sec = 1;
 
   // Position of the vehicle reference point (VRP) in the map reference frame.
   // The VRP is the center of rear axle.
@@ -102,9 +102,14 @@ message TrajectoryPointFeature {
   optional apollo.common.GaussianInfo gaussian_info = 5;
 }
 
+message TrajectoryPoint {
+  optional double timestamp_sec = 1;
+  optional TrajectoryPointFeature trajectory_point = 2;
+}
+
 // based on apollo.perception.PerceptionObstacle
 message PerceptionObstacleFeature {
-  optional double timestamp_sec = 1;
+  optional double timestamp_sec = 1;  // GPS time in seconds
 
   // obstacle position in the OBJECT coordinate system
   optional apollo.common.Point3D position = 2;
@@ -124,13 +129,13 @@ message PerceptionObstacleFeature {
 
 message ObstacleTrajectoryFeature {
   repeated PerceptionObstacleFeature perception_obstacle_history = 1;
-  repeated TrajectoryPointFeature evaluated_trajectory_point = 2;
+  repeated TrajectoryPoint evaluated_trajectory_point = 2;
 }
 
 // based on apollo.prediction.Trajectory
 message PredictionTrajectoryFeature {
   optional double probability = 1;  // probability of this trajectory
-  repeated TrajectoryPointFeature trajectory_point = 2;
+  repeated TrajectoryPoint trajectory_point = 2;
 }
 
 // based on apollo.prediction.PredictionObstacle
@@ -171,7 +176,7 @@ message TrafficLightFeature {
 }
 
 message TrafficLightDetectionFeature {
-  optional double timestamp_sec = 1;
+  optional double message_timestamp_sec = 1;
   repeated TrafficLightFeature traffic_light = 2;
 }
 
@@ -187,7 +192,7 @@ message LearningOutput {
 
 message LearningDataFrame {
   // localization message publishing time in seconds.
-  optional double timestamp_sec = 1;
+  optional double message_timestamp_sec = 1;
   optional uint32 frame_num = 2;
   optional string map_name = 3;
 
