@@ -460,7 +460,6 @@ void SimulationWorldService::UpdateSimulationWorld(const LocalizationEstimate &l
         // message header. It is done on both the SimulationWorld object
         // itself and its auto_driving_car() field.
         auto_driving_car->set_timestamp_sec(localization.header().timestamp_sec());
-
         ready_to_push_.store(true);
 }
 

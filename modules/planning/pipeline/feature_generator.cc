@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <memory>
+#include <sstream>
 #include <string>
 
 #include "cyber/common/file.h"
@@ -65,6 +66,14 @@ using apollo::perception::TrafficLightDetection;
 using apollo::routing::RoutingResponse;
 
 void FeatureGenerator::Init() {
+  log_file_.open(FLAGS_planning_data_dir + "/learning_data.log",
+                 std::ios_base::out | std::ios_base::app);
+  start_time_ = std::chrono::system_clock::now();
+  std::time_t now = std::time(nullptr);
+  log_file_ << "UTC date and time: " << std::asctime(std::gmtime(&now))
+            << "Local date and time: "
+            << std::asctime(std::localtime(&now));
+
   map_name_ = "sunnyvale_with_two_offices";
   map_m_["Sunnyvale"] = "sunnyvale";
   map_m_["Sunnyvale Big Loop"] = "sunnyvale_big_loop";
@@ -72,6 +81,18 @@ void FeatureGenerator::Init() {
   map_m_["Gomentum"] = "gomentum";
   map_m_["Sunnyvale Loop"] = "sunnyvale_loop";
   map_m_["San Mateo"] = "san_mateo";
+}
+
+void FeatureGenerator::Close() {
+  std::ostringstream msg;
+  msg << "Total learning_data_frame number:" << total_learning_data_frame_num_;
+  AINFO << msg.str();
+  log_file_ << msg.str() << std::endl;
+  auto end_time = std::chrono::system_clock::now();
+  std::chrono::duration<double> elapsed_seconds = end_time - start_time_;
+  log_file_ << "Time elapsed(sec): " << elapsed_seconds.count()
+            << std::endl << std::endl;
+  log_file_.close();
 }
 
 void FeatureGenerator::WriteOutLearningData(
@@ -85,7 +106,7 @@ void FeatureGenerator::WriteOutLearningData(
       learning_data_file_index, ".bin");
   if (FLAGS_enable_binary_learning_data) {
     cyber::common::SetProtoToBinaryFile(learning_data, file_name);
-    cyber::common::SetProtoToASCIIFile(learning_data, file_name + ".txt");
+    // cyber::common::SetProtoToASCIIFile(learning_data, file_name + ".txt");
   } else {
     cyber::common::SetProtoToASCIIFile(learning_data, file_name);
   }
@@ -93,22 +114,24 @@ void FeatureGenerator::WriteOutLearningData(
   ++learning_data_file_index_;
 }
 
-void FeatureGenerator::Close() {
-  WriteOutLearningData(learning_data_, learning_data_file_index_);
-  AINFO << "Total learning_data_frame number:"
-        << total_learning_data_frame_num_;
-}
-
 void FeatureGenerator::OnLocalization(const LocalizationEstimate& le) {
-  static double last_localization_timestamp_sec = 0.0;
-  if (last_localization_timestamp_sec == 0.0) {
-    last_localization_timestamp_sec = le.header().timestamp_sec();
+  static double last_localization_message_timestamp_sec = 0.0;
+  if (last_localization_message_timestamp_sec == 0.0) {
+    last_localization_message_timestamp_sec = le.header().timestamp_sec();
   }
-  if (le.header().timestamp_sec() - last_localization_timestamp_sec <
-      1.0 / FLAGS_planning_freq) {
+  const double time_diff =
+      le.header().timestamp_sec() - last_localization_message_timestamp_sec;
+  if (time_diff < 1.0 / FLAGS_planning_freq) {
     return;
+  } else if (time_diff >= 1.0 / FLAGS_planning_freq * 2) {
+    std::ostringstream msg;
+    msg << "missing localization too long: time_stamp["
+        << le.header().timestamp_sec()
+        << "] time_diff[" << time_diff << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
   }
-  last_localization_timestamp_sec = le.header().timestamp_sec();
+  last_localization_message_timestamp_sec = le.header().timestamp_sec();
   localizations_.push_back(le);
 
   // generate one frame data
@@ -140,6 +163,7 @@ void FeatureGenerator::OnHMIStatus(apollo::dreamview::HMIStatus hmi_status) {
 }
 
 void FeatureGenerator::OnChassis(const apollo::canbus::Chassis& chassis) {
+  chassis_feature_.set_message_timestamp_sec(chassis.header().timestamp_sec());
   chassis_feature_.set_speed_mps(chassis.speed_mps());
   chassis_feature_.set_throttle_percentage(chassis.throttle_percentage());
   chassis_feature_.set_brake_percentage(chassis.brake_percentage());
@@ -189,7 +213,11 @@ void FeatureGenerator::OnPrediction(
     obstacle_trajectory_point.mutable_acceleration()->CopyFrom(
         perception_obstale.acceleration());
 
-    obstacle_history_map_[m.first].push_back(obstacle_trajectory_point);
+    if (obstacle_history_map_[m.first].empty() ||
+        obstacle_trajectory_point.timestamp_sec() >
+            obstacle_history_map_[m.first].back().timestamp_sec()) {
+      obstacle_history_map_[m.first].push_back(obstacle_trajectory_point);
+    }
 
     auto& obstacle_history = obstacle_history_map_[m.first];
     if (static_cast<int>(obstacle_history.size()) >
@@ -199,21 +227,24 @@ void FeatureGenerator::OnPrediction(
   }
 }
 
-void FeatureGenerator::OnTafficLightDetection(
+void FeatureGenerator::OnTrafficLightDetection(
     const TrafficLightDetection& traffic_light_detection) {
   // AINFO << "traffic_light_detection received at frame["
   //      << total_learning_data_frame_num_ << "]";
-
+  traffic_light_detection_message_timestamp_ =
+      traffic_light_detection.header().timestamp_sec();
   traffic_lights_.clear();
   for (int i = 0; i < traffic_light_detection.traffic_light_size(); ++i) {
-    const auto& traffic_light_id =
-        traffic_light_detection.traffic_light(i).id();
-    if (traffic_light_id.empty()) continue;
-
-    // AINFO << "  traffic_light_id[" << traffic_light_id << "] color["
-    //       << traffic_light_detection.traffic_light(i).color() << "]";
-    traffic_lights_[traffic_light_id] =
-        traffic_light_detection.traffic_light(i).color();
+    TrafficLightFeature traffic_light;
+    traffic_light.set_color(traffic_light_detection.traffic_light(i).color());
+    traffic_light.set_id(traffic_light_detection.traffic_light(i).id());
+    traffic_light.set_confidence(
+        traffic_light_detection.traffic_light(i).confidence());
+    traffic_light.set_tracking_time(
+        traffic_light_detection.traffic_light(i).tracking_time());
+    traffic_light.set_remaining_time(
+        traffic_light_detection.traffic_light(i).remaining_time());
+    traffic_lights_.push_back(traffic_light);
   }
 }
 
@@ -237,38 +268,43 @@ void FeatureGenerator::OnRoutingResponse(
   }
 }
 
-apollo::hdmap::LaneInfoConstPtr FeatureGenerator::GetLane(
-    const apollo::common::PointENU& position,
-    int* routing_index) {
-  constexpr double kRadius = 0.1;
+int FeatureGenerator::GetADCCurrentRoutingIndex() {
+  static constexpr double kRadius = 4.0;
+  const auto& pose = localizations_.back().pose();
   std::vector<std::shared_ptr<const apollo::hdmap::LaneInfo>> lanes;
-  for (int i = 0; i < 10; ++i) {
+  apollo::hdmap::HDMapUtil::BaseMapPtr()->GetLanes(
+      pose.position(), kRadius, &lanes);
+
+  for (auto& lane : lanes) {
+    for (size_t i = 0; i < routing_lane_segment_.size(); ++i) {
+      if (lane->id().id() == routing_lane_segment_[i].first) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
+apollo::hdmap::LaneInfoConstPtr FeatureGenerator::GetCurrentLane(
+    const apollo::common::PointENU& position) {
+  constexpr double kRadiusUnit = 0.1;
+  std::vector<std::shared_ptr<const apollo::hdmap::LaneInfo>> lanes;
+  for (int i = 1; i <= 10; ++i) {
     apollo::hdmap::HDMapUtil::BaseMapPtr()->GetLanes(
-        position, kRadius + i * kRadius, &lanes);
+        position, i * kRadiusUnit, &lanes);
     if (lanes.size() > 0) {
       break;
     }
   }
 
-  *routing_index = -1;
-  if (lanes.size() >= 0) {
-    for (auto& lane : lanes) {
-      const auto lane_id = lane->id().id();
-      for (size_t i = 0; i < routing_lane_segment_.size(); ++i) {
-        if (routing_lane_segment_[i].first == lane_id) {
-          *routing_index = i;
-          return lane;
-        }
+  for (auto& lane : lanes) {
+    for (size_t i = 0; i < routing_lane_segment_.size(); ++i) {
+      if (lane->id().id() == routing_lane_segment_[i].first) {
+        return lane;
       }
     }
   }
   return nullptr;
-}
-
-apollo::hdmap::LaneInfoConstPtr FeatureGenerator::GetADCCurrentLane(
-    int* routing_index) {
-  const auto& pose = localizations_.back().pose();
-  return GetLane(pose.position(), routing_index);
 }
 
 void FeatureGenerator::GetADCCurrentInfo(ADCCurrentInfo* adc_curr_info) {
@@ -288,6 +324,7 @@ void FeatureGenerator::GetADCCurrentInfo(ADCCurrentInfo* adc_curr_info) {
 }
 
 void FeatureGenerator::GenerateObstacleTrajectory(
+    const int frame_num,
     const int obstacle_id,
     const ADCCurrentInfo& adc_curr_info,
     ObstacleFeature* obstacle_feature) {
@@ -352,6 +389,11 @@ void FeatureGenerator::GenerateObstacleTrajectory(
       polygon_point->set_y(relative_point.second);
     }
   }
+  // if (obstacle_history.size() <= 0) {
+  //  AERROR << "obstacle has no history: frame_num["
+  //         << frame_num << "] obstacle_id[" << obstacle_id
+  //         << "] size[" << obstacle_history.size() << "]";
+  // }
 }
 
 void FeatureGenerator::GenerateObstaclePrediction(
@@ -379,7 +421,8 @@ void FeatureGenerator::GenerateObstaclePrediction(
           obstacle_trajectory.trajectory_point(j);
       auto trajectory_point = trajectory->add_trajectory_point();
 
-      auto path_point = trajectory_point->mutable_path_point();
+      auto path_point = trajectory_point->mutable_trajectory_point()
+                                        ->mutable_path_point();
 
       // convert path_point position to relative coordinate
       const auto& relative_path_point =
@@ -401,11 +444,14 @@ void FeatureGenerator::GenerateObstaclePrediction(
       path_point->set_s(obstacle_trajectory_point.path_point().s());
       path_point->set_lane_id(obstacle_trajectory_point.path_point().lane_id());
 
-      trajectory_point->set_v(obstacle_trajectory_point.v());
-      trajectory_point->set_a(obstacle_trajectory_point.a());
-      trajectory_point->set_relative_time(
-          obstacle_trajectory_point.relative_time());
-      trajectory_point->mutable_gaussian_info()->CopyFrom(
+      const double timestamp_sec = prediction_obstacle.timestamp() +
+          obstacle_trajectory_point.relative_time();
+      trajectory_point->set_timestamp_sec(timestamp_sec);
+      auto tp = trajectory_point->mutable_trajectory_point();
+      tp->set_v(obstacle_trajectory_point.v());
+      tp->set_a(obstacle_trajectory_point.a());
+      tp->set_relative_time(obstacle_trajectory_point.relative_time());
+      tp->mutable_gaussian_info()->CopyFrom(
           obstacle_trajectory_point.gaussian_info());
     }
   }
@@ -416,6 +462,7 @@ void FeatureGenerator::GenerateObstacleFeature(
   ADCCurrentInfo adc_curr_info;
   GetADCCurrentInfo(&adc_curr_info);
 
+  const int frame_num = learning_data_frame->frame_num();
   for (const auto& m : prediction_obstacles_map_) {
     auto obstacle_feature = learning_data_frame->add_obstacle();
 
@@ -427,7 +474,8 @@ void FeatureGenerator::GenerateObstacleFeature(
     obstacle_feature->set_type(perception_obstale.type());
 
     // obstacle history trajectory points
-    GenerateObstacleTrajectory(m.first, adc_curr_info, obstacle_feature);
+    GenerateObstacleTrajectory(frame_num, m.first,
+                               adc_curr_info, obstacle_feature);
 
     // obstacle prediction
     GenerateObstaclePrediction(m.second, adc_curr_info, obstacle_feature);
@@ -439,11 +487,24 @@ void FeatureGenerator::GenerateRoutingFeature(
     LearningDataFrame* learning_data_frame) {
   auto routing = learning_data_frame->mutable_routing();
   routing->Clear();
+  if (routing_lane_segment_.empty()) {
+    std::ostringstream msg;
+    msg << "no routing. frame_num["
+        << learning_data_frame->frame_num() << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
+    return;
+  }
   for (const auto& lane_segment : routing_lane_segment_) {
     routing->add_routing_lane_id(lane_segment.first);
   }
 
   if (routing_index < 0) {
+    std::ostringstream msg;
+    msg << "no LOCAL routing. frame_num["
+        << learning_data_frame->frame_num() << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
     return;
   }
 
@@ -468,8 +529,28 @@ void FeatureGenerator::GenerateRoutingFeature(
     i++;
   }
 
+  if (local_routing_lane_ids.empty()) {
+    std::ostringstream msg;
+    msg << "no LOCAL routing. frame_num["
+        << learning_data_frame->frame_num() << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
+  }
   for (const auto& lane_id : local_routing_lane_ids) {
     routing->add_local_routing_lane_id(lane_id);
+  }
+}
+
+void FeatureGenerator::GenerateTrafficLightDetectionFeature(
+    LearningDataFrame* learning_data_frame) {
+  auto traffic_light_detection =
+      learning_data_frame->mutable_traffic_light_detection();
+  traffic_light_detection->set_message_timestamp_sec(
+      traffic_light_detection_message_timestamp_);
+  traffic_light_detection->clear_traffic_light();
+  for (const auto& tl : traffic_lights_) {
+    auto traffic_light = traffic_light_detection->add_traffic_light();
+    traffic_light->CopyFrom(tl);
   }
 }
 
@@ -528,9 +609,8 @@ void FeatureGenerator::GenerateADCTrajectoryPoints(
         pose.position().x(),
         pose.position().y(),
         pose.position().z());
+    LaneInfoConstPtr lane = GetCurrentLane(cur_point);
 
-    int routing_index;
-    LaneInfoConstPtr lane = GetLane(cur_point, &routing_index);
     // lane_turn
     apollo::hdmap::Lane::LaneTurn lane_turn = apollo::hdmap::Lane::NO_TURN;
     if (lane != nullptr) {
@@ -678,18 +758,24 @@ void FeatureGenerator::GenerateADCTrajectoryPoints(
     auto adc_trajectory_point = learning_data_frame->add_adc_trajectory_point();
     adc_trajectory_point->CopyFrom(trajectory_point);
   }
-
+  if (adc_trajectory_points.size() <= 3) {
+    std::ostringstream msg;
+    msg << "too few adc_trajectory_points: frame_num["
+        << learning_data_frame->frame_num()
+        << "] size[" << adc_trajectory_points.size() << "]";
+    AERROR << msg.str();
+    log_file_ << msg.str() << std::endl;
+  }
   // AINFO << "number of ADC trajectory points in one frame: "
   //      << trajectory_point_index;
 }
 
 void FeatureGenerator::GenerateLearningDataFrame() {
-  int routing_index;
-  LaneInfoConstPtr cur_lane = GetADCCurrentLane(&routing_index);
+  const int routing_index = GetADCCurrentRoutingIndex();
 
   auto learning_data_frame = learning_data_.add_learning_data();
   // add timestamp_sec & frame_num
-  learning_data_frame->set_timestamp_sec(
+  learning_data_frame->set_message_timestamp_sec(
       localizations_.back().header().timestamp_sec());
   learning_data_frame->set_frame_num(total_learning_data_frame_num_++);
 
@@ -702,6 +788,8 @@ void FeatureGenerator::GenerateLearningDataFrame() {
 
   // add localization
   auto localization = learning_data_frame->mutable_localization();
+  localization->set_message_timestamp_sec(
+      localizations_.back().header().timestamp_sec());
   const auto& pose = localizations_.back().pose();
   localization->mutable_position()->CopyFrom(pose.position());
   localization->set_heading(pose.heading());
@@ -710,13 +798,9 @@ void FeatureGenerator::GenerateLearningDataFrame() {
       pose.linear_acceleration());
   localization->mutable_angular_velocity()->CopyFrom(pose.angular_velocity());
 
+
   // add traffic_light
-  learning_data_frame->clear_traffic_light();
-  for (const auto& tl : traffic_lights_) {
-    auto traffic_light = learning_data_frame->add_traffic_light();
-    traffic_light->set_id(tl.first);
-    traffic_light->set_color(tl.second);
-  }
+  GenerateTrafficLightDetectionFeature(learning_data_frame);
 
   // add routing
   GenerateRoutingFeature(routing_index, learning_data_frame);
@@ -729,8 +813,10 @@ void FeatureGenerator::GenerateLearningDataFrame() {
 }
 
 void FeatureGenerator::ProcessOfflineData(const std::string& record_filename) {
+  log_file_ << "Processing: " << record_filename << std::endl;
   record_file_name_ =
       record_filename.substr(record_filename.find_last_of("/") + 1);
+
   RecordReader reader(record_filename);
   if (!reader.IsValid()) {
     AERROR << "Fail to open " << record_filename;
@@ -767,7 +853,7 @@ void FeatureGenerator::ProcessOfflineData(const std::string& record_filename) {
     } else if (message.channel_name == FLAGS_traffic_light_detection_topic) {
       TrafficLightDetection traffic_light_detection;
       if (traffic_light_detection.ParseFromString(message.content)) {
-        OnTafficLightDetection(traffic_light_detection);
+        OnTrafficLightDetection(traffic_light_detection);
       }
     }
   }
