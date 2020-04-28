@@ -114,6 +114,17 @@ void FeatureGenerator::WriteOutLearningData(
   ++learning_data_file_index_;
 }
 
+void FeatureGenerator::WriteRemainderData() {
+  if (learning_data_.learning_data_size() > 0) {
+    WriteOutLearningData(learning_data_, learning_data_file_index_);
+  }
+  std::ostringstream msg;
+  msg << "record_file[" << record_file_name_
+      << "] frame_num[" << total_learning_data_frame_num_ << "]";
+  AINFO << msg.str();
+  log_file_ << msg.str() << std::endl;
+}
+
 void FeatureGenerator::OnLocalization(const LocalizationEstimate& le) {
   static double last_localization_message_timestamp_sec = 0.0;
   if (last_localization_message_timestamp_sec == 0.0) {
@@ -213,10 +224,22 @@ void FeatureGenerator::OnPrediction(
     obstacle_trajectory_point.mutable_acceleration()->CopyFrom(
         perception_obstale.acceleration());
 
+    const double last_timestamp_sec =
+        obstacle_history_map_[m.first].back().timestamp_sec();
     if (obstacle_history_map_[m.first].empty() ||
-        obstacle_trajectory_point.timestamp_sec() >
-            obstacle_history_map_[m.first].back().timestamp_sec()) {
+        obstacle_trajectory_point.timestamp_sec() > last_timestamp_sec) {
       obstacle_history_map_[m.first].push_back(obstacle_trajectory_point);
+    } else {
+      // abnormal perception data
+      std::ostringstream msg;
+      msg << "SKIP: obstacle_id[" << m.first
+          << "] last_timestamp_sec[" << last_timestamp_sec
+          << "] timestamp_sec[" <<  obstacle_trajectory_point.timestamp_sec()
+          << "] time diff ["
+          << obstacle_trajectory_point.timestamp_sec() - last_timestamp_sec
+          << "]";
+      AERROR << msg.str();
+      log_file_ << msg.str() << std::endl;
     }
 
     auto& obstacle_history = obstacle_history_map_[m.first];
