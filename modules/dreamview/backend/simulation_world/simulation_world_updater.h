@@ -69,6 +69,7 @@ public:
                          PerceptionCameraUpdater *perception_camera_updater,
                          bool routing_from_file = false);
 
+
         /**
         * @brief Starts to push simulation_world to frontend.
         */
@@ -77,6 +78,11 @@ public:
         // Time interval, in milliseconds, between pushing SimulationWorld to
         // frontend.
         static constexpr double kSimWorldTimeIntervalMs = 100;
+
+        double LastAdcTimestampSec() 
+        {
+                return last_pushed_adc_timestamp_sec_;
+        }
 
 private:
         /**
@@ -137,6 +143,8 @@ private:
         boost::shared_mutex mutex_;
 
         std::unique_ptr<cyber::Timer> timer_;
+
+        volatile double last_pushed_adc_timestamp_sec_ = 0.0f;
 };
 
 }  // namespace dreamview

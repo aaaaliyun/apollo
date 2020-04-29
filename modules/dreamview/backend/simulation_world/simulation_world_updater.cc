@@ -428,6 +428,7 @@ void SimulationWorldUpdater::OnTimer()
 
         {
                 boost::unique_lock<boost::shared_mutex> writer_lock(mutex_);
+                last_pushed_adc_timestamp_sec_ = sim_world_service_.world().auto_driving_car().timestamp_sec();
                 sim_world_service_.GetWireFormatString(FLAGS_sim_map_radius, &simulation_world_, &simulation_world_with_planning_data_);
                 sim_world_service_.GetRelativeMap().SerializeToString(&relative_map_string_);
         }

@@ -57,14 +57,14 @@ public:
         static constexpr int64_t PRECISION = std::chrono::system_clock::duration::period::den / std::chrono::system_clock::duration::period::num;
 
         /// PRECISION >= 1000000 means the precision is at least 1us.
-        static_assert(PRECISION >= 1000000, "The precision of the system clock should be at least 1 " "microsecond.");
+        static_assert(PRECISION >= 1000000, "The precision of the system clock should be at least 1 ""microsecond.");
 
         // The clock mode can either be a system clock time, a user mocked time (for
         // test only) or read from CyberRT.
         enum ClockMode 
         {
                 SYSTEM = 0,
-                MOCK = 1,
+                MOCK = 1,   
                 CYBER = 2,
         };
 
