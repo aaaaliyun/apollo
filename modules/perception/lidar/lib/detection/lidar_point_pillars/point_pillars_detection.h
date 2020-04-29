@@ -49,7 +49,10 @@ class PointPillarsDetection {
 
   void GetObjects(std::vector<std::shared_ptr<base::Object>>* objects,
                   const Eigen::Affine3d& pose,
-                  std::vector<float>* detections);
+                  std::vector<float>* detections,
+                  std::vector<int>* labels);
+
+  int GetObjectType(const int label);
 
   // reference pointer of lidar frame
   LidarFrame* lidar_frame_ref_ = nullptr;
@@ -59,9 +62,6 @@ class PointPillarsDetection {
 
   // PointPillars
   std::unique_ptr<PointPillars> point_pillars_ptr_;
-  bool reproduce_result_mode_ = false;
-  float score_threshold_ = 0.5;
-  float nms_overlap_threshold_ = 0.5;
 
   // time statistics
   double inference_time_ = 0.0;
@@ -70,6 +70,9 @@ class PointPillarsDetection {
   // constants
   const float kNormalizingFactor = 255.0f;
   const int kOutputNumBoxFeature = 7;
+  const bool kReproduceResultMode = false;
+  const float kScoreThreshold = 0.5;
+  const float kNmsOverlapThreshold = 0.5;
 };  // class PointPillarsDetection
 
 }  // namespace lidar
