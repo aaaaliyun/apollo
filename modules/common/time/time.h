@@ -51,7 +51,6 @@ namespace time {
  * Mock clock is for testing purpose mainly. The mock clock related
  * methods are not thread-safe.
  */
-=======
 class Clock 
 {
 public:
