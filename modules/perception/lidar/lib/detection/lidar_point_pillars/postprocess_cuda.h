@@ -53,40 +53,43 @@ namespace lidar {
 
 class PostprocessCuda {
  private:
-  const float FLOAT_MIN_;
-  const float FLOAT_MAX_;
-  const int NUM_ANCHOR_X_INDS_;
-  const int NUM_ANCHOR_Y_INDS_;
-  const int NUM_ANCHOR_R_INDS_;
+  const float float_min_;
+  const float float_max_;
+  const int num_anchor_x_inds_;
+  const int num_anchor_y_inds_;
+  const int num_anchor_r_inds_;
   const float score_threshold_;
-  const int NUM_THREADS_;
+  const int num_threads_;
   const float nms_overlap_threshold_;
-  const int NUM_BOX_CORNERS_;
-  const int NUM_OUTPUT_BOX_FEATURE_;
+  const int num_box_corners_;
+  const int num_output_box_feature_;
+  const int num_class_;
 
-  std::unique_ptr<NMSCuda> nms_cuda_ptr_;
+  std::unique_ptr<NmsCuda> nms_cuda_ptr_;
 
  public:
   /**
    * @brief Constructor
-   * @param[in] FLOAT_MIN The lowest float value
-   * @param[in] FLOAT_MAX The maximum float value
-   * @param[in] NUM_ANCHOR_X_INDS Number of x-indexes for anchors
-   * @param[in] NUM_ANCHOR_Y_INDS Number of y-indexes for anchors
-   * @param[in] NUM_ANCHOR_R_INDS Number of rotation-indexes for anchors
+   * @param[in] float_min The lowest float value
+   * @param[in] float_max The maximum float value
+   * @param[in] num_anchor_x_inds Number of x-indexes for anchors
+   * @param[in] num_anchor_y_inds Number of y-indexes for anchors
+   * @param[in] num_anchor_r_inds Number of rotation-indexes for anchors
    * @param[in] score_threshold Score threshold for filtering output
-   * @param[in] NUM_THREADS Number of threads when launching cuda kernel
+   * @param[in] num_threads Number of threads when launching cuda kernel
    * @param[in] nms_overlap_threshold IOU threshold for NMS
-   * @param[in] NUM_BOX_CORNERS Number of box's corner
-   * @param[in] NUM_OUTPUT_BOX_FEATURE Number of output box's feature
+   * @param[in] num_box_corners Number of box's corner
+   * @param[in] num_output_box_feature Number of output box's feature
+   * @param[in] num_class Number of object's classes
    * @details Captital variables never change after the compile, non-capital
    * variables could be changed through rosparam
    */
-  PostprocessCuda(const float FLOAT_MIN, const float FLOAT_MAX,
-                  const int NUM_ANCHOR_X_INDS, const int NUM_ANCHOR_Y_INDS,
-                  const int NUM_ANCHOR_R_INDS, const float score_threshold,
-                  const int NUM_THREADS, const float nms_overlap_threshold,
-                  const int NUM_BOX_CORNERS, const int NUM_OUTPUT_BOX_FEATURE);
+  PostprocessCuda(const float float_min, const float float_max,
+                  const int num_anchor_x_inds, const int num_anchor_y_inds,
+                  const int num_anchor_r_inds, const float score_threshold,
+                  const int num_threads, const float nms_overlap_threshold,
+                  const int num_box_corners, const int num_output_box_feature,
+                  const int num_class);
 
   /**
    * @brief Postprocessing for the network output
@@ -103,22 +106,26 @@ class PostprocessCuda {
    * @param[in] dev_anchors_ro Rotation values for corresponding anchors
    * @param[in] dev_filtered_box Filtered box predictions
    * @param[in] dev_filtered_score Filtered score predictions
+   * @param[in] dev_filtered_label Filtered label predictions
    * @param[in] dev_filtered_dir Filtered direction predictions
    * @param[in] dev_box_for_nms Decoded boxes in min_x min_y max_x max_y
    * represenation from pose and dimension
    * @param[in] dev_filter_count The number of filtered output
    * @param[out] out_detection Output bounding boxes
+   * @param[out] out_label Output labels of objects
    * @details dev_* represents device memory allocated variables
    */
-  void doPostprocessCuda(
+  void DoPostprocessCuda(
       const float* rpn_box_output, const float* rpn_cls_output,
       const float* rpn_dir_output, int* dev_anchor_mask,
       const float* dev_anchors_px, const float* dev_anchors_py,
       const float* dev_anchors_pz, const float* dev_anchors_dx,
       const float* dev_anchors_dy, const float* dev_anchors_dz,
       const float* dev_anchors_ro, float* dev_filtered_box,
-      float* dev_filtered_score, int* dev_filtered_dir, float* dev_box_for_nms,
-      int* dev_filter_count, std::vector<float>* out_detection);
+      float* dev_filtered_score, int* dev_filtered_label,
+      int* dev_filtered_dir, float* dev_box_for_nms,
+      int* dev_filter_count, std::vector<float>* out_detection,
+      std::vector<int>* out_label);
 };
 
 }  // namespace lidar

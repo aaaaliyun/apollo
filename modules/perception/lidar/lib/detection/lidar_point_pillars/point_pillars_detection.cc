@@ -33,8 +33,8 @@ using base::PointF;
 
 bool PointPillarsDetection::Init(const DetectionInitOptions& options) {
   point_pillars_ptr_.reset(
-      new PointPillars(reproduce_result_mode_, score_threshold_,
-                       nms_overlap_threshold_, FLAGS_pfe_onnx_file,
+      new PointPillars(kReproduceResultMode, kScoreThreshold,
+                       kNmsOverlapThreshold, FLAGS_pfe_onnx_file,
                        FLAGS_rpn_onnx_file));
   return true;
 }
@@ -76,13 +76,14 @@ bool PointPillarsDetection::Detect(const DetectionOptions& options,
 
   // inference
   std::vector<float> out_detections;
-  point_pillars_ptr_->doInference(points_array, original_cloud_->size(),
-                                  &out_detections);
+  std::vector<int> out_labels;
+  point_pillars_ptr_->DoInference(points_array, original_cloud_->size(),
+                                  &out_detections, &out_labels);
   inference_time_ = timer.toc(true);
 
   // transfer output bounding boxs to objects
   GetObjects(&frame->segmented_objects, frame->lidar2world_pose,
-             &out_detections);
+             &out_detections, &out_labels);
 
   AINFO << "PointPillars: inference: " << inference_time_ << "\t"
         << "collect: " << collect_time_;
@@ -104,7 +105,7 @@ void PointPillarsDetection::PclToArray(const base::PointFCloudPtr& pc_ptr,
 
 void PointPillarsDetection::GetObjects(
     std::vector<std::shared_ptr<Object>>* objects, const Eigen::Affine3d& pose,
-    std::vector<float>* detections) {
+    std::vector<float>* detections, std::vector<int>* labels) {
   Timer timer;
   int num_objects = detections->size() / kOutputNumBoxFeature;
 
@@ -135,50 +136,45 @@ void PointPillarsDetection::GetObjects(
     object->lidar_supplement.is_orientation_ready = true;
 
     // compute vertexes of bounding box and transform to world coordinate
-    float dx2cos = dx * cosf(yaw) / 2;
-    float dy2sin = dy * sinf(yaw) / 2;
-    float dx2sin = dx * sinf(yaw) / 2;
-    float dy2cos = dy * cosf(yaw) / 2;
     object->lidar_supplement.num_points_in_roi = 8;
     object->lidar_supplement.on_use = true;
     object->lidar_supplement.is_background = false;
-    for (int j = 0; j < 2; ++j) {
-      PointF point0, point1, point2, point3;
-      float vz = z + (j == 0 ? 0 : dz);
-      point0.x = x + dx2cos + dy2sin;
-      point0.y = y + dx2sin - dy2cos;
-      point0.z = vz;
-      point1.x = x + dx2cos - dy2sin;
-      point1.y = y + dx2sin + dy2cos;
-      point1.z = vz;
-      point2.x = x - dx2cos - dy2sin;
-      point2.y = y - dx2sin + dy2cos;
-      point2.z = vz;
-      point3.x = x - dx2cos + dy2sin;
-      point3.y = y - dx2sin - dy2cos;
-      point3.z = vz;
-      object->lidar_supplement.cloud.push_back(point0);
-      object->lidar_supplement.cloud.push_back(point1);
-      object->lidar_supplement.cloud.push_back(point2);
-      object->lidar_supplement.cloud.push_back(point3);
-    }
-    for (auto& pt : object->lidar_supplement.cloud) {
-      Eigen::Vector3d trans_point(pt.x, pt.y, pt.z);
-      trans_point = pose * trans_point;
-      PointD world_point;
-      world_point.x = trans_point(0);
-      world_point.y = trans_point(1);
-      world_point.z = trans_point(2);
-      object->lidar_supplement.cloud_world.push_back(world_point);
+    float roll = 0, pitch = 0;
+    Eigen::Quaternionf quater =
+        Eigen::AngleAxisf(roll, Eigen::Vector3f::UnitX()) *
+        Eigen::AngleAxisf(pitch, Eigen::Vector3f::UnitY()) *
+        Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitZ());
+    Eigen::Translation3f translation(x, y, z);
+    Eigen::Affine3f affine3f = translation * quater.toRotationMatrix();
+    for (float vx : std::vector<float>{dx/2, -dx/2}) {
+      for (float vy : std::vector<float>{dy/2, -dy/2}) {
+        for (float vz : std::vector<float>{0, dz}) {
+          Eigen::Vector3f v3f(vx, vy, vz);
+          v3f = affine3f * v3f;
+          PointF point;
+          point.x = v3f.x();
+          point.y = v3f.y();
+          point.z = v3f.z();
+          object->lidar_supplement.cloud.push_back(point);
+
+          Eigen::Vector3d trans_point(point.x, point.y, point.z);
+          trans_point = pose * trans_point;
+          PointD world_point;
+          world_point.x = trans_point(0);
+          world_point.y = trans_point(1);
+          world_point.z = trans_point(2);
+          object->lidar_supplement.cloud_world.push_back(world_point);
+        }
+      }
     }
 
     // classification (only detect vehicles so far)
-    // TODO(chenjiahao): Fill object types completely
+    // TODO(chenjiahao): Complete object type probs
     object->lidar_supplement.raw_probs.push_back(std::vector<float>(
         static_cast<int>(base::ObjectType::MAX_OBJECT_TYPE), 0.f));
     object->lidar_supplement.raw_classification_methods.push_back(Name());
-    object->lidar_supplement.raw_probs
-        .back()[static_cast<int>(base::ObjectType::VEHICLE)] = 1.0f;
+    int type = GetObjectType(labels->at(i));
+    object->lidar_supplement.raw_probs.back()[type] = 1.0f;
     // copy to type
     object->type_probs.assign(object->lidar_supplement.raw_probs.back().begin(),
                               object->lidar_supplement.raw_probs.back().end());
@@ -189,6 +185,22 @@ void PointPillarsDetection::GetObjects(
   }
 
   collect_time_ = timer.toc(true);
+}
+
+int PointPillarsDetection::GetObjectType(const int label) {
+  switch (label) {
+    case 0:
+      return static_cast<int>(base::ObjectType::VEHICLE);
+      break;
+    case 1:
+      return static_cast<int>(base::ObjectType::BICYCLE);
+      break;
+    case 2:
+      return static_cast<int>(base::ObjectType::PEDESTRIAN);
+      break;
+    default:
+      return static_cast<int>(base::ObjectType::UNKNOWN);
+  }
 }
 
 }  // namespace lidar
