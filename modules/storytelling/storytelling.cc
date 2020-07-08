@@ -16,12 +16,12 @@
 #include "modules/storytelling/storytelling.h"
 
 #include "modules/common/adapters/adapter_gflags.h"
-#include "modules/storytelling/frame_manager.h"
 #include "modules/storytelling/story_tellers/close_to_junction_teller.h"
 
 namespace apollo {
 namespace storytelling {
 
+<<<<<<< HEAD
 bool Storytelling::Init() 
 {
         FrameManager::Instance()->Init(node_);
@@ -39,6 +39,27 @@ bool Storytelling::Proc()
 {
         auto* manager = FrameManager::Instance();
         manager->StartFrame();
+=======
+bool Storytelling::Init() {
+  frame_manager_ = std::make_shared<FrameManager>(node_);
+  story_tellers_.emplace_back(new CloseToJunctionTeller(frame_manager_));
+
+  if (!cyber::ComponentBase::GetProtoConfig(&config_)) {
+    AERROR << "Unable to load storytelling conf file: "
+           << cyber::ComponentBase::ConfigFilePath();
+    return false;
+  }
+
+  // Init all tellers.
+  for (const auto& teller : story_tellers_) {
+    teller->Init(config_);
+  }
+  return true;
+}
+
+bool Storytelling::Proc() {
+  frame_manager_->StartFrame();
+>>>>>>> update_stream/master
 
         // Query all tellers.
         for (const auto& teller : story_tellers_) 
@@ -46,6 +67,7 @@ bool Storytelling::Proc()
                 teller->Update(&stories_);
         }
 
+<<<<<<< HEAD
         // Send stories.
         static auto writer = manager->CreateWriter<Stories>(FLAGS_storytelling_topic);
         apollo::common::util::FillHeader("Storytelling", &stories_);
@@ -53,6 +75,16 @@ bool Storytelling::Proc()
 
         manager->EndFrame();
         return true;
+=======
+  // Send stories.
+  static auto writer = frame_manager_->CreateWriter<Stories>(
+      config_.topic_config().storytelling_topic());
+  apollo::common::util::FillHeader("Storytelling", &stories_);
+  writer->Write(stories_);
+
+  frame_manager_->EndFrame();
+  return true;
+>>>>>>> update_stream/master
 }
 
 }  // namespace storytelling

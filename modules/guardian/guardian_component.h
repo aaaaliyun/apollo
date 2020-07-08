@@ -55,10 +55,23 @@ private:
         apollo::control::ControlCommand control_cmd_;
         apollo::guardian::GuardianCommand guardian_cmd_;
 
+<<<<<<< HEAD
         std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
         std::shared_ptr<apollo::cyber::Reader<apollo::control::ControlCommand>> control_cmd_reader_;
         std::shared_ptr<apollo::cyber::Reader<apollo::monitor::SystemStatus>> system_status_reader_;
         std::shared_ptr<apollo::cyber::Writer<apollo::guardian::GuardianCommand>> guardian_writer_;
+=======
+  double last_status_received_s_{};
+
+  std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>>
+      chassis_reader_;
+  std::shared_ptr<apollo::cyber::Reader<apollo::control::ControlCommand>>
+      control_cmd_reader_;
+  std::shared_ptr<apollo::cyber::Reader<apollo::monitor::SystemStatus>>
+      system_status_reader_;
+  std::shared_ptr<apollo::cyber::Writer<apollo::guardian::GuardianCommand>>
+      guardian_writer_;
+>>>>>>> update_stream/master
 
         std::mutex mutex_;
 };

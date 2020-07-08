@@ -26,6 +26,7 @@ DECLARE_string(flagfile);
 namespace apollo {
 namespace routing {
 
+<<<<<<< HEAD
 bool RoutingComponent::Init() 
 {
         apollo::cyber::proto::RoleAttributes attr;
@@ -42,6 +43,37 @@ bool RoutingComponent::Init()
         qos_history->set_history(apollo::cyber::proto::QosHistoryPolicy::HISTORY_KEEP_LAST);
         qos_history->set_reliability(apollo::cyber::proto::QosReliabilityPolicy::RELIABILITY_RELIABLE);
         qos_history->set_durability(apollo::cyber::proto::QosDurabilityPolicy::DURABILITY_TRANSIENT_LOCAL);
+=======
+bool RoutingComponent::Init() {
+  RoutingConfig routing_conf;
+  ACHECK(cyber::ComponentBase::GetProtoConfig(&routing_conf))
+      << "Unable to load routing conf file: "
+      << cyber::ComponentBase::ConfigFilePath();
+
+  AINFO << "Config file: " << cyber::ComponentBase::ConfigFilePath()
+        << " is loaded.";
+
+  apollo::cyber::proto::RoleAttributes attr;
+  attr.set_channel_name(routing_conf.topic_config().routing_response_topic());
+  auto qos = attr.mutable_qos_profile();
+  qos->set_history(apollo::cyber::proto::QosHistoryPolicy::HISTORY_KEEP_LAST);
+  qos->set_reliability(
+      apollo::cyber::proto::QosReliabilityPolicy::RELIABILITY_RELIABLE);
+  qos->set_durability(
+      apollo::cyber::proto::QosDurabilityPolicy::DURABILITY_TRANSIENT_LOCAL);
+  response_writer_ = node_->CreateWriter<RoutingResponse>(attr);
+
+  apollo::cyber::proto::RoleAttributes attr_history;
+  attr_history.set_channel_name(
+      routing_conf.topic_config().routing_response_history_topic());
+  auto qos_history = attr_history.mutable_qos_profile();
+  qos_history->set_history(
+      apollo::cyber::proto::QosHistoryPolicy::HISTORY_KEEP_LAST);
+  qos_history->set_reliability(
+      apollo::cyber::proto::QosReliabilityPolicy::RELIABILITY_RELIABLE);
+  qos_history->set_durability(
+      apollo::cyber::proto::QosDurabilityPolicy::DURABILITY_TRANSIENT_LOCAL);
+>>>>>>> update_stream/master
 
         response_history_writer_ = node_->CreateWriter<RoutingResponse>(attr_history);
         std::weak_ptr<RoutingComponent> self = std::dynamic_pointer_cast<RoutingComponent>(shared_from_this());

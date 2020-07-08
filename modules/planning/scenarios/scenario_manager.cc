@@ -31,7 +31,7 @@
 #include "modules/planning/scenarios/emergency/emergency_pull_over/emergency_pull_over_scenario.h"
 #include "modules/planning/scenarios/emergency/emergency_stop/emergency_stop_scenario.h"
 #include "modules/planning/scenarios/lane_follow/lane_follow_scenario.h"
-#include "modules/planning/scenarios/learning_model/test_learning_model_scenario.h"
+#include "modules/planning/scenarios/learning_model/learning_model_sample_scenario.h"
 #include "modules/planning/scenarios/park/pull_over/pull_over_scenario.h"
 #include "modules/planning/scenarios/park/valet_parking/valet_parking_scenario.h"
 #include "modules/planning/scenarios/park_and_go/park_and_go_scenario.h"
@@ -78,6 +78,10 @@ std::unique_ptr<Scenario> ScenarioManager::CreateScenario(
       ptr.reset(new lane_follow::LaneFollowScenario(config_map_[scenario_type],
                                                     &scenario_context_));
       break;
+    case ScenarioConfig::LEARNING_MODEL_SAMPLE:
+      ptr.reset(new scenario::LearningModelSampleScenario(
+          config_map_[scenario_type], &scenario_context_));
+    break;
     case ScenarioConfig::PARK_AND_GO:
       ptr.reset(new scenario::park_and_go::ParkAndGoScenario(
           config_map_[scenario_type], &scenario_context_));
@@ -90,10 +94,6 @@ std::unique_ptr<Scenario> ScenarioManager::CreateScenario(
       ptr.reset(new scenario::stop_sign::StopSignUnprotectedScenario(
           config_map_[scenario_type], &scenario_context_));
       break;
-    case ScenarioConfig::TEST_LEARNING_MODEL:
-      ptr.reset(new scenario::TestLearningModelScenario(
-          config_map_[scenario_type], &scenario_context_));
-    break;
     case ScenarioConfig::TRAFFIC_LIGHT_PROTECTED:
       ptr.reset(new scenario::traffic_light::TrafficLightProtectedScenario(
           config_map_[scenario_type], &scenario_context_));
@@ -145,6 +145,11 @@ void ScenarioManager::RegisterScenarios() {
   ACHECK(Scenario::LoadConfig(FLAGS_scenario_emergency_stop_config_file,
                               &config_map_[ScenarioConfig::EMERGENCY_STOP]));
 
+  // learning model
+  ACHECK(Scenario::LoadConfig(
+      FLAGS_scenario_learning_model_sample_config_file,
+      &config_map_[ScenarioConfig::LEARNING_MODEL_SAMPLE]));
+
   // park_and_go
   ACHECK(Scenario::LoadConfig(FLAGS_scenario_park_and_go_config_file,
                               &config_map_[ScenarioConfig::PARK_AND_GO]));
@@ -157,11 +162,6 @@ void ScenarioManager::RegisterScenarios() {
   ACHECK(Scenario::LoadConfig(
       FLAGS_scenario_stop_sign_unprotected_config_file,
       &config_map_[ScenarioConfig::STOP_SIGN_UNPROTECTED]));
-
-  // learning model
-  ACHECK(Scenario::LoadConfig(
-      FLAGS_scenario_test_learning_model_config_file,
-      &config_map_[ScenarioConfig::TEST_LEARNING_MODEL]));
 
   // traffic_light
   ACHECK(Scenario::LoadConfig(
@@ -296,7 +296,6 @@ ScenarioConfig::ScenarioType ScenarioManager::SelectPullOverScenario(
     case ScenarioConfig::PULL_OVER:
     case ScenarioConfig::STOP_SIGN_PROTECTED:
     case ScenarioConfig::STOP_SIGN_UNPROTECTED:
-    case ScenarioConfig::TEST_LEARNING_MODEL:
     case ScenarioConfig::TRAFFIC_LIGHT_PROTECTED:
     case ScenarioConfig::TRAFFIC_LIGHT_UNPROTECTED_LEFT_TURN:
     case ScenarioConfig::TRAFFIC_LIGHT_UNPROTECTED_RIGHT_TURN:
@@ -487,11 +486,11 @@ ScenarioConfig::ScenarioType ScenarioManager::SelectTrafficLightScenario(
   static constexpr double kTrafficLightGroupingMaxDist = 2.0;  // unit: m
   const std::vector<PathOverlap>& traffic_light_overlaps =
       reference_line_info.reference_line().map_path().signal_overlaps();
-  for (const auto& traffic_light_overlap : traffic_light_overlaps) {
+  for (const auto& overlap : traffic_light_overlaps) {
     const double dist =
-        traffic_light_overlap.start_s - traffic_light_overlap.start_s;
+        overlap.start_s - traffic_light_overlap.start_s;
     if (fabs(dist) <= kTrafficLightGroupingMaxDist) {
-      next_traffic_lights.push_back(traffic_light_overlap);
+      next_traffic_lights.push_back(overlap);
     }
   }
 
@@ -791,19 +790,46 @@ void ScenarioManager::Update(const common::TrajectoryPoint& ego_point,
 
   Observe(frame);
 
-  ScenarioDispatch(ego_point, frame);
+  ScenarioDispatch(frame);
 }
 
-void ScenarioManager::ScenarioDispatch(const common::TrajectoryPoint& ego_point,
-                                       const Frame& frame) {
+void ScenarioManager::ScenarioDispatch(const Frame& frame) {
   ACHECK(!frame.reference_line_info().empty());
 
+  ScenarioConfig::ScenarioType scenario_type;
+  if (FLAGS_planning_offline_mode == 1) {
+    scenario_type = ScenarioDispatchLearning();
+  } else {
+    scenario_type = ScenarioDispatchNonLearning(frame);
+  }
+
+  ADEBUG << "select scenario: "
+         << ScenarioConfig::ScenarioType_Name(scenario_type);
+
+  // update PlanningContext
+  UpdatePlanningContext(frame, scenario_type);
+
+  if (current_scenario_->scenario_type() != scenario_type) {
+    current_scenario_ = CreateScenario(scenario_type);
+  }
+}
+
+ScenarioConfig::ScenarioType ScenarioManager::ScenarioDispatchLearning() {
+  ////////////////////////////////////////
+  // learning model scenario
+  ScenarioConfig::ScenarioType scenario_type =
+      ScenarioConfig::LEARNING_MODEL_SAMPLE;
+  return scenario_type;
+}
+
+ScenarioConfig::ScenarioType ScenarioManager::ScenarioDispatchNonLearning(
+    const Frame& frame) {
   ////////////////////////////////////////
   // default: LANE_FOLLOW
   ScenarioConfig::ScenarioType scenario_type = default_scenario_type_;
 
   ////////////////////////////////////////
-  // Pad Msg Scenario
+  // Pad Msg scenario
   scenario_type = SelectPadMsgScenario(frame);
 
   if (scenario_type == default_scenario_type_) {
@@ -817,7 +843,6 @@ void ScenarioManager::ScenarioDispatch(const common::TrajectoryPoint& ego_point,
       case ScenarioConfig::PARK_AND_GO:
       case ScenarioConfig::STOP_SIGN_PROTECTED:
       case ScenarioConfig::STOP_SIGN_UNPROTECTED:
-      case ScenarioConfig::TEST_LEARNING_MODEL:
       case ScenarioConfig::TRAFFIC_LIGHT_PROTECTED:
       case ScenarioConfig::TRAFFIC_LIGHT_UNPROTECTED_LEFT_TURN:
       case ScenarioConfig::TRAFFIC_LIGHT_UNPROTECTED_RIGHT_TURN:
@@ -862,15 +887,7 @@ void ScenarioManager::ScenarioDispatch(const common::TrajectoryPoint& ego_point,
     scenario_type = SelectValetParkingScenario(frame);
   }
 
-  ADEBUG << "select scenario: "
-         << ScenarioConfig::ScenarioType_Name(scenario_type);
-
-  // update PlanningContext
-  UpdatePlanningContext(frame, scenario_type);
-
-  if (current_scenario_->scenario_type() != scenario_type) {
-    current_scenario_ = CreateScenario(scenario_type);
-  }
+  return scenario_type;
 }
 
 bool ScenarioManager::IsBareIntersectionScenario(

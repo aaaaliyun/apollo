@@ -72,3 +72,5 @@ docs/demo_guide/*.record
 .dev_bash_hist
 
 start.sh
+# bazel cache and others
+.cache/

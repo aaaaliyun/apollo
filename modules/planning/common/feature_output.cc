@@ -61,6 +61,11 @@ void FeatureOutput::InsertLearningDataFrame(
   }
 }
 
+LearningDataFrame* FeatureOutput::GetLatestLearningDataFrame() {
+  const int size = learning_data_.learning_data_size();
+  return size > 0 ? learning_data_.mutable_learning_data(size - 1) : nullptr;
+}
+
 void FeatureOutput::InsertPlanningResult() {
 }
 
@@ -76,7 +81,7 @@ void FeatureOutput::WriteLearningData(
       FLAGS_planning_data_dir, "/", src_file_name, ".",
       learning_data_file_index_, ".bin");
   cyber::common::SetProtoToBinaryFile(learning_data_, dest_file);
-  cyber::common::SetProtoToASCIIFile(learning_data_, dest_file + ".txt");
+  // cyber::common::SetProtoToASCIIFile(learning_data_, dest_file + ".txt");
   learning_data_.Clear();
   learning_data_file_index_++;
 }

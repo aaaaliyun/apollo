@@ -25,6 +25,7 @@
 namespace apollo {
 namespace storytelling {
 
+<<<<<<< HEAD
 class FrameManager 
 {
 public:
@@ -55,6 +56,35 @@ private:
         std::shared_ptr<cyber::Node> node_;
 
         DECLARE_SINGLETON(FrameManager)
+=======
+class FrameManager {
+ public:
+  FrameManager() = delete;
+  explicit FrameManager(const std::shared_ptr<cyber::Node>& node);
+
+  void StartFrame();
+  void EndFrame();
+
+  // Getters.
+  apollo::common::monitor::MonitorLogBuffer& LogBuffer() { return log_buffer_; }
+
+  // Cyber reader / writer creator.
+  template <class T>
+  std::shared_ptr<cyber::Reader<T>> CreateOrGetReader(
+      const std::string& channel) {
+    auto reader = node_->GetReader<T>(channel);
+    return reader != nullptr ? reader : node_->CreateReader<T>(channel);
+  }
+
+  template <class T>
+  std::shared_ptr<cyber::Writer<T>> CreateWriter(const std::string& channel) {
+    return node_->CreateWriter<T>(channel);
+  }
+
+ private:
+  apollo::common::monitor::MonitorLogBuffer log_buffer_;
+  std::shared_ptr<cyber::Node> node_;
+>>>>>>> update_stream/master
 };
 
 }  // namespace storytelling
