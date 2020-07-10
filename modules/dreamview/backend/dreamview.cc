@@ -62,43 +62,42 @@ Status Dreamview::Init()
                 "request_timeout_ms", FLAGS_request_timeout_ms,
                 "enable_keep_alive", "yes",
                 "tcp_nodelay",  "1",
-                "keep_alive_timeout_ms", "500"
-        };
-        if (PathExists(FLAGS_ssl_certificate)) 
-        {
-                options.push_back("ssl_certificate");
-                options.push_back(FLAGS_ssl_certificate);
-        } 
-        else if (FLAGS_ssl_certificate.size() > 0) 
-        {
-                AERROR << "Certificate file " << FLAGS_ssl_certificate << " does not exist!";
-        }
-        server_.reset(new CivetServer(options));
+                "keep_alive_timeout_ms", "500"};
+                if (PathExists(FLAGS_ssl_certificate)) 
+                {
+                        options.push_back("ssl_certificate");
+                        options.push_back(FLAGS_ssl_certificate);
+                } 
+                else if (FLAGS_ssl_certificate.size() > 0) 
+                {
+                        AERROR << "Certificate file " << FLAGS_ssl_certificate << " does not exist!";
+                }
+                server_.reset(new CivetServer(options));
 
-        websocket_.reset(new WebSocketHandler("SimWorld"));
-        map_ws_.reset(new WebSocketHandler("Map"));
-        point_cloud_ws_.reset(new WebSocketHandler("PointCloud"));
-        camera_ws_.reset(new WebSocketHandler("Camera"));
+                websocket_.reset(new WebSocketHandler("SimWorld"));
+                map_ws_.reset(new WebSocketHandler("Map"));
+                point_cloud_ws_.reset(new WebSocketHandler("PointCloud"));
+                camera_ws_.reset(new WebSocketHandler("Camera"));
 
-        map_service_.reset(new MapService());
-        image_.reset(new ImageHandler());
-        sim_control_.reset(new SimControl(map_service_.get()));
-        data_collection_monitor_.reset(new DataCollectionMonitor());
-        perception_camera_updater_.reset(new PerceptionCameraUpdater(camera_ws_.get()));
+                map_service_.reset(new MapService());
+                image_.reset(new ImageHandler());
+                sim_control_.reset(new SimControl(map_service_.get()));
+                data_collection_monitor_.reset(new DataCollectionMonitor());
+                perception_camera_updater_.reset(new PerceptionCameraUpdater(camera_ws_.get()));
 
-        sim_world_updater_.reset(new SimulationWorldUpdater(websocket_.get(), map_ws_.get(), camera_ws_.get(), sim_control_.get(), map_service_.get(), data_collection_monitor_.get(), perception_camera_updater_.get(), FLAGS_routing_from_file));
-        point_cloud_updater_.reset(new PointCloudUpdater(point_cloud_ws_.get(), sim_world_updater_.get()));
-        hmi_.reset(new HMI(websocket_.get(), map_service_.get(), data_collection_monitor_.get()));
+                sim_world_updater_.reset(new SimulationWorldUpdater(websocket_.get(), map_ws_.get(), camera_ws_.get(), sim_control_.get(), map_service_.get(), data_collection_monitor_.get(), perception_camera_updater_.get(), FLAGS_routing_from_file));
+                point_cloud_updater_.reset(new PointCloudUpdater(point_cloud_ws_.get(), sim_world_updater_.get()));
+                hmi_.reset(new HMI(websocket_.get(), map_service_.get(), data_collection_monitor_.get()));
 
-        server_->addWebSocketHandler("/websocket", *websocket_);
-        server_->addWebSocketHandler("/map", *map_ws_);
-        server_->addWebSocketHandler("/pointcloud", *point_cloud_ws_);
-        server_->addWebSocketHandler("/camera", *camera_ws_);
-        server_->addHandler("/image", *image_);
-#ifdef TELEOP
-        teleop_ws_.reset(new WebSocketHandler("Teleop"));
-        teleop_.reset(new TeleopService(teleop_ws_.get()));
-        server_->addWebSocketHandler("/teleop", *teleop_ws_);
+                server_->addWebSocketHandler("/websocket", *websocket_);
+                server_->addWebSocketHandler("/map", *map_ws_);
+                server_->addWebSocketHandler("/pointcloud", *point_cloud_ws_);
+                server_->addWebSocketHandler("/camera", *camera_ws_);
+                server_->addHandler("/image", *image_);
+#if WITH_TELEOP == 1
+                teleop_ws_.reset(new WebSocketHandler("Teleop"));
+                teleop_.reset(new TeleopService(teleop_ws_.get()));
+                server_->addWebSocketHandler("/teleop", *teleop_ws_);
 #endif
         return Status::OK();
 }
@@ -109,7 +108,7 @@ Status Dreamview::Start()
         point_cloud_updater_->Start();
         hmi_->Start();
         perception_camera_updater_->Start();
-#ifdef TELEOP
+#if WITH_TELEOP == 1
         teleop_->Start();
 #endif
         return Status::OK();

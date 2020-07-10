@@ -22,7 +22,7 @@
 #include "cyber/cyber.h"
 #include "nlohmann/json.hpp"
 
-#ifdef TELEOP
+#if WITH_TELEOP == 1
 #include "modules/planning/proto/pad_msg.pb.h"
 #include "modules/planning/proto/planning.pb.h"
 #include "modules/teleop/daemon/proto/daemon_cmd.pb.h"
@@ -46,8 +46,7 @@ private:
         void RegisterMessageHandlers();
         void SendStatus(WebSocketHandler::Connection *conn);
 
-#ifdef TELEOP
-
+#if WITH_TELEOP == 1
         // send a command to the remote daemon to start or stop
         // video encoders and voip encoders
         void SendAudioStreamCmd(bool start_stop);
@@ -65,8 +64,7 @@ private:
 
         WebSocketHandler *websocket_;
 
-#ifdef TELEOP
-
+#if WITH_TELEOP == 1
         // modem info readers and callback
         std::shared_ptr<cyber::Reader<modules::teleop::modem::ModemInfo>> modem0_info_reader_;
         std::shared_ptr<cyber::Reader<modules::teleop::modem::ModemInfo>> modem1_info_reader_;
@@ -87,7 +85,6 @@ private:
 
         // planning driving actions  and feedback
         std::shared_ptr<cyber::Writer<apollo::planning::PadMessage>> pad_message_writer_;
-        
         void UpdatePlanning(const std::shared_ptr<apollo::planning::ADCTrajectory> &msg);
 #endif
 
