@@ -142,7 +142,7 @@ void OfflineLocalVisualizer::Visualize()
                 {
                         AINFO << "Find lidar pose.";
                         const Eigen::Affine3d &lidar_pose = pose_found_iter->second;
-                        const Eigen::Vector3d &lidar_std = std_found_iter->second; 
+                        const Eigen::Vector3d &lidar_std = std_found_iter->second;
                         lidar_loc_info.set(Eigen::Translation3d(lidar_pose.translation()), Eigen::Quaterniond(lidar_pose.linear()), lidar_std, "Lidar.", pcd_timestamps_[idx], idx + 1);
                 }
 
@@ -175,7 +175,7 @@ void OfflineLocalVisualizer::Visualize()
                 std::ostringstream ss;
                 ss << idx + 1;
                 pcd_file_path = pcd_folder_ + "/" + ss.str() + ".pcd";
-                std::vector<Eigen::Vector3d> pt3ds;
+                ::apollo::common::EigenVector3dVec pt3ds;
                 std::vector<unsigned char> intensities;
                 apollo::localization::msf::velodyne::LoadPcds(pcd_file_path, idx, lidar_loc_info.pose, &pt3ds, &intensities, false);
 
@@ -205,10 +205,11 @@ bool OfflineLocalVisualizer::PCDTimestampFileHandler()
         return true;
 }
 
-bool OfflineLocalVisualizer::LidarLocFileHandler(const std::vector<double> &pcd_timestamps) 
+bool OfflineLocalVisualizer::LidarLocFileHandler(
+    const std::vector<double> &pcd_timestamps) 
 {
-        std::vector<Eigen::Affine3d> poses;
-        std::vector<Eigen::Vector3d> stds;
+        ::apollo::common::EigenAffine3dVec poses;
+        ::apollo::common::EigenVector3dVec stds;
         std::vector<double> timestamps;
         velodyne::LoadPosesAndStds(lidar_loc_file_, &poses, &stds, &timestamps);
 
@@ -217,10 +218,12 @@ bool OfflineLocalVisualizer::LidarLocFileHandler(const std::vector<double> &pcd_
         return true;
 }
 
-bool OfflineLocalVisualizer::GnssLocFileHandler(const std::vector<double> &pcd_timestamps) 
+
+bool OfflineLocalVisualizer::GnssLocFileHandler(
+    const std::vector<double> &pcd_timestamps) 
 {
-        std::vector<Eigen::Affine3d> poses;
-        std::vector<Eigen::Vector3d> stds;
+        ::apollo::common::EigenAffine3dVec poses;
+        ::apollo::common::EigenVector3dVec stds;
         std::vector<double> timestamps;
         velodyne::LoadPosesAndStds(gnss_loc_file_, &poses, &stds, &timestamps);
 
@@ -229,10 +232,12 @@ bool OfflineLocalVisualizer::GnssLocFileHandler(const std::vector<double> &pcd_t
         return true;
 }
 
-bool OfflineLocalVisualizer::FusionLocFileHandler(const std::vector<double> &pcd_timestamps) 
+
+bool OfflineLocalVisualizer::FusionLocFileHandler(
+    const std::vector<double> &pcd_timestamps) 
 {
-        std::vector<Eigen::Affine3d> poses;
-        std::vector<Eigen::Vector3d> stds;
+        ::apollo::common::EigenAffine3dVec poses;
+        ::apollo::common::EigenVector3dVec stds;
         std::vector<double> timestamps;
         velodyne::LoadPosesAndStds(fusion_loc_file_, &poses, &stds, &timestamps);
 
@@ -241,8 +246,8 @@ bool OfflineLocalVisualizer::FusionLocFileHandler(const std::vector<double> &pcd
 }
 
 void OfflineLocalVisualizer::PoseAndStdInterpolationByTime(
-    const std::vector<Eigen::Affine3d> &in_poses,
-    const std::vector<Eigen::Vector3d> &in_stds,
+    const ::apollo::common::EigenAffine3dVec &in_poses,
+    const ::apollo::common::EigenVector3dVec &in_stds,
     const std::vector<double> &in_timestamps,
     const std::vector<double> &ref_timestamps,
     std::map<unsigned int, Eigen::Affine3d> *out_poses,

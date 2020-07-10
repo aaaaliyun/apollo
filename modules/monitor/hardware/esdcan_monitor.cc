@@ -18,7 +18,7 @@
 
 #include <string>
 
-#if USE_ESD_CAN
+#if USE_ESD_CAN == true
 #include "esd_can/include/ntcan.h"
 #endif
 
@@ -38,7 +38,7 @@ namespace apollo {
 namespace monitor {
 namespace {
 
-#if USE_ESD_CAN
+#if USE_ESD_CAN == true
 std::string StatusString(const NTCAN_RESULT ntstatus) 
 {
         switch (ntstatus) 
@@ -145,8 +145,8 @@ std::string StatusString(const NTCAN_RESULT ntstatus)
 #endif
         default:
                 break;
-  }
-  return "NTCAN_UNKNOWN";
+        }
+        return "NTCAN_UNKNOWN";
 }
 
 NTCAN_RESULT EsdCanTest(const int can_id, NTCAN_HANDLE* handle) 

@@ -16,10 +16,9 @@
 
 #include "modules/planning/scenarios/learning_model/stage_run.h"
 
-#include "gtest/gtest.h"
-
 #include "cyber/common/file.h"
 #include "cyber/common/log.h"
+#include "gtest/gtest.h"
 
 namespace apollo {
 namespace planning {
@@ -28,16 +27,17 @@ namespace scenario {
 class StageRunTest : public ::testing::Test {
  public:
   virtual void SetUp() {
-    config_.set_stage_type(
-        ScenarioConfig::LEARNING_MODEL_RUN);
+    config_.set_stage_type(ScenarioConfig::LEARNING_MODEL_RUN);
+    injector_ = std::make_shared<DependencyInjector>();
   }
 
  protected:
   ScenarioConfig::StageConfig config_;
+  std::shared_ptr<DependencyInjector> injector_;
 };
 
 TEST_F(StageRunTest, Init) {
-  LearningModelSampleStageRun learning_model_stage_run(config_);
+  LearningModelSampleStageRun learning_model_stage_run(config_, injector_);
   EXPECT_EQ(learning_model_stage_run.Name(),
             ScenarioConfig::StageType_Name(ScenarioConfig::LEARNING_MODEL_RUN));
 }

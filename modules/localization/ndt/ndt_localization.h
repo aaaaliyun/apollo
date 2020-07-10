@@ -20,7 +20,6 @@
 #include <string>
 
 #include "Eigen/Geometry"
-
 #include "modules/drivers/gnss/proto/ins.pb.h"
 #include "modules/drivers/proto/pointcloud.pb.h"
 #include "modules/localization/ndt/localization_pose_buffer.h"
@@ -48,6 +47,9 @@ struct TimeStampPose
 
 class NDTLocalization 
 {
+public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 public:
         NDTLocalization() {}
         ~NDTLocalization() { tf_buffer_ = nullptr; }
@@ -90,7 +92,7 @@ private:
         bool ZeroOdometry(const Eigen::Affine3d& pose);
         /**@brief fill header message for LocalizationEstimate struct */
         void FillLocalizationMsgHeader(LocalizationEstimate* localization);
-        /**@brief fill pose message for LocalizationEstimate struct */
+        /**@bufferief fill pose message for LocalizationEstimate struct */
         void ComposeLocalizationEstimate(const Eigen::Affine3d& pose, const std::shared_ptr<localization::Gps>& odometry_msg, LocalizationEstimate* localization);
         void ComposeLidarResult(double time_stamp, const Eigen::Affine3d& pose, LocalizationEstimate* localization);
         /**@brief fill localization status */

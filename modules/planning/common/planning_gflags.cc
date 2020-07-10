@@ -35,6 +35,10 @@ DEFINE_string(scenario_lane_follow_config_file,
               "/apollo/modules/planning/conf/"
               "scenario/lane_follow_config.pb.txt",
               "The lane_follow scenario configuration file");
+DEFINE_string(scenario_lane_follow_hybrid_config_file,
+              "/apollo/modules/planning/conf/"
+              "scenario/lane_follow_hybrid_config.pb.txt",
+              "The lane_follow scenario configuration file for HYBRID");
 DEFINE_string(scenario_learning_model_sample_config_file,
               "/apollo/modules/planning/conf/"
               "scenario/learning_model_sample_config.pb.txt",
@@ -536,11 +540,12 @@ DEFINE_string(planning_data_dir, "/apollo/modules/planning/data/",
 DEFINE_string(planning_offline_bags, "",
               "a list of source files or directories for offline mode. "
               "The items need to be separated by colon ':'. ");
-DEFINE_int32(planning_offline_mode, 0,
+DEFINE_int32(planning_learning_mode, 0,
              "0: no learning "
-             "1: online learning, no dump file "
-             "2: offline learning. read record files and dump learning_data "
-             "   to <record file>.<n>.bin");
+             "1: offline learning. read record files and dump learning_data "
+             "   to <record file>.<n>.bin "
+             "2: online learning(e2e) "
+             "3: online learning(hybrid)");
 DEFINE_int32(learning_data_obstacle_history_time_sec, 3.0,
              "time sec (second) of history trajectory points for a obstacle");
 DEFINE_int32(learning_data_frame_num_per_file, 100,
@@ -549,3 +554,14 @@ DEFINE_string(
     planning_birdview_img_feature_renderer_config_file,
     "/apollo/modules/planning/conf/planning_semantic_map_config.pb.txt",
     "config file for renderer singleton");
+
+DEFINE_bool(
+    skip_path_reference_in_side_pass, false,
+    "skipping using learning model output as path reference in side pass");
+DEFINE_bool(
+    skip_path_reference_in_change_lane, true,
+    "skipping using learning model output as path reference in change lane");
+
+DEFINE_int32(min_past_history_points_len, 0,
+             "minimun past history points length for trainsition from "
+             "rule-based planning to learning-based planning");

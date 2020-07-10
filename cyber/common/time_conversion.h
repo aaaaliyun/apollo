@@ -127,7 +127,7 @@ inline uint64_t StringToUnixSeconds(const std::string& time_str, const std::stri
         return static_cast<uint64_t>(time);
 }
 
-inline std::string UnixSecondsToString(uint64_t unix_seconds, const std::string& format_str = "%Y-%m-%d %H:%M:%S") 
+inline std::string UnixSecondsToString(uint64_t unix_seconds, const std::string& format_str = "%Y-%m-%d-%H:%M:%S") 
 {
         std::time_t t = unix_seconds;
         struct tm ptm;

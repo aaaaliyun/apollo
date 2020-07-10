@@ -38,17 +38,12 @@ public:
 
         bool Proc() override;
 
-<<<<<<< HEAD
 private:
-        std::vector<std::unique_ptr<BaseTeller>> story_tellers_;
-        Stories stories_;
-=======
- private:
-  std::vector<std::unique_ptr<BaseTeller>> story_tellers_;
-  Stories stories_;
-  StorytellingConfig config_;
-  std::shared_ptr<FrameManager> frame_manager_;
->>>>>>> update_stream/master
+  	std::vector<std::unique_ptr<BaseTeller>> story_tellers_;
+  	Stories stories_;
+  	StorytellingConfig config_;
+  	std::shared_ptr<FrameManager> frame_manager_;
+  	std::shared_ptr<::apollo::cyber::Writer<Stories>> story_writer_ = nullptr;
 };
 
 CYBER_REGISTER_COMPONENT(Storytelling)

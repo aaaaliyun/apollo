@@ -32,7 +32,6 @@
 
 // headers in STL
 #include <chrono>
-#include <cstring>
 #include <iostream>
 
 // headers in local files
@@ -51,8 +50,6 @@ const float PointPillars::kMinZRange = Params::kMinZRange;
 const float PointPillars::kMaxXRange = Params::kMaxXRange;
 const float PointPillars::kMaxYRange = Params::kMaxYRange;
 const float PointPillars::kMaxZRange = Params::kMaxZRange;
-const float PointPillars::kSensorHeight = Params::kSensorHeight;
-// TODO(chenjiahao): kSensorHeight need to get from sensor's height param
 const int PointPillars::kNumClass = Params::kNumClass;
 const int PointPillars::kMaxNumPillars = Params::kMaxNumPillars;
 const int PointPillars::kMaxNumPointsPerPillar = Params::kMaxNumPointsPerPillar;
@@ -76,12 +73,16 @@ const int PointPillars::kNumThreads = Params::kNumThreads;
 // if you change kNumThreads, need to modify NUM_THREADS_MACRO in
 // common.h
 const int PointPillars::kNumBoxCorners = Params::kNumBoxCorners;
-// TODO(chenjiahao): kNumBoxCorners is actually used as kNumPointFeature
 const std::vector<int> PointPillars::kAnchorStrides = Params::AnchorStrides();
 const std::vector<int> PointPillars::kAnchorRanges{
-    0, kGridXSize, 0, kGridYSize,
-    static_cast<int>(kGridXSize * 0.1), static_cast<int>(kGridXSize * 0.9),
-    static_cast<int>(kGridYSize * 0.1), static_cast<int>(kGridYSize * 0.9)};
+    0,
+    kGridXSize,
+    0,
+    kGridYSize,
+    static_cast<int>(kGridXSize * 0.1),
+    static_cast<int>(kGridXSize * 0.9),
+    static_cast<int>(kGridYSize * 0.1),
+    static_cast<int>(kGridYSize * 0.9)};
 const std::vector<int> PointPillars::kNumAnchorSets = Params::NumAnchorSets();
 const std::vector<std::vector<float>> PointPillars::kAnchorDxSizes =
     Params::AnchorDxSizes();
@@ -89,6 +90,8 @@ const std::vector<std::vector<float>> PointPillars::kAnchorDySizes =
     Params::AnchorDySizes();
 const std::vector<std::vector<float>> PointPillars::kAnchorDzSizes =
     Params::AnchorDzSizes();
+const std::vector<std::vector<float>> PointPillars::kAnchorZCoors =
+    Params::AnchorZCoors();
 const std::vector<std::vector<int>> PointPillars::kNumAnchorRo =
     Params::NumAnchorRo();
 const std::vector<std::vector<float>> PointPillars::kAnchorRo =
@@ -108,13 +111,12 @@ PointPillars::PointPillars(const bool reproduce_result_mode,
     preprocess_points_ptr_.reset(new PreprocessPoints(
         kMaxNumPillars, kMaxNumPointsPerPillar, kNumPointFeature, kGridXSize,
         kGridYSize, kGridZSize, kPillarXSize, kPillarYSize, kPillarZSize,
-        kMinXRange, kMinYRange, kMinZRange, kNumIndsForScan, kNumBoxCorners));
+        kMinXRange, kMinYRange, kMinZRange, kNumIndsForScan));
   } else {
     preprocess_points_cuda_ptr_.reset(new PreprocessPointsCuda(
         kNumThreads, kMaxNumPillars, kMaxNumPointsPerPillar, kNumPointFeature,
         kNumIndsForScan, kGridXSize, kGridYSize, kGridZSize, kPillarXSize,
-        kPillarYSize, kPillarZSize, kMinXRange, kMinYRange, kMinZRange,
-        kNumBoxCorners));
+        kPillarYSize, kPillarZSize, kMinXRange, kMinYRange, kMinZRange));
   }
 
   anchor_mask_cuda_ptr_.reset(new AnchorMaskCuda(
@@ -282,17 +284,17 @@ void PointPillars::DeviceMemoryMalloc() {
 
 void PointPillars::InitAnchors() {
   // allocate memory for anchors
-  anchors_px_ = new float[kNumAnchor];
-  anchors_py_ = new float[kNumAnchor];
-  anchors_pz_ = new float[kNumAnchor];
-  anchors_dx_ = new float[kNumAnchor];
-  anchors_dy_ = new float[kNumAnchor];
-  anchors_dz_ = new float[kNumAnchor];
-  anchors_ro_ = new float[kNumAnchor];
-  box_anchors_min_x_ = new float[kNumAnchor];
-  box_anchors_min_y_ = new float[kNumAnchor];
-  box_anchors_max_x_ = new float[kNumAnchor];
-  box_anchors_max_y_ = new float[kNumAnchor];
+  anchors_px_ = new float[kNumAnchor]();
+  anchors_py_ = new float[kNumAnchor]();
+  anchors_pz_ = new float[kNumAnchor]();
+  anchors_dx_ = new float[kNumAnchor]();
+  anchors_dy_ = new float[kNumAnchor]();
+  anchors_dz_ = new float[kNumAnchor]();
+  anchors_ro_ = new float[kNumAnchor]();
+  box_anchors_min_x_ = new float[kNumAnchor]();
+  box_anchors_min_y_ = new float[kNumAnchor]();
+  box_anchors_max_x_ = new float[kNumAnchor]();
+  box_anchors_max_y_ = new float[kNumAnchor]();
   // deallocate these memories in destructor
 
   GenerateAnchors(anchors_px_, anchors_py_, anchors_pz_, anchors_dx_,
@@ -353,7 +355,7 @@ void PointPillars::GenerateAnchors(float* anchors_px_, float* anchors_py_,
             anchors_px_[ind] = anchor_x_count[x];
             anchors_py_[ind] = anchor_y_count[y];
             anchors_ro_[ind] = kAnchorRo[head][ro_count];
-            anchors_pz_[ind] = -1 * kSensorHeight;
+            anchors_pz_[ind] = kAnchorZCoors[head][c];
             anchors_dx_[ind] = kAnchorDxSizes[head][c];
             anchors_dy_[ind] = kAnchorDySizes[head][c];
             anchors_dz_[ind] = kAnchorDzSizes[head][c];
@@ -399,10 +401,8 @@ void PointPillars::ConvertAnchors2BoxAnchors(float* anchors_px,
                                              float* box_anchors_max_x_,
                                              float* box_anchors_max_y_) {
   // flipping box's dimension
-  float flipped_anchors_dx[kNumAnchor];
-  float flipped_anchors_dy[kNumAnchor];
-  memset(flipped_anchors_dx, 0, kNumAnchor * sizeof(float));
-  memset(flipped_anchors_dy, 0, kNumAnchor * sizeof(float));
+  float flipped_anchors_dx[kNumAnchor] = {};
+  float flipped_anchors_dy[kNumAnchor] = {};
   int ind = 0;
   for (size_t head = 0; head < kNumAnchorSets.size(); ++head) {
     int num_x_inds =
@@ -488,9 +488,8 @@ void PointPillars::OnnxToTRTModel(
   int verbosity = static_cast<int>(nvinfer1::ILogger::Severity::kWARNING);
 
   // create the builder
-  // TODO(chenjiahao): assign value from constant param 'kBatchSize'
   const auto explicit_batch =
-      1U << static_cast<uint32_t>(
+      static_cast<uint32_t>(kBatchSize) << static_cast<uint32_t>(
           nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
   nvinfer1::IBuilder* builder = nvinfer1::createInferBuilder(g_logger_);
   nvinfer1::INetworkDefinition* network =
@@ -522,12 +521,9 @@ void PointPillars::OnnxToTRTModel(
 
 void PointPillars::PreprocessCPU(const float* in_points_array,
                                  const int in_num_points) {
-  int x_coors[kMaxNumPillars];
-  int y_coors[kMaxNumPillars];
-  float num_points_per_pillar[kMaxNumPillars];
-  memset(x_coors, 0, kMaxNumPillars * sizeof(int));
-  memset(y_coors, 0, kMaxNumPillars * sizeof(int));
-  memset(num_points_per_pillar, 0, kMaxNumPillars * sizeof(float));
+  int x_coors[kMaxNumPillars] = {};
+  int y_coors[kMaxNumPillars] = {};
+  float num_points_per_pillar[kMaxNumPillars] = {};
 
   float* pillar_point_feature =
       new float[kMaxNumPillars * kMaxNumPointsPerPillar * kNumPointFeature];
@@ -577,9 +573,9 @@ void PointPillars::PreprocessGPU(const float* in_points_array,
                                  const int in_num_points) {
   float* dev_points;
   GPU_CHECK(cudaMalloc(reinterpret_cast<void**>(&dev_points),
-                       in_num_points * kNumBoxCorners * sizeof(float)));
+                       in_num_points * kNumPointFeature * sizeof(float)));
   GPU_CHECK(cudaMemcpy(dev_points, in_points_array,
-                       in_num_points * kNumBoxCorners * sizeof(float),
+                       in_num_points * kNumPointFeature * sizeof(float),
                        cudaMemcpyHostToDevice));
 
   GPU_CHECK(cudaMemset(dev_x_coors_, 0, kMaxNumPillars * sizeof(int)));

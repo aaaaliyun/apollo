@@ -100,74 +100,62 @@ void DisplayUsage(const std::string& binary, const std::string& command)
         }
 }
 
-void DisplayUsage(const std::string& binary, const std::string& command,
-                  const std::string& options) 
+void DisplayUsage(const std::string& binary, const std::string& command, const std::string& options) 
 {
         for (char option : options) 
         {
                 switch (option) 
                 {
-                        case 'f':
-                                std::cout << "\t-f, --file <file>\t\t\tinput record file" << std::endl;
-                                break;
-                        case 'o':
-                                std::cout << "\t-o, --output <file>\t\t\toutput record file"
-                                          << std::endl;
-                                break;
-                        case 'a':
-                                std::cout << "\t-a, --all\t\t\t\t" << command << " all" << std::endl;
-                                break;
-                        case 'c':
-                                std::cout << "\t-c, --white-channel <name>\t\tonly " << command
-                                          << " the specified channel" << std::endl;
-                                break;
-                        case 'k':
-                                std::cout << "\t-k, --black-channel <name>\t\tnot " << command
-                                          << " the specified channel" << std::endl;
-                                break;
-                        case 'l':
-                                std::cout << "\t-l, --loop\t\t\t\tloop " << command << std::endl;
-                                break;
-                        case 'r':
-                                std::cout << "\t-r, --rate <1.0>\t\t\tmultiply the " << command
-                                          << " rate by FACTOR" << std::endl;
-                                break;
-                        case 'b':
-                                std::cout << "\t-b, --begin <2018-07-01 00:00:00>\t" << command
-                                          << " the record begin at" << std::endl;
-                                break;
-                        case 'e':
-                                std::cout << "\t-e, --end <2018-07-01 00:01:00>\t\t" << command
-                                          << " the record end at" << std::endl;
-                                break;
-                        case 's':
-                                std::cout << "\t-s, --start <seconds>\t\t\t" << command
-                                          << " started at n seconds" << std::endl;
-                                break;
-                        case 'd':
-                                std::cout << "\t-d, --delay <seconds>\t\t\t" << command
-                                          << " delayed n seconds" << std::endl;
-                                break;
-                        case 'p':
-                                std::cout << "\t-p, --preload <seconds>\t\t\t" << command
-                                          << " after trying to preload n second(s)" << std::endl;
-                                break;
-                        case 'i':
-                                std::cout << "\t-i, --segment-interval <seconds>\t" << command
-                                          << " segmented every n second(s)" << std::endl;
-                                break;
-                        case 'm':
-                                std::cout << "\t-m, --segment-size <MB>\t\t\t" << command
-                                          << " segmented every n megabyte(s)" << std::endl;
-                                break;
-                        case 'h':
-                                std::cout << "\t-h, --help\t\t\t\tshow help message" << std::endl;
-                                break;
-                        case ':':
-                                break;
-                        default:
-                                std::cout << "unknown option: -" << option;
-                                break;
+                case 'f':
+                        std::cout << "\t-f, --file <file>\t\t\tinput record file" << std::endl;
+                        break;
+                case 'o':
+                        std::cout << "\t-o, --output <file>\t\t\toutput record file" << std::endl;
+                        break;
+                case 'a':
+                        std::cout << "\t-a, --all\t\t\t\t" << command << " all" << std::endl;
+                        break;
+                case 'c':
+                        std::cout << "\t-c, --white-channel <name>\t\tonly " << command << " the specified channel" << std::endl;
+                        break;
+                case 'k':
+                        std::cout << "\t-k, --black-channel <name>\t\tnot " << command << " the specified channel" << std::endl;
+                        break;
+                case 'l':
+                        std::cout << "\t-l, --loop\t\t\t\tloop " << command << std::endl;
+                        break;
+                case 'r':
+                        std::cout << "\t-r, --rate <1.0>\t\t\tmultiply the " << command << " rate by FACTOR" << std::endl;
+                        break;
+                case 'b':
+                        std::cout << "\t-b, --begin 2018-07-01-00:00:00\t" << command << " the record begin at" << std::endl;
+                        break;
+                case 'e':
+                        std::cout << "\t-e, --end 2018-07-01-00:01:00\t\t" << command << " the record end at" << std::endl;
+                        break;
+                case 's':
+                        std::cout << "\t-s, --start <seconds>\t\t\t" << command << " started at n seconds" << std::endl;
+                        break;
+                case 'd':
+                        std::cout << "\t-d, --delay <seconds>\t\t\t" << command << " delayed n seconds" << std::endl;
+                        break;
+                case 'p':
+                        std::cout << "\t-p, --preload <seconds>\t\t\t" << command << " after trying to preload n second(s)" << std::endl;
+                        break;
+                case 'i':
+                        std::cout << "\t-i, --segment-interval <seconds>\t" << command << " segmented every n second(s)" << std::endl;
+                        break;
+                case 'm':
+                        std::cout << "\t-m, --segment-size <MB>\t\t\t" << command << " segmented every n megabyte(s)" << std::endl;
+                        break;
+                case 'h':
+                        std::cout << "\t-h, --help\t\t\t\tshow help message" << std::endl;
+                        break;
+                case ':':
+                        break;
+                default:
+                        std::cout << "unknown option: -" << option;
+                        break;
                 }
         }
 }

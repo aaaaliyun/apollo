@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
-
 #include <algorithm>
 #include <list>
 #include <memory>
@@ -31,9 +28,12 @@
 #include <utility>
 #include <vector>
 
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
+
 #include "cyber/common/log.h"
 #include "gtest/gtest_prod.h"
-#include "third_party/json/json.hpp"
+#include "nlohmann/json.hpp"
 
 #include "modules/common/monitor_log/monitor_log_buffer.h"
 #include "modules/common/proto/drive_event.pb.h"
@@ -121,7 +121,7 @@ public:
         */
         void SetToClear() { to_clear_ = true; }
 
-        /**   
+        /**
         * @brief Check whether the SimulationWorld object has enough information.
         * The backend won't push the SimulationWorld to frontend if it is not ready.
         * @return True if the object is ready to push.
@@ -161,8 +161,10 @@ private:
         void UpdateMonitorMessages();
 
         Object &CreateWorldObjectIfAbsent(const apollo::perception::PerceptionObstacle &obstacle);
+        void CreateWorldObjectFromSensorMeasurement(const apollo::perception::SensorMeasurement &sensor, Object *world_object);
         void SetObstacleInfo(const apollo::perception::PerceptionObstacle &obstacle, Object *world_object);
         void SetObstaclePolygon(const apollo::perception::PerceptionObstacle &obstacle, Object *world_object);
+        void SetObstacleSensorMeasurements(const apollo::perception::PerceptionObstacle &obstacle, Object *world_object);
         void UpdatePlanningTrajectory(const apollo::planning::ADCTrajectory &trajectory);
         void UpdateRSSInfo(const apollo::planning::ADCTrajectory &trajectory);
         bool LocateMarker(const apollo::planning::ObjectDecisionType &decision, Decision *world_decision);
@@ -173,9 +175,7 @@ private:
         template <typename MainDecision>
         void UpdateMainChangeLaneDecision(const MainDecision &decision, Object *world_main_decision) 
         {
-                if (decision.has_change_lane_type() &&
-                   (decision.change_lane_type() == apollo::routing::ChangeLaneType::LEFT ||
-                    decision.change_lane_type() == apollo::routing::ChangeLaneType::RIGHT)) 
+                if (decision.has_change_lane_type() && (decision.change_lane_type() == apollo::routing::ChangeLaneType::LEFT || decision.change_lane_type() == apollo::routing::ChangeLaneType::RIGHT)) 
                 {
                         auto *change_lane_decision = world_main_decision->add_decision();
                         change_lane_decision->set_change_lane_type(decision.change_lane_type());
@@ -206,8 +206,7 @@ private:
                 {
                         if (logging) 
                         {
-                                AINFO_EVERY(100) << "Has not received any data from "
-                                                 << reader->GetChannelName();
+                                AINFO_EVERY(100) << "Has not received any data from " << reader->GetChannelName();
                         }
                         return;
                 }
@@ -225,8 +224,7 @@ private:
         {
                 if (reader->Empty()) 
                 {
-                        AWARN << "Has not received any data from " << reader->GetChannelName()
-                              << ". Cannot dump message!";
+                        AWARN << "Has not received any data from " << reader->GetChannelName() << ". Cannot dump message!";
                         return;
                 }
 
@@ -270,18 +268,16 @@ private:
         void UpdateLatencies();
 
         template <typename Points>
-        void DownsampleSpeedPointsByInterval(const Points &points,
-                                       size_t downsampleInterval,
-                                       Points *downsampled_points) 
+        void DownsampleSpeedPointsByInterval(const Points &points, size_t downsampleInterval, Points *downsampled_points) 
         {
                 if (points.empty()) 
                 {
                         return;
                 }
 
-                for (size_t i = 0; i + 1 < points.size(); i += downsampleInterval) 
+                for (int i = 0; i + 1 < points.size(); i += downsampleInterval) 
                 {
-                        *downsampled_points->Add() = points[static_cast<int>(i)];
+                        *downsampled_points->Add() = points[i];
                 }
 
                 // add the last point

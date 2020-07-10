@@ -70,7 +70,8 @@ namespace apollo {
 namespace localization {
 namespace ndt {
 
-template <typename PointSource, typename PointTarget> class NormalDistributionsTransform 
+template <typename PointSource, typename PointTarget>
+class NormalDistributionsTransform 
 {
 protected:
         /**@brief Typename of source point. */
@@ -217,7 +218,7 @@ public:
         static void ConvertTransform(const Eigen::Matrix<double, 6, 1> &x, Eigen::Matrix4f *trans) 
         {
                 Eigen::Affine3f _affine;
-                ConvertTransform(x, _affine);
+                ConvertTransform(x, &_affine);
                 *trans = _affine.matrix();
         }
 

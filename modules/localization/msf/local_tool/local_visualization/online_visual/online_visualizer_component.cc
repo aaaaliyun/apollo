@@ -224,7 +224,7 @@ void OnlineVisualizerComponent::OnFusionLocalization(const std::shared_ptr<Local
         VisualizationManager::GetInstance().AddFusionLocMessage(fusion_loc_msg);
 }
 
-void OnlineVisualizerComponent::ParsePointCloudMessage(const std::shared_ptr<drivers::PointCloud> &msg, std::vector<Eigen::Vector3d> *pt3ds, std::vector<unsigned char> *intensities) 
+void OnlineVisualizerComponent::ParsePointCloudMessage(const std::shared_ptr<drivers::PointCloud> &msg, ::apollo::common::EigenVector3dVec *pt3ds, std::vector<unsigned char> *intensities) 
 {
         CHECK_NOTNULL(pt3ds);
         CHECK_NOTNULL(intensities);
@@ -246,28 +246,7 @@ void OnlineVisualizerComponent::ParsePointCloudMessage(const std::shared_ptr<dri
                                         intensities->push_back(intensity);
                                 }
                         }
-                }
-        } 
-        else 
-        {
-                AINFO << "Receiving un-organized-point-cloud, width " << msg->width()
-                      << " height " << msg->height() << "size " << msg->point_size();
-                for (int i = 0; i < msg->point_size(); ++i) 
-                {
-                        Eigen::Vector3d pt3d;
-                        pt3d[0] = static_cast<double>(msg->point(i).x());
-                        pt3d[1] = static_cast<double>(msg->point(i).y());
-                        pt3d[2] = static_cast<double>(msg->point(i).z());
-                        if (!std::isnan(pt3d[0])) 
-                        {
-                                unsigned char intensity = static_cast<unsigned char>(msg->point(i).intensity());
-                                pt3ds->push_back(pt3d);
-                                intensities->push_back(intensity);
-                        }
-                }
-        }
-}
 
-}  // namespace msf
-}  // namespace localization
+                }  // namespace msf
+        }  // namespace localization
 }  // namespace apollo

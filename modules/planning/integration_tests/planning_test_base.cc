@@ -18,7 +18,6 @@
 
 #include "cyber/common/file.h"
 #include "cyber/common/log.h"
-
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/common/adapters/adapter_gflags.h"
 #include "modules/localization/proto/localization.pb.h"
@@ -150,11 +149,13 @@ bool PlanningTestBase::FeedTestData() {
 }
 
 void PlanningTestBase::SetUp() {
+  injector_ = std::make_shared<DependencyInjector>();
+
   if (FLAGS_use_navigation_mode) {
     // TODO(all)
     // planning_ = std::unique_ptr<PlanningBase>(new NaviPlanning());
   } else {
-    planning_ = std::unique_ptr<PlanningBase>(new OnLanePlanning());
+    planning_ = std::unique_ptr<PlanningBase>(new OnLanePlanning(injector_));
   }
 
   ACHECK(FeedTestData()) << "Failed to feed test data";

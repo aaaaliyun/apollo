@@ -37,7 +37,8 @@ void LoadPcds(const std::string& file_path, const unsigned int frame_index,
 }
 
 void LoadPcds(const std::string& file_path, const unsigned int frame_index,
-              const Eigen::Affine3d& pose, std::vector<Eigen::Vector3d>* pt3ds,
+              const Eigen::Affine3d& pose,
+              ::apollo::common::EigenVector3dVec* pt3ds,
               std::vector<unsigned char>* intensities, bool is_global) 
 {
         Eigen::Affine3d pose_inv = pose.inverse();
@@ -106,16 +107,14 @@ void LoadPcds(const std::string& file_path, const unsigned int frame_index,
         }
 }
 
-void LoadPcdPoses(const std::string& file_path,
-                  std::vector<Eigen::Affine3d>* poses,
-                  std::vector<double>* timestamps) 
+void LoadPcdPoses(const std::string& file_path, ::apollo::common::EigenAffine3dVec* poses, std::vector<double>* timestamps) 
 {
         std::vector<unsigned int> pcd_indices;
         LoadPcdPoses(file_path, poses, timestamps, &pcd_indices);
 }
 
 void LoadPcdPoses(const std::string& file_path,
-                  std::vector<Eigen::Affine3d>* poses,
+                  ::apollo::common::EigenAffine3dVec* poses,
                   std::vector<double>* timestamps,
                   std::vector<unsigned int>* pcd_indices) 
 {
@@ -148,8 +147,8 @@ void LoadPcdPoses(const std::string& file_path,
 }
 
 void LoadPosesAndStds(const std::string& file_path,
-                      std::vector<Eigen::Affine3d>* poses,
-                      std::vector<Eigen::Vector3d>* stds,
+                      ::apollo::common::EigenAffine3dVec* poses,
+                      ::apollo::common::EigenVector3dVec* stds,
                       std::vector<double>* timestamps) 
 {
         poses->clear();

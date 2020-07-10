@@ -1,3 +1,4 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//tools:cpplint.bzl", "cpplint")
 
 package(default_visibility = ["//visibility:public"])
@@ -13,10 +14,10 @@ cc_library(
         "//cyber/common:log",
         "//modules/common/util",
         "//modules/common/vehicle_state:vehicle_state_provider",
-        "//modules/common/vehicle_state/proto:vehicle_state_proto",
+        "//modules/common/vehicle_state/proto:vehicle_state_cc_proto",
         "//modules/planning/common:planning_gflags",
         "//modules/planning/common:reference_line_info",
-        "//modules/planning/proto:planning_proto",
+        "//modules/planning/proto:planning_cc_proto",
         "//modules/routing:routing_lib",
     ],
 )
@@ -38,13 +39,15 @@ cc_library(
 
 cc_library(
     name = "math_util_lib",
+    srcs = ["math_util.cc"],
     hdrs = ["math_util.h"],
     copts = [
         "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         "//cyber/common:log",
-        "//modules/common/util:map_util",
+        "//modules/common/math",
     ],
 )
+
 cpplint()

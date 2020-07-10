@@ -43,14 +43,25 @@ message LaneChangeDeciderConfig {
 // LearningModelInferenceTaskConfig
 
 message LearningModelInferenceTaskConfig {
-  optional string model_file = 1;
-  optional bool use_cuda = 2;
+  enum ModelType {
+    CONV_RNN = 1;
+    CNN = 2;
+    CNN_LSTM = 3;
+  }
+  optional ModelType model_type = 1;
+  optional string cpu_model_file = 2;
+  optional string gpu_model_file = 3;
+  optional bool use_cuda = 4 [default = true];
+  // delta_t depends on the model output, not a configurable value here
+  optional double trajectory_delta_t = 5 [default = 0.2];  // second
 }
 
 //////////////////////////////////
 // LearningModelInferenceTrajectoryTaskConfig
 
 message LearningModelInferenceTrajectoryTaskConfig {
+  optional double min_adc_future_trajectory_time_length = 1
+      [default = 2.0];  // second
 }
 
 //////////////////////////////////
@@ -152,6 +163,13 @@ message PathDeciderConfig {
 
 message PathLaneBorrowDeciderConfig {
   optional bool allow_lane_borrowing = 1;
+}
+
+//////////////////////////////////
+// PathReferenceDeciderConfig
+
+message PathReferenceDeciderConfig {
+  optional uint32 min_path_reference_length = 1 [default = 20];
 }
 
 //////////////////////////////////

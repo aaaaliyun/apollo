@@ -30,7 +30,6 @@
 #include "modules/common/math/math_utils.h"
 #include "modules/common/math/vec2d.h"
 #include "modules/common/util/util.h"
-#include "modules/common/vehicle_state/vehicle_state_provider.h"
 #include "modules/map/proto/map_lane.pb.h"
 #include "modules/map/relative_map/common/relative_map_gflags.h"
 
@@ -140,6 +139,11 @@ void NavigationLane::SetConfig(const NavigationLaneConfig &config)
         config_ = config;
 }
 
+void NavigationLane::SetVehicleStateProvider(common::VehicleStateProvider *vehicle_state_provider) 
+{
+    vehicle_state_provider_ = vehicle_state_provider;
+}
+
 void NavigationLane::UpdateNavigationInfo(const NavigationInfo &navigation_path) 
 {
         navigation_info_ = navigation_path;
@@ -158,7 +162,7 @@ bool NavigationLane::GeneratePath()
         current_navi_path_tuple_ = std::make_tuple(-1, -1.0, -1.0, nullptr);
 
         // original_pose is in world coordination: ENU
-        original_pose_ = VehicleStateProvider::Instance()->original_pose();
+        original_pose_ = vehicle_state_provider_->original_pose();
 
         int navigation_line_num = navigation_info_.navigation_path_size();
         const auto &lane_marker = perception_obstacles_.lane_marker();
@@ -248,15 +252,16 @@ bool NavigationLane::GeneratePath()
                         right_width = right_width > default_right_width_ ? right_width - min_d : right_width + min_d;
                 }
 
-                ADEBUG << "The left width of current lane is: " << left_width
-                       << " and the right width of current lane is: " << right_width;
+                ADEBUG << "The left width of current lane is: " << left_width << " and the right width of current lane is: " << right_width;
 
                 std::get<1>(current_navi_path_tuple_) = left_width;
                 std::get<2>(current_navi_path_tuple_) = right_width;
+
                 auto curr_navi_path_iter = std::find_if(std::begin(navigation_path_list_), std::end(navigation_path_list_), [this](const NaviPathTuple &item) 
                 {
                         return std::get<0>(item) == std::get<0>(current_navi_path_tuple_);
                 });
+
                 if (curr_navi_path_iter != std::end(navigation_path_list_)) 
                 {
                         std::get<1>(*curr_navi_path_iter) = left_width;
@@ -283,7 +288,7 @@ bool NavigationLane::GeneratePath()
                                 for (int i = 0; i < average_point_size; ++i) 
                                 {
                                         lateral_distance_sum += fabs(curr_path.path_point(i).y() - prev_path.path_point(i).y());
-                                }       
+                                }
                                 double width = lateral_distance_sum / static_cast<double>(average_point_size) / 2.0;
                                 width = common::math::Clamp(width, config_.min_lane_half_width(), config_.max_lane_half_width());
 
@@ -296,7 +301,7 @@ bool NavigationLane::GeneratePath()
                                 else 
                                 {
                                         curr_left_width = width;
-                                        prev_right_width = width;
+                                        prev_right_width = width;     
                                 }
                         }
                         // Right neighbor
@@ -310,35 +315,17 @@ bool NavigationLane::GeneratePath()
                                 {
                                         lateral_distance_sum += fabs(curr_path.path_point(i).y() - next_path.path_point(i).y());
                                 }
-                                double width = lateral_distance_sum / static_cast<double>(average_point_size) / 2.0;
-                                width = common::math::Clamp(width, config_.min_lane_half_width(), config_.max_lane_half_width());
 
-                                auto &curr_right_width = std::get<2>(*iter);
-                                auto &next_left_width = std::get<1>(*next_iter);
-                                if (std::get<0>(*iter) == std::get<0>(current_navi_path_tuple_)) 
-                                {
-                                        next_left_width = 2.0 * width - curr_right_width;
-                                } 
-                                else 
-                                {
-                                        next_left_width = width;
-                                        curr_right_width = width;
-                                }
+                                // Generate a navigation path where the vehicle is located based on perceived
+                                // lane markers.
+                                generate_path_on_perception_func();
+                                return true;
                         }
                 }
-
-                return true;
         }
-
-        // Generate a navigation path where the vehicle is located based on perceived
-        // lane markers.
-        generate_path_on_perception_func();
-        return true;
 }
 
-double NavigationLane::EvaluateCubicPolynomial(const double c0, const double c1,
-                                               const double c2, const double c3,
-                                               const double x) const 
+double NavigationLane::EvaluateCubicPolynomial(const double c0, const double c1, const double c2, const double c3, const double x) const 
 {
         return ((c3 * x + c2) * x + c1) * x + c0;
 }
@@ -673,7 +660,7 @@ void NavigationLane::ConvertLaneMarkerToPath(const perception::LaneMarkers &lane
 
         double path_c3 = (left_lane.c3_curvature_derivative() * left_quality + right_lane.c3_curvature_derivative() * right_quality) / quality_divider;
 
-        const double current_speed = VehicleStateProvider::Instance()->vehicle_state().linear_velocity();
+        const double current_speed = vehicle_state_provider_->vehicle_state().linear_velocity();
         double path_range = current_speed * config_.ratio_navigation_lane_len_to_speed();
         if (path_range <= config_.min_len_for_navigation_lane()) 
         {

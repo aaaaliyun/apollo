@@ -23,15 +23,12 @@
 #include <memory>
 #include <string>
 
-#include "cyber/common/macros.h"
-
 #include "modules/canbus/proto/chassis.pb.h"
-#include "modules/common/vehicle_state/proto/vehicle_state.pb.h"
-#include "modules/localization/proto/localization.pb.h"
-
 #include "modules/common/math/box2d.h"
 #include "modules/common/math/vec2d.h"
 #include "modules/common/status/status.h"
+#include "modules/common/vehicle_state/proto/vehicle_state.pb.h"
+#include "modules/localization/proto/localization.pb.h"
 
 /**
  * @namespace apollo::common
@@ -188,8 +185,6 @@ private:
 
         common::VehicleState vehicle_state_;
         localization::LocalizationEstimate original_localization_;
-
-        DECLARE_SINGLETON(VehicleStateProvider)
 };
 
 }  // namespace common

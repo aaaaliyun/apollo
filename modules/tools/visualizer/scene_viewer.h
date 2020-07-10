@@ -17,6 +17,9 @@
 #pragma once
 
 #include <QtWidgets/QOpenGLWidget>
+#include <map>
+#include <memory>
+#include <string>
 
 #include "modules/tools/visualizer/free_camera.h"
 #include "modules/tools/visualizer/plane.h"
@@ -85,13 +88,13 @@ public:
                 }
         }
 
-signals:
-        void CameraPosChanged(const QVector3D& pos);
-        void CameraAttitudeChanged(const QVector3D& attitude);
+signals:  // NOLINT
+  	void CameraPosChanged(const QVector3D& pos);
+  	void CameraAttitudeChanged(const QVector3D& attitude);
 
-public slots:
-        void ChangeCameraType(int index);
-        //  void ChangeCameraMode(int index);
+public slots:  // NOLINT
+  	void ChangeCameraType(int index);
+  	//  void ChangeCameraMode(int index);
 
         void ResetCameraPosAttitude(void);
 

@@ -25,25 +25,16 @@
 namespace apollo {
 namespace storytelling {
 
-<<<<<<< HEAD
 class BaseTeller 
 {
 public:
+        explicit BaseTeller(const std::shared_ptr<FrameManager>& frame_manager) : frame_manager_(frame_manager) {}
         virtual ~BaseTeller() = default;
-        virtual void Init() = 0;
+        virtual void Init(const StorytellingConfig& storytelling_conf) = 0;
         virtual void Update(Stories* stories) = 0;
-=======
-class BaseTeller {
- public:
-  explicit BaseTeller(const std::shared_ptr<FrameManager>& frame_manager)
-      : frame_manager_(frame_manager) {}
-  virtual ~BaseTeller() = default;
-  virtual void Init(const StorytellingConfig& storytelling_conf) = 0;
-  virtual void Update(Stories* stories) = 0;
 
- protected:
-  std::shared_ptr<FrameManager> frame_manager_;
->>>>>>> update_stream/master
+protected:
+        std::shared_ptr<FrameManager> frame_manager_;
 };
 
 }  // namespace storytelling

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -32,7 +33,8 @@ namespace planning {
 
 class SpeedDecider : public Task {
  public:
-  explicit SpeedDecider(const TaskConfig& config);
+  SpeedDecider(const TaskConfig& config,
+               const std::shared_ptr<DependencyInjector>& injector);
 
   common::Status Execute(Frame* frame,
                          ReferenceLineInfo* reference_line_info) override;
@@ -103,7 +105,6 @@ class SpeedDecider : public Task {
   bool IsFollowTooClose(const Obstacle& obstacle) const;
 
  private:
-  static std::unordered_map<std::string, double> pedestrian_stop_timer_;
   SLBoundary adc_sl_boundary_;
   common::TrajectoryPoint init_point_;
   const ReferenceLine* reference_line_ = nullptr;

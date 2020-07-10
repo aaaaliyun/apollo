@@ -98,13 +98,14 @@ private:
         void UpdateState(const int ret, const double time);
 
         // Load lidar-imu extrinsic parameter.
-        bool LoadLidarExtrinsic(const std::string &file_path, TransformD *lidar_extrinsic);
+        bool LoadLidarExtrinsic(const std::string &file_path,
+                          TransformD *lidar_extrinsic);
         // Load lidar height (the distance between lidar and ground).
         bool LoadLidarHeight(const std::string &file_path, LidarHeight *height);
 
         double ComputeDeltaYawLimit(const int64_t index_cur, const int64_t index_stable, const double limit_min, const double limit_max);
 
-private:
+ private:
         // Lidar localization.
         LocalizationLidar *locator_;
         PoseForcast *pose_forecastor_;
@@ -158,6 +159,9 @@ private:
 
         static constexpr double DEG_TO_RAD = 0.017453292519943;
         static constexpr double DEG_TO_RAD2 = DEG_TO_RAD * DEG_TO_RAD;
+
+public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 }  // namespace msf

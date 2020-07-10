@@ -45,13 +45,13 @@ signals:
         void pitchValueChanged(double);
         void rollValueChanged(double);
 
-public slots:
-        void updateCameraAttitude(const QVector3D &);
-        void updateCameraPos(const QVector3D &);
+public slots:  // NOLINT
+  	void updateCameraAttitude(const QVector3D &);
+  	void updateCameraPos(const QVector3D &);
 
-private slots:
-        void OnStepSlideChanged(int v);
-        void onCameraTypeChanged(int);
+private slots:  // NOLINT
+  	void OnStepSlideChanged(int v);
+  	void onCameraTypeChanged(int);
 
 private:
         Ui::SceneCameraDialog *ui;

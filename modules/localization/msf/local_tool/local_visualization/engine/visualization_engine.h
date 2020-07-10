@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "Eigen/Geometry"
+#include "modules/common/util/eigen_defs.h"
 #include "opencv2/opencv.hpp"
 
 namespace apollo {
@@ -39,10 +40,12 @@ namespace msf {
  */
 struct LocalizatonInfo 
 {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         void set(const Eigen::Translation3d &location,
-                 const Eigen::Quaterniond &attitude, const Eigen::Vector3d &std_var,
-                 const std::string &description, const double timestamp,
-                 const unsigned int frame_id) 
+                const Eigen::Quaterniond &attitude, const Eigen::Vector3d &std_var,
+                const std::string &description, const double timestamp,
+                const unsigned int frame_id) 
         {
                 set(location, attitude, description, timestamp, frame_id);
                 this->std_var = std_var;
@@ -50,8 +53,8 @@ struct LocalizatonInfo
         }
 
         void set(const Eigen::Translation3d &location,
-                 const Eigen::Quaterniond &attitude, const std::string &description,
-                 const double timestamp, const unsigned int frame_id) 
+           const Eigen::Quaterniond &attitude, const std::string &description,
+           const double timestamp, const unsigned int frame_id) 
         {
                 set(location, description, timestamp, frame_id);
                 this->attitude = attitude;
@@ -60,8 +63,8 @@ struct LocalizatonInfo
         }
 
         void set(const Eigen::Translation3d &location, const Eigen::Vector3d &std_var,
-                 const std::string &description, const double timestamp,
-                 const unsigned int frame_id) 
+           const std::string &description, const double timestamp,
+           const unsigned int frame_id) 
         {
                 set(location, description, timestamp, frame_id);
                 this->std_var = std_var;
@@ -69,7 +72,7 @@ struct LocalizatonInfo
         }
 
         void set(const Eigen::Translation3d &location, const std::string &description,
-                 const double timestamp, const unsigned int frame_id) 
+           const double timestamp, const unsigned int frame_id) 
         {
                 this->attitude = Eigen::Quaterniond::Identity();
                 this->location = location;
@@ -172,15 +175,16 @@ public:
 
 public:
         bool Init(const std::string &map_folder, const std::string &map_visual_folder,
-                  const VisualMapParam &map_param, const unsigned int resolution_id,
-                  const int zone_id, const Eigen::Affine3d &extrinsic,
-                  const unsigned int loc_info_num = 1);
+            const VisualMapParam &map_param, const unsigned int resolution_id,
+            const int zone_id, const Eigen::Affine3d &extrinsic,
+            const unsigned int loc_info_num = 1);
         void Visualize(const std::vector<LocalizatonInfo> &loc_infos,
-                       const std::vector<Eigen::Vector3d> &cloud);
+                 const ::apollo::common::EigenVector3dVec &cloud);
         void SetAutoPlay(bool auto_play);
 
 private:
-        void Preprocess(const std::string &map_folder, const std::string &map_visual_folder);
+        void Preprocess(const std::string &map_folder,
+                  const std::string &map_visual_folder);
         void Draw();
         void DrawLoc(const cv::Point &bias);
         void DrawStd(const cv::Point &bias);
@@ -192,15 +196,24 @@ private:
 
         void UpdateLevel();
         /**@brief Generate multi resolution images from origin map node images.*/
-        void GenerateMutiResolutionImages(const std::vector<std::string> &src_files, const int base_path_length, const std::string &dst_folder);
-        void InitOtherParams(const int x_min, const int y_min, const int x_max, const int y_max, const int level, const std::string &path);
+        void GenerateMutiResolutionImages(const std::vector<std::string> &src_files,
+                                    const int base_path_length,
+                                    const std::string &dst_folder);
+        void InitOtherParams(const int x_min, const int y_min, const int x_max,
+                       const int y_max, const int level,
+                       const std::string &path);
         bool InitOtherParams(const std::string &params_file);
 
         /**@brief Project point cloud ti mat.*/
-        void CloudToMat(const Eigen::Affine3d &cur_pose, const Eigen::Affine3d &velodyne_extrinsic, const std::vector<Eigen::Vector3d> &cloud, cv::Mat *cloud_img, cv::Mat *cloud_img_mask);
+        void CloudToMat(const Eigen::Affine3d &cur_pose,
+                  const Eigen::Affine3d &velodyne_extrinsic,
+                  const ::apollo::common::EigenVector3dVec &cloud,
+                  cv::Mat *cloud_img, cv::Mat *cloud_img_mask);
         void CoordToImageKey(const Eigen::Vector2d &coord, MapImageKey *key);
         /**@brief Compute grid index in current map given global coordinate.*/
-        cv::Point CoordToMapGridIndex(const Eigen::Vector2d &coord, const unsigned int resolution_id, const int stride);
+        cv::Point CoordToMapGridIndex(const Eigen::Vector2d &coord,
+                                const unsigned int resolution_id,
+                                const int stride);
         /**@brief Compute grid index in spcific map node.*/
         cv::Point MapGridIndexToNodeGridIndex(const cv::Point &p);
 
@@ -264,7 +277,7 @@ private:
         bool auto_play_ = false;
 
         Eigen::Affine3d car_pose_;
-        std::vector<Eigen::Vector3d> cloud_;
+        ::apollo::common::EigenVector3dVec cloud_;
         cv::Mat cloud_img_;
         cv::Mat cloud_img_mask_;
         Eigen::Vector2d cloud_img_lt_coord_;

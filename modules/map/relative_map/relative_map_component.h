@@ -22,6 +22,7 @@
 #include "cyber/cyber.h"
 
 #include "modules/map/relative_map/relative_map.h"
+#include "modules/common/vehicle_state/vehicle_state_provider.h"
 
 namespace apollo {
 namespace relative_map {
@@ -41,6 +42,7 @@ private:
         std::shared_ptr<cyber::Reader<localization::LocalizationEstimate>> localization_reader_ = nullptr;
         std::shared_ptr<cyber::Reader<NavigationInfo>> navigation_reader_ = nullptr;
 
+        std::shared_ptr<common::VehicleStateProvider> vehicle_state_provider_;
         RelativeMap relative_map_;
 };
 

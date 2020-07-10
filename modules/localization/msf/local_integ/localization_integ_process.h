@@ -99,6 +99,9 @@ private:
         std::mutex measure_data_queue_mutex_;
 
         int delay_output_counter_ = 0;
+
+public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 }  // namespace msf

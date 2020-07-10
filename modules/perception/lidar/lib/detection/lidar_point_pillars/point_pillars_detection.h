@@ -15,9 +15,13 @@
  *****************************************************************************/
 #pragma once
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
 
 #include "modules/perception/base/object.h"
 #include "modules/perception/base/point_cloud.h"
@@ -44,15 +48,20 @@ class PointPillarsDetection {
   std::string Name() const { return "PointPillarsDetection"; }
 
  private:
-  void PclToArray(const base::PointFCloudPtr& pc_ptr, float* out_points_array,
-                  const float normalizing_factor);
+  void CloudToArray(const base::PointFCloudPtr& pc_ptr,
+                    float* out_points_array,
+                    float normalizing_factor);
+
+  void FuseCloud(const base::PointFCloudPtr& out_cloud_ptr,
+                 const std::deque<base::PointDCloudPtr>& fuse_clouds);
+
+  std::vector<int> GenerateIndices(int start_index, int size, bool shuffle);
 
   void GetObjects(std::vector<std::shared_ptr<base::Object>>* objects,
-                  const Eigen::Affine3d& pose,
-                  std::vector<float>* detections,
+                  const Eigen::Affine3d& pose, std::vector<float>* detections,
                   std::vector<int>* labels);
 
-  base::ObjectSubType GetObjectSubType(const int label);
+  base::ObjectSubType GetObjectSubType(int label);
 
   // reference pointer of lidar frame
   LidarFrame* lidar_frame_ref_ = nullptr;
@@ -62,17 +71,16 @@ class PointPillarsDetection {
 
   // PointPillars
   std::unique_ptr<PointPillars> point_pillars_ptr_;
+  std::deque<base::PointDCloudPtr> prev_world_clouds_;
+  base::PointFCloudPtr cur_cloud_ptr_;
 
   // time statistics
+  double downsample_time_ = 0.0;
+  double fuse_time_ = 0.0;
+  double shuffle_time_ = 0.0;
+  double cloud_to_array_time_ = 0.0;
   double inference_time_ = 0.0;
   double collect_time_ = 0.0;
-
-  // constants
-  const float kNormalizingFactor = 255.0f;
-  const int kOutputNumBoxFeature = 7;
-  const bool kReproduceResultMode = false;
-  const float kScoreThreshold = 0.5;
-  const float kNmsOverlapThreshold = 0.5;
 };  // class PointPillarsDetection
 
 }  // namespace lidar

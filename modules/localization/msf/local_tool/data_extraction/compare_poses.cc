@@ -14,11 +14,11 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
-
 #include <fstream>
 #include <iomanip>
+
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"
@@ -26,7 +26,11 @@
 
 #include "cyber/common/log.h"
 #include "modules/common/math/quaternion.h"
+
 #include "modules/localization/msf/common/io/velodyne_utility.h"
+
+using ::apollo::common::EigenAffine3dVec;
+using ::apollo::common::EigenVector3dVec;
 
 static bool LoadGnssAntennaExtrinsic(const std::string &file_path,
                                      Eigen::Vector3d *imu_ant_offset) 
@@ -47,9 +51,13 @@ static bool LoadGnssAntennaExtrinsic(const std::string &file_path,
         return false;
 }
 
-static void PoseAndStdInterpolationByTime(const std::vector<Eigen::Affine3d> &in_poses, const std::vector<Eigen::Vector3d> &in_stds,
-                                          const std::vector<double> &in_timestamps, const std::vector<double> &ref_timestamps,
-                                          std::map<unsigned int, Eigen::Affine3d> *out_poses, std::map<unsigned int, Eigen::Vector3d> *out_stds) 
+static void PoseAndStdInterpolationByTime(
+    const EigenAffine3dVec &in_poses,
+    const EigenVector3dVec &in_stds,
+    const std::vector<double> &in_timestamps,
+    const std::vector<double> &ref_timestamps,
+    std::map<unsigned int, Eigen::Affine3d> *out_poses,
+    std::map<unsigned int, Eigen::Vector3d> *out_stds) 
 {
         unsigned int index = 0;
         for (size_t i = 0; i < ref_timestamps.size(); ++i) 
@@ -108,11 +116,11 @@ int main(int argc, char **argv)
 {
         boost::program_options::options_description boost_desc("Allowed options");
         boost_desc.add_options()("help", "produce help message")
-        ("in_folder", boost::program_options::value<std::string>(), "provide the output folder")
-        ("loc_file_a", boost::program_options::value<std::string>(), "provide gnss localization file.")
-        ("loc_file_b", boost::program_options::value<std::string>(), "provide lidar localization file.")
-        ("compare_file", boost::program_options::value<std::string>(), "provide compare file.")
-        ("imu_to_ant_offset_file", boost::program_options::value<std::string>()->default_value(""), "provide imu to ant offset file.");
+                                ("in_folder", boost::program_options::value<std::string>(), "provide the output folder")
+                                ("loc_file_a", boost::program_options::value<std::string>(), "provide gnss localization file.")
+                                ("loc_file_b", boost::program_options::value<std::string>(), "provide lidar localization file.")
+                                ("compare_file", boost::program_options::value<std::string>(), "provide compare file.")
+                                ("imu_to_ant_offset_file", boost::program_options::value<std::string>()->default_value(""), "provide imu to ant offset file.");
 
         boost::program_options::variables_map boost_args;
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, boost_desc), boost_args);
@@ -140,8 +148,8 @@ int main(int argc, char **argv)
                 }
         }
 
-        std::vector<Eigen::Affine3d> poses_a;
-        std::vector<Eigen::Vector3d> stds_a;
+        EigenAffine3dVec poses_a;
+        EigenVector3dVec stds_a;
         std::vector<double> timestamps_a;
         apollo::localization::msf::velodyne::LoadPosesAndStds(loc_file_a, &poses_a, &stds_a, &timestamps_a);
         if (poses_a.empty()) 
@@ -149,10 +157,11 @@ int main(int argc, char **argv)
                 return 0;
         }
 
-        std::vector<Eigen::Affine3d> poses_b;
-        std::vector<Eigen::Vector3d> stds_b;
+        EigenAffine3dVec poses_b;
+        EigenVector3dVec stds_b;
         std::vector<double> timestamps_b;
-        apollo::localization::msf::velodyne::LoadPosesAndStds(loc_file_b, &poses_b, &stds_b, &timestamps_b);
+        apollo::localization::msf::velodyne::LoadPosesAndStds(loc_file_b, &poses_b,
+                                                        &stds_b, &timestamps_b);
         if (poses_b.empty()) 
         {
                 return 0;

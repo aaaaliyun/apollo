@@ -33,21 +33,11 @@ std::string Routing::Name() const { return FLAGS_routing_node_name; }
 
 Routing::Routing() : monitor_logger_buffer_(common::monitor::MonitorMessageItem::ROUTING) {}
 
-<<<<<<< HEAD
 apollo::common::Status Routing::Init() 
 {
         const auto routing_map_file = apollo::hdmap::RoutingMapFile();
         AINFO << "Use routing topology graph path: " << routing_map_file;
         navigator_ptr_.reset(new Navigator(routing_map_file));
-        ACHECK(cyber::common::GetProtoFromFile(FLAGS_routing_conf_file, &routing_conf_)) << "Unable to load routing conf file: " + FLAGS_routing_conf_file;
-
-        AINFO << "Conf file: " << FLAGS_routing_conf_file << " is loaded.";
-=======
-apollo::common::Status Routing::Init() {
-  const auto routing_map_file = apollo::hdmap::RoutingMapFile();
-  AINFO << "Use routing topology graph path: " << routing_map_file;
-  navigator_ptr_.reset(new Navigator(routing_map_file));
->>>>>>> update_stream/master
 
         hdmap_ = apollo::hdmap::HDMapUtil::BaseMapPtr();
         ACHECK(hdmap_) << "Failed to load map file:" << apollo::hdmap::BaseMapFile();
@@ -147,26 +137,6 @@ std::vector<RoutingRequest> Routing::FillLaneInfoIfMissing(const RoutingRequest&
         return fixed_requests;
 }
 
-<<<<<<< HEAD
-double Routing::GetRoutingLength(const RoutingResponse& routing_response) 
-{
-        double length = 0;
-        for (int i = 0; i < routing_response.road_size(); ++i) 
-        {
-                const auto& road = routing_response.road(i);
-                for (int j = 0; j < road.passage_size(); ++j) 
-                {
-                        const auto& passage = routing_response.road(i).passage(j);
-                        for (int k = 0; k < passage.segment_size(); ++k) 
-                        {
-                                const auto& segment = passage.segment(k);
-                                length += (segment.end_s() - segment.start_s());
-                        }
-                }
-        }
-        return length;
-}
-
 bool Routing::GetParkingID(const PointENU& parking_point, std::string* parking_space_id) 
 {
         // search current parking space id associated with parking point.
@@ -178,19 +148,6 @@ bool Routing::GetParkingID(const PointENU& parking_point, std::string* parking_s
                 return true;
         }
         return false;
-=======
-bool Routing::GetParkingID(const PointENU& parking_point,
-                           std::string* parking_space_id) {
-  // search current parking space id associated with parking point.
-  constexpr double kDistance = 0.01;  // meter
-  std::vector<ParkingSpaceInfoConstPtr> parking_spaces;
-  if (hdmap_->GetParkingSpaces(parking_point, kDistance, &parking_spaces) ==
-      0) {
-    *parking_space_id = parking_spaces.front()->id().id();
-    return true;
-  }
-  return false;
->>>>>>> update_stream/master
 }
 
 bool Routing::FillParkingID(RoutingResponse* routing_response) 
@@ -220,8 +177,8 @@ bool Routing::FillParkingID(RoutingResponse* routing_response)
         return false;
 }
 
-<<<<<<< HEAD
-bool Routing::Process(const std::shared_ptr<RoutingRequest>& routing_request, RoutingResponse* const routing_response) 
+bool Routing::Process(const std::shared_ptr<RoutingRequest>& routing_request,
+                      RoutingResponse* const routing_response) 
 {
         CHECK_NOTNULL(routing_response);
         AINFO << "Get new routing request:" << routing_request->DebugString();
@@ -233,7 +190,7 @@ bool Routing::Process(const std::shared_ptr<RoutingRequest>& routing_request, Ro
                 RoutingResponse routing_response_temp;
                 if (navigator_ptr_->SearchRoute(fixed_request, &routing_response_temp)) 
                 {
-                        const double routing_length = GetRoutingLength(routing_response_temp);
+                        const double routing_length = routing_response_temp.measurement().distance();
                         if (routing_length < min_routing_length) 
                         {
                                 routing_response->CopyFrom(routing_response_temp);
@@ -251,36 +208,6 @@ bool Routing::Process(const std::shared_ptr<RoutingRequest>& routing_request, Ro
         AERROR << "Failed to search route with navigator.";
         monitor_logger_buffer_.WARN("Routing failed! " + routing_response->status().msg());
         return false;
-=======
-bool Routing::Process(const std::shared_ptr<RoutingRequest>& routing_request,
-                      RoutingResponse* const routing_response) {
-  CHECK_NOTNULL(routing_response);
-  AINFO << "Get new routing request:" << routing_request->DebugString();
-
-  const auto& fixed_requests = FillLaneInfoIfMissing(*routing_request);
-  double min_routing_length = std::numeric_limits<double>::max();
-  for (const auto& fixed_request : fixed_requests) {
-    RoutingResponse routing_response_temp;
-    if (navigator_ptr_->SearchRoute(fixed_request, &routing_response_temp)) {
-      const double routing_length =
-          routing_response_temp.measurement().distance();
-      if (routing_length < min_routing_length) {
-        routing_response->CopyFrom(routing_response_temp);
-        min_routing_length = routing_length;
-      }
-    }
-    FillParkingID(routing_response);
-  }
-  if (min_routing_length < std::numeric_limits<double>::max()) {
-    monitor_logger_buffer_.INFO("Routing success!");
-    return true;
-  }
-
-  AERROR << "Failed to search route with navigator.";
-  monitor_logger_buffer_.WARN("Routing failed! " +
-                              routing_response->status().msg());
-  return false;
->>>>>>> update_stream/master
 }
 
 }  // namespace routing

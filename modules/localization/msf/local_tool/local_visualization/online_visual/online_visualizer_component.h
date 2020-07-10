@@ -34,6 +34,7 @@
 #include "modules/localization/proto/localization.pb.h"
 
 #include "modules/common/status/status.h"
+#include "modules/common/util/eigen_defs.h"
 #include "modules/localization/msf/local_tool/local_visualization/engine/visualization_manager.h"
 
 /**
@@ -65,9 +66,7 @@ private:
         void OnGNSSLocalization(const std::shared_ptr<LocalizationEstimate> &message);
         void OnFusionLocalization(const std::shared_ptr<LocalizationEstimate> &message);
 
-        void ParsePointCloudMessage(const std::shared_ptr<drivers::PointCloud> &message,
-                                    std::vector<Eigen::Vector3d> *pt3ds,
-                                    std::vector<unsigned char> *intensities);
+        void ParsePointCloudMessage(const std::shared_ptr<drivers::PointCloud> &message, ::apollo::common::EigenVector3dVec *pt3ds, std::vector<unsigned char> *intensities);
 
 private:
         std::string lidar_extrinsic_file_;

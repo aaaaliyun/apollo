@@ -79,45 +79,42 @@ double GetPathAngle(const Points &points, const size_t start,
  * @return sampled_indices Indices of all sampled points, or empty when fail.
  */
 template <typename Points>
-std::vector<size_t> DownsampleByAngle(const Points &points,
-                                      const double angle_threshold) 
+std::vector<size_t> DownsampleByAngle(const Points &points, const double angle_threshold) 
 {
         std::vector<size_t> sampled_indices;
         if (points.empty()) 
         {
-                return sampled_indices;
-        }
+    return sampled_indices;
+  }
 
-        if (angle_threshold < 0.0) 
-        {
-                AERROR << "Input angle threshold is negative.";
-                return sampled_indices;
-        }
-        sampled_indices.push_back(0);
-        if (points.size() > 1) 
-        {
-                size_t start = 0;
-                size_t end = 1;
-                double accum_degree = 0.0;
-                while (end + 1 < points.size()) 
-                {
-                        const double angle = GetPathAngle(points, start, end);
-                        accum_degree += std::fabs(angle);
+  if (angle_threshold < 0.0) {
+    AERROR << "Input angle threshold is negative.";
+    return sampled_indices;
+  }
+  sampled_indices.push_back(0);
+  if (points.size() > 1) {
+    size_t start = 0;
+    size_t end = 1;
+    double accum_degree = 0.0;
+    while (end + 1 < static_cast<size_t>(points.size())) {
+      const double angle = GetPathAngle(points, start, end);
+      accum_degree += std::fabs(angle);
 
-                        if (accum_degree > angle_threshold) 
-                        {
-                                sampled_indices.push_back(end);
-                                start = end;
-                                accum_degree = 0.0;
-                        }
-                        ++end;
-                }
-                sampled_indices.push_back(end);
-        }
+      if (accum_degree > angle_threshold) {
+        sampled_indices.push_back(end);
+        start = end;
+        accum_degree = 0.0;
+      }
+      ++end;
+    }
+    sampled_indices.push_back(end);
+  }
 
-        ADEBUG << "Point Vector is downsampled from " << points.size() << " to " << sampled_indices.size();
+  ADEBUG << "Point Vector is downsampled from " << points.size() << " to "
+         << sampled_indices.size();
 
-        return sampled_indices;
+  return sampled_indices;
+>>>>>>> update_stream/master
 }
 
 /**

@@ -32,6 +32,7 @@
 #include "modules/map/relative_map/proto/navigation.pb.h"
 #include "modules/map/relative_map/proto/relative_map_config.pb.h"
 #include "modules/perception/proto/perception_obstacle.pb.h"
+#include "modules/common/vehicle_state/vehicle_state_provider.h"
 
 /**
  * @namespace apollo::relative_map
@@ -106,6 +107,8 @@ public:
         */
         void SetConfig(const NavigationLaneConfig& config);
 
+        void SetVehicleStateProvider(common::VehicleStateProvider* vehicle_state_provider);
+
         /**
         * @brief Update navigation line information.
         * @param navigation_info Navigation line information to be updated.
@@ -179,7 +182,9 @@ private:
         * @param x Independent variable.
         * @return Calculated value of the cubic polynomial.
         */
-        double EvaluateCubicPolynomial(const double c0, const double c1, const double c2, const double c3, const double x) const;
+        double EvaluateCubicPolynomial(const double c0, const double c1,
+                                 const double c2, const double c3,
+                                 const double x) const;
 
         /**
         * @brief Calculate the curvature value based on the cubic polynomial's
@@ -291,6 +296,7 @@ private:
 
         // in world coordination: ENU
         localization::Pose original_pose_;
+        common::VehicleStateProvider* vehicle_state_provider_ = nullptr;
 };
 
 }  // namespace relative_map

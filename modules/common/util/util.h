@@ -34,6 +34,7 @@
 #include "modules/common/math/vec2d.h"
 #include "modules/common/proto/geometry.pb.h"
 #include "modules/common/proto/pnc_point.pb.h"
+#include "modules/common/configs/config_gflags.h"
 
 /**
  * @namespace apollo::common::util
@@ -168,3 +169,9 @@ std::ostream& operator<<(std::ostream& os, std::pair<A, B>& p)
 {
         return os << "first: " << p.first << ", second: " << p.second;
 }
+
+#define UNIQUE_LOCK_MULTITHREAD(mutex_type)                         \
+  std::unique_ptr<std::unique_lock<std::mutex>> lock_ptr = nullptr; \
+  if (FLAGS_multithread_run) {                                      \
+    lock_ptr.reset(new std::unique_lock<std::mutex>(mutex_type));   \
+  }

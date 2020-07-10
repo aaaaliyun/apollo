@@ -174,15 +174,10 @@ __global__ void make_anchor_mask_kernel(
   }
 }
 
-AnchorMaskCuda::AnchorMaskCuda(const int num_threads,
-                               const int num_inds_for_scan,
-                               const int num_anchor,
-                               const float min_x_range,
-                               const float min_y_range,
-                               const float pillar_x_size,
-                               const float pillar_y_size,
-                               const int grid_x_size,
-                               const int grid_y_size)
+AnchorMaskCuda::AnchorMaskCuda(
+    const int num_threads, const int num_inds_for_scan, const int num_anchor,
+    const float min_x_range, const float min_y_range, const float pillar_x_size,
+    const float pillar_y_size, const int grid_x_size, const int grid_y_size)
     : num_threads_(num_threads),
       num_inds_for_scan_(num_inds_for_scan),
       num_anchor_(num_anchor),
@@ -193,6 +188,7 @@ AnchorMaskCuda::AnchorMaskCuda(const int num_threads,
       grid_x_size_(grid_x_size),
       grid_y_size_(grid_y_size) {}
 
+// TODO(chenjiahao): set anchor ranges for each class
 void AnchorMaskCuda::DoAnchorMaskCuda(
     int* dev_sparse_pillar_map, int* dev_cumsum_along_x,
     int* dev_cumsum_along_y, const float* dev_box_anchors_min_x,

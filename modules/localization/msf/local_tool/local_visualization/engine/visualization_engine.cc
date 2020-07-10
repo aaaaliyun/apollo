@@ -147,7 +147,7 @@ bool VisualizationEngine::Init(const std::string &map_folder,
         return true;
 }
 
-void VisualizationEngine::Visualize(const std::vector<LocalizatonInfo> &loc_infos, const std::vector<Eigen::Vector3d> &cloud) 
+void VisualizationEngine::Visualize(const std::vector<LocalizatonInfo> &loc_infos, const ::apollo::common::EigenVector3dVec &cloud) 
 {
         if (!is_init_) 
         {
@@ -772,11 +772,7 @@ void VisualizationEngine::InitOtherParams(const int x_min, const int y_min,
         AINFO << "image_visual_leaf_path: " << image_visual_leaf_path_;
 }
 
-void VisualizationEngine::CloudToMat(const Eigen::Affine3d &cur_pose,
-                                     const Eigen::Affine3d &velodyne_extrinsic,
-                                     const std::vector<Eigen::Vector3d> &cloud,
-                                     cv::Mat *cloud_img,
-                                     cv::Mat *cloud_img_mask) 
+void VisualizationEngine::CloudToMat(const Eigen::Affine3d &cur_pose, const Eigen::Affine3d &velodyne_extrinsic, const ::apollo::common::EigenVector3dVec &cloud, cv::Mat *cloud_img, cv::Mat *cloud_img_mask) 
 {
         unsigned int img_width = map_param_.map_node_size_x;
         unsigned int img_height = map_param_.map_node_size_y;
@@ -807,19 +803,16 @@ void VisualizationEngine::CloudToMat(const Eigen::Affine3d &cur_pose,
         }
 }
 
-void VisualizationEngine::CoordToImageKey(const Eigen::Vector2d &coord, MapImageKey *key) 
+void VisualizationEngine::CoordToImageKey(const Eigen::Vector2d &coord,
+                                          MapImageKey *key) 
 {
         key->level = cur_level_;
 
         DCHECK_LT(resolution_id_, map_param_.map_resolutions.size());
         key->zone_id = zone_id_;
-
         int n = static_cast<int>((coord[0] - map_param_.map_min_x) / (static_cast<float>(map_param_.map_node_size_x) * map_param_.map_resolutions[resolution_id_]));
-
         int m = static_cast<int>((coord[1] - map_param_.map_min_y) / (static_cast<float>(map_param_.map_node_size_y) * map_param_.map_resolutions[resolution_id_]));
-
         int max_n = static_cast<int>((map_param_.map_max_x - map_param_.map_min_x) / (static_cast<float>(map_param_.map_node_size_x) * map_param_.map_resolutions[resolution_id_]));
-
         int max_m = static_cast<unsigned int>((map_param_.map_max_y - map_param_.map_min_y) / (static_cast<float>(map_param_.map_node_size_y) * map_param_.map_resolutions[resolution_id_]));
 
         if (n >= 0 && m >= 0 && n < max_n && m < max_m) 
@@ -847,7 +840,9 @@ void VisualizationEngine::CoordToImageKey(const Eigen::Vector2d &coord, MapImage
         key->node_east_id = n / cur_stride_ * cur_stride_ + lt_node_index_.x;
 }
 
-cv::Point VisualizationEngine::CoordToMapGridIndex(const Eigen::Vector2d &coord, const unsigned int resolution_id, const int stride) 
+cv::Point VisualizationEngine::CoordToMapGridIndex(
+    const Eigen::Vector2d &coord, const unsigned int resolution_id,
+    const int stride) 
 {
         cv::Point p;
         p.x = static_cast<int>((coord[0] - map_param_.map_min_x) / map_param_.map_resolutions[resolution_id]);

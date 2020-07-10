@@ -116,7 +116,12 @@ protected:
 
 public:
         /**@brief Constructor. */
-        VoxelGridCovariance() : min_points_per_voxel_(6), leaves_(), voxel_centroids_(), voxel_centroids_leaf_indices_(), kdtree_() 
+        VoxelGridCovariance()
+      : min_points_per_voxel_(6),
+        leaves_(),
+        voxel_centroids_(),
+        voxel_centroids_leaf_indices_(),
+        kdtree_() 
         {
                 leaf_size_.setZero();
                 min_b_.setZero();
@@ -127,7 +132,7 @@ public:
         void SetInputCloud(const PointCloudConstPtr &cloud) { input_ = cloud; }
 
         /**@brief Set the minimum number of points required for a cell to be used
-         * (must be 3 or greater for covariance calculation). */
+        * (must be 3 or greater for covariance calculation). */
         inline void SetMinPointPerVoxel(int min_points_per_voxel) 
         {
                 if (min_points_per_voxel > 2) 
@@ -200,9 +205,9 @@ public:
         inline LeafConstPtr GetLeaf(Eigen::Vector3f *p) 
         {
                 // Generate index associated with p
-                int ijk0 = static_cast<int>((p->x - map_left_top_corner_(0)) * inverse_leaf_size_[0]) - min_b_[0];
-                int ijk1 = static_cast<int>((p->y - map_left_top_corner_(1)) * inverse_leaf_size_[1]) - min_b_[1];
-                int ijk2 = static_cast<int>((p->z - map_left_top_corner_(2)) * inverse_leaf_size_[2]) - min_b_[2];
+                int ijk0 = static_cast<int>((p->x() - map_left_top_corner_(0)) * inverse_leaf_size_[0]) - min_b_[0];
+                int ijk1 = static_cast<int>((p->y() - map_left_top_corner_(1)) * inverse_leaf_size_[1]) - min_b_[1];
+                int ijk2 = static_cast<int>((p->z() - map_left_top_corner_(2)) * inverse_leaf_size_[2]) - min_b_[2];
 
                 // Compute the centroid leaf index
                 int idx = ijk0 * divb_mul_[0] + ijk1 * divb_mul_[1] + ijk2 * divb_mul_[2];
@@ -226,7 +231,10 @@ public:
 
         /**@brief Search for all the nearest occupied voxels of the query point in a
         * given radius. */
-        int RadiusSearch(const PointT &point, double radius, std::vector<LeafConstPtr> *k_leaves, std::vector<float> *k_sqr_distances, unsigned int max_nn = 0);
+        int RadiusSearch(const PointT &point, double radius,
+                   std::vector<LeafConstPtr> *k_leaves,
+                   std::vector<float> *k_sqr_distances,
+                   unsigned int max_nn = 0);
 
         void GetDisplayCloud(pcl::PointCloud<pcl::PointXYZ> *cell_cloud);
 
