@@ -323,6 +323,10 @@ bool NavigationLane::GeneratePath()
                         }
                 }
         }
+	// Generate a navigation path where the vehicle is located based on perceived
+  	// lane markers.
+  	generate_path_on_perception_func();
+  	return true;
 }
 
 double NavigationLane::EvaluateCubicPolynomial(const double c0, const double c1, const double c2, const double c3, const double x) const 
