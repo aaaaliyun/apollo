@@ -25,6 +25,7 @@
 #include "modules/monitor/software/functional_safety_monitor.h"
 #include "modules/monitor/software/latency_monitor.h"
 #include "modules/monitor/software/localization_monitor.h"
+#include "modules/monitor/software/module_monitor.h"
 #include "modules/monitor/software/process_monitor.h"
 #include "modules/monitor/software/recorder_monitor.h"
 #include "modules/monitor/software/summary_monitor.h"
@@ -39,24 +40,26 @@ bool Monitor::Init()
 {
         MonitorManager::Instance()->Init(node_);
 
-        // Only the one CAN card corresponding to current mode will take effect.
-        runners_.emplace_back(new EsdCanMonitor());
-        runners_.emplace_back(new SocketCanMonitor());
-        // To enable the GpsMonitor, you must add FLAGS_gps_component_name to the
-        // mode's monitored_components.
-        runners_.emplace_back(new GpsMonitor());
-        // To enable the LocalizationMonitor, you must add
-        // FLAGS_localization_component_name to the mode's monitored_components.
-        runners_.emplace_back(new LocalizationMonitor());
-        // Monitor if processes are running.
-        runners_.emplace_back(new ProcessMonitor());
-        // Monitor message processing latencies across modules
-        const std::shared_ptr<LatencyMonitor> latency_monitor(new LatencyMonitor());
-        runners_.emplace_back(latency_monitor);
-        // Monitor if channel messages are updated in time.
-        runners_.emplace_back(new ChannelMonitor(latency_monitor));
-        // Monitor if resources are sufficient.
-        runners_.emplace_back(new ResourceMonitor());
+  // Only the one CAN card corresponding to current mode will take effect.
+  runners_.emplace_back(new EsdCanMonitor());
+  runners_.emplace_back(new SocketCanMonitor());
+  // To enable the GpsMonitor, you must add FLAGS_gps_component_name to the
+  // mode's monitored_components.
+  runners_.emplace_back(new GpsMonitor());
+  // To enable the LocalizationMonitor, you must add
+  // FLAGS_localization_component_name to the mode's monitored_components.
+  runners_.emplace_back(new LocalizationMonitor());
+  // Monitor if processes are running.
+  runners_.emplace_back(new ProcessMonitor());
+  // Monitor if modules are running.
+  runners_.emplace_back(new ModuleMonitor());
+  // Monitor message processing latencies across modules
+  const std::shared_ptr<LatencyMonitor> latency_monitor(new LatencyMonitor());
+  runners_.emplace_back(latency_monitor);
+  // Monitor if channel messages are updated in time.
+  runners_.emplace_back(new ChannelMonitor(latency_monitor));
+  // Monitor if resources are sufficient.
+  runners_.emplace_back(new ResourceMonitor());
 
         // Monitor all changes made by each sub-monitor, and summarize to a final
         // overall status.

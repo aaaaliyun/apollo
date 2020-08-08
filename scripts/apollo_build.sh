@@ -119,7 +119,7 @@ function _run_bazel_build_impl() {
 function bazel_build() {
     if ! "${APOLLO_IN_DOCKER}" ; then
         error "The build operation must be run from within docker container"
-        # exit 1
+        exit 1
     fi
 
 	_parse_cmdline_arguments $@
@@ -156,10 +156,9 @@ function main() {
         info "Running build under CPU mode on ${ARCH} platform."
     fi
     bazel_build $@
-    # Disable simulator build temporarily
-    build_simulator
     if [ -z "${SHORTHAND_TARGETS}" ]; then
         SHORTHAND_TARGETS="apollo"
+        build_simulator
     fi
     success "Done building ${SHORTHAND_TARGETS}. Enjoy!"
 }

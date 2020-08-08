@@ -67,19 +67,17 @@ BridgeProtoSerializedBuf<T>::~BridgeProtoSerializedBuf()
 
 template <typename T>
 bool BridgeProtoSerializedBuf<T>::Serialize(const std::shared_ptr<T> &proto,
-                                            const std::string &msg_name) 
-{
-        bsize msg_len = proto->ByteSize();
-        char *tmp = new char[msg_len];
-        memset(tmp, 0, sizeof(char) * msg_len);
-        if (!proto->SerializeToArray(tmp, static_cast<int>(msg_len))) 
-        {
-                FREE_ARRY(tmp);
-                return false;
-        }
-        bsize offset = 0;
-        bsize frame_index = 0;
-        uint32_t total_frames = static_cast<uint32_t>(msg_len / FRAME_SIZE + (msg_len % FRAME_SIZE ? 1 : 0));
+                                            const std::string &msg_name) {
+  bsize msg_len = static_cast<bsize>(proto->ByteSizeLong());
+  char *tmp = new char[msg_len]();
+  if (!proto->SerializeToArray(tmp, static_cast<int>(msg_len))) {
+    FREE_ARRY(tmp);
+    return false;
+  }
+  bsize offset = 0;
+  bsize frame_index = 0;
+  uint32_t total_frames = static_cast<uint32_t>(msg_len / FRAME_SIZE +
+                                                (msg_len % FRAME_SIZE ? 1 : 0));
 
         while (offset < msg_len) 
         {

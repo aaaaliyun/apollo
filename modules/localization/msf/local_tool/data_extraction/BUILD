@@ -19,13 +19,13 @@ cc_library(
         "//cyber",
         "//modules/common/math",
         "//modules/drivers/proto:pointcloud_cc_proto",
-        "//modules/localization/msf/common/io:localization_msf_common_io",
+        "//modules/localization/msf/common/io:common_io",
         "//modules/localization/proto:gps_cc_proto",
         "//modules/localization/proto:localization_cc_proto",
         "//modules/localization/proto:measure_cc_proto",
         "@boost",
         "@eigen",
-        "@pcl",
+        "@local_config_pcl//:pcl",
     ],
 )
 
@@ -38,7 +38,7 @@ cc_binary(
         "//cyber",
         "@boost",
         "@eigen",
-        "@pcl",
+        "@local_config_pcl//:pcl",
     ],
 )
 

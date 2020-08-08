@@ -53,23 +53,24 @@ void SummaryMonitor::EscalateStatus(const ComponentStatus::Status new_status,
 SummaryMonitor::SummaryMonitor()
     : RecurrentRunner(FLAGS_summary_monitor_name, 0) {}
 
-void SummaryMonitor::RunOnce(const double current_time) 
-{
-        auto manager = MonitorManager::Instance();
-        auto* status = manager->GetStatus();
-        // Escalate the summary status to the most severe one.
-        for (auto& component : *status->mutable_components()) 
-        {
-                auto* summary = component.second.mutable_summary();
-                const auto& process_status = component.second.process_status();
-                EscalateStatus(process_status.status(), process_status.message(), summary);
-                const auto& channel_status = component.second.channel_status();
-                EscalateStatus(channel_status.status(), channel_status.message(), summary);
-                const auto& resource_status = component.second.resource_status();
-                EscalateStatus(resource_status.status(), resource_status.message(), summary);
-                const auto& other_status = component.second.other_status();
-                EscalateStatus(other_status.status(), other_status.message(), summary);
-        }
+void SummaryMonitor::RunOnce(const double current_time) {
+  auto manager = MonitorManager::Instance();
+  auto* status = manager->GetStatus();
+  // Escalate the summary status to the most severe one.
+  for (auto& component : *status->mutable_components()) {
+    auto* summary = component.second.mutable_summary();
+    const auto& process_status = component.second.process_status();
+    EscalateStatus(process_status.status(), process_status.message(), summary);
+    const auto& module_status = component.second.module_status();
+    EscalateStatus(module_status.status(), module_status.message(), summary);
+    const auto& channel_status = component.second.channel_status();
+    EscalateStatus(channel_status.status(), channel_status.message(), summary);
+    const auto& resource_status = component.second.resource_status();
+    EscalateStatus(resource_status.status(), resource_status.message(),
+                   summary);
+    const auto& other_status = component.second.other_status();
+    EscalateStatus(other_status.status(), other_status.message(), summary);
+  }
 
         // Get fingerprint of current status.
         // Don't use DebugString() which has known bug on Map field. The string

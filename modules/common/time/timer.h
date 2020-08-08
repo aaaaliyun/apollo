@@ -64,11 +64,3 @@ private:
 }  // namespace common
 }  // namespace apollo
 
-#define PERF_FUNCTION(function_name) \
-  apollo::common::time::TimerWrapper _timer_wrapper_(function_name)
-
-#define PERF_BLOCK_START()             \
-  apollo::common::time::Timer _timer_; \
-  _timer_.Start()
-
-#define PERF_BLOCK_END(msg) _timer_.End(msg)

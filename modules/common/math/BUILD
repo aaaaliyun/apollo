@@ -16,10 +16,32 @@ cc_library(
         ":kalman_filter",
         ":linear_interpolation",
         ":lqr",
-        ":mpc",
+        ":mpc_osqp",
         ":quaternion",
         ":search",
         ":sin_table",
+    ],
+)
+
+cc_library(
+    name = "math_utils",
+    srcs = ["math_utils.cc"],
+    hdrs = ["math_utils.h"],
+    linkopts = ["-lm"],
+    deps = [
+        ":vec2d",
+        "@eigen",
+    ],
+)
+
+cc_library(
+    name = "vec2d",
+    srcs = ["vec2d.cc"],
+    hdrs = ["vec2d.h"],
+    linkopts = ["-lm"],
+    deps = [
+        "//cyber/common:log",
+        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -29,10 +51,7 @@ cc_library(
         "aabox2d.cc",
         "box2d.cc",
         "line_segment2d.cc",
-        "math_utils.cc",
-        "math_utils.h",
         "polygon2d.cc",
-        "vec2d.cc",
     ],
     hdrs = [
         "aabox2d.h",
@@ -40,13 +59,13 @@ cc_library(
         "box2d.h",
         "line_segment2d.h",
         "polygon2d.h",
-        "vec2d.h",
     ],
+    linkopts = ["-lm"],
     deps = [
+        ":math_utils",
         "//cyber/common:log",
         "//modules/common/util:string_util",
         "@com_google_absl//absl/strings",
-        "@eigen",
         "@osqp",
     ],
 )
@@ -201,18 +220,6 @@ cc_library(
 )
 
 cc_library(
-    name = "mpc",
-    srcs = ["mpc_solver.cc"],
-    hdrs = ["mpc_solver.h"],
-    copts = ["-Iexternal/eigen"],
-    deps = [
-        "//cyber/common:log",
-        "//modules/common/math/qp_solver:active_set_qp_solver",
-        "@eigen",
-    ],
-)
-
-cc_library(
     name = "cartesian_frenet_conversion",
     srcs = ["cartesian_frenet_conversion.cc"],
     hdrs = ["cartesian_frenet_conversion.h"],
@@ -236,19 +243,8 @@ cc_test(
     size = "small",
     srcs = ["mpc_osqp_test.cc"],
     deps = [
-        ":mpc",
         ":mpc_osqp",
         "//cyber/common:log",
-        "@com_google_googletest//:gtest_main",
-    ],
-)
-
-cc_test(
-    name = "mpc_test",
-    size = "small",
-    srcs = ["mpc_solver_test.cc"],
-    deps = [
-        ":mpc",
         "@com_google_googletest//:gtest_main",
     ],
 )

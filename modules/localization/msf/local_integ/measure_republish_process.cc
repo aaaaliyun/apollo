@@ -184,160 +184,142 @@ bool MeasureRepublishProcess::NovatelBestgnssposProcess(const GnssBestPose& best
         return true;
 }
 
-void MeasureRepublishProcess::GnssLocalProcess(const MeasureData& gnss_local_msg, MeasureData* measure) 
-{
-        if (gnss_mode_ != GnssMode::SELF) 
-        {
-                return;
-        }
+void MeasureRepublishProcess::GnssLocalProcess(
+    const MeasureData& gnss_local_msg, MeasureData* measure) {
+  if (gnss_mode_ != GnssMode::SELF) {
+    return;
+  }
 
-        CHECK_NOTNULL(measure);
+  CHECK_NOTNULL(measure);
 
-        MeasureData measure_data = gnss_local_msg;
-        if (is_trans_gpstime_to_utctime_) 
-        {
-                measure_data.time = TimeUtil::Gps2unix(measure_data.time);
-        }
+  MeasureData measure_data = gnss_local_msg;
+  if (is_trans_gpstime_to_utctime_) {
+    measure_data.time = TimeUtil::Gps2Unix(measure_data.time);
+  }
 
-        AINFO << "the gnss velocity: " << measure_data.gnss_vel.ve << " "
-              << measure_data.gnss_vel.vn << " " << measure_data.gnss_vel.vu;
+  AINFO << "the gnss velocity: " << measure_data.gnss_vel.ve << " "
+        << measure_data.gnss_vel.vn << " " << measure_data.gnss_vel.vu;
 
-        measure_data.gnss_att.pitch = 0.0;
-        measure_data.gnss_att.roll = 0.0;
+  measure_data.gnss_att.pitch = 0.0;
+  measure_data.gnss_att.roll = 0.0;
 
-        Eigen::Vector3d pos_xyz = Eigen::Vector3d::Zero();
-        pos_xyz[0] = measure_data.gnss_pos.longitude;
-        pos_xyz[1] = measure_data.gnss_pos.latitude;
-        pos_xyz[2] = measure_data.gnss_pos.height;
+  Eigen::Vector3d pos_xyz = Eigen::Vector3d::Zero();
+  pos_xyz[0] = measure_data.gnss_pos.longitude;
+  pos_xyz[1] = measure_data.gnss_pos.latitude;
+  pos_xyz[2] = measure_data.gnss_pos.height;
 
-        Eigen::Vector3d pos_blh = Eigen::Vector3d::Zero();
-        apollo::localization::msf::FrameTransform::XYZToBlh(pos_xyz, &pos_blh);
-        measure_data.gnss_pos.longitude = pos_blh[0];
-        measure_data.gnss_pos.latitude = pos_blh[1];
-        measure_data.gnss_pos.height = pos_blh[2];
+  Eigen::Vector3d pos_blh = Eigen::Vector3d::Zero();
+  apollo::localization::msf::FrameTransform::XYZToBlh(pos_xyz, &pos_blh);
+  measure_data.gnss_pos.longitude = pos_blh[0];
+  measure_data.gnss_pos.latitude = pos_blh[1];
+  measure_data.gnss_pos.height = pos_blh[2];
 
-        double ve_std = std::sqrt(measure_data.variance[3][3]);
-        double vn_std = std::sqrt(measure_data.variance[4][4]);
-        double vu_std = std::sqrt(measure_data.variance[5][5]);
-        AINFO << "the gnss velocity std: " << ve_std << " " << vn_std << " "
-              << vu_std;
+  double ve_std = std::sqrt(measure_data.variance[3][3]);
+  double vn_std = std::sqrt(measure_data.variance[4][4]);
+  double vu_std = std::sqrt(measure_data.variance[5][5]);
+  AINFO << "the gnss velocity std: " << ve_std << " " << vn_std << " "
+        << vu_std;
 
-        bool is_sins_align = IsSinsAlign();
+  bool is_sins_align = IsSinsAlign();
 
-        if (is_sins_align) 
-        {
-                measure_data.measure_type = MeasureType::GNSS_POS_ONLY;
-                height_mutex_.lock();
-                if ((measure_data.time - 1.0 < map_height_time_)) 
-                {
-                        measure_data.measure_type = MeasureType::GNSS_POS_XY;
-                }
-                height_mutex_.unlock();
-                measure_data.is_have_variance = true;
-        } 
-        else 
-        {
-                measure_data.measure_type = MeasureType::GNSS_POS_VEL;
-                measure_data.is_have_variance = false;
+  if (is_sins_align) {
+    measure_data.measure_type = MeasureType::GNSS_POS_ONLY;
+    height_mutex_.lock();
+    if ((measure_data.time - 1.0 < map_height_time_)) {
+      measure_data.measure_type = MeasureType::GNSS_POS_XY;
+    }
+    height_mutex_.unlock();
+    measure_data.is_have_variance = true;
+  } else {
+    measure_data.measure_type = MeasureType::GNSS_POS_VEL;
+    measure_data.is_have_variance = false;
 
-                static bool is_sent_init_pos = false;
-                if (!is_sent_init_pos) 
-                {
-                        is_sent_init_pos = true;
-                        measure_data.gnss_vel.ve = 0.0;
-                        measure_data.gnss_vel.vn = 0.0;
-                        measure_data.gnss_vel.vu = 0.0;
-                        AINFO << "send sins init position using rtk-gnss position!";
-                        *measure = measure_data;
-                        return;
-                }
+    static bool is_sent_init_pos = false;
+    if (!is_sent_init_pos) {
+      is_sent_init_pos = true;
+      measure_data.gnss_vel.ve = 0.0;
+      measure_data.gnss_vel.vn = 0.0;
+      measure_data.gnss_vel.vu = 0.0;
+      AINFO << "send sins init position using rtk-gnss position!";
+      *measure = measure_data;
+      return;
+    }
 
-                static int position_good_counter = 0;
-                if (position_good_counter < 10) 
-                {
-                        ++position_good_counter;
-                        return;
-                }
+    static int position_good_counter = 0;
+    if (position_good_counter < 10) {
+      ++position_good_counter;
+      return;
+    }
 
-                if (gnss_local_msg.measure_type != MeasureType::GNSS_POS_VEL && gnss_local_msg.measure_type != MeasureType::ENU_VEL_ONLY) 
-                {
-                        AERROR << "gnss does not have velocity,"
-                               << "the gnss velocity std: " << ve_std << " " << vn_std << " "
-                               << vu_std;
-                        return;
-                }
-                if (!gnss_local_msg.is_have_variance) 
-                {
-                        AERROR << "gnss velocity does not have velocity variance!";
-                        return;
-                } 
-                else 
-                {
-                        if ((ve_std > 0.1) || (vn_std > 0.1)) 
-                        {
-                                AWARN << "gnss velocity variance is large: " << ve_std << " " << vn_std;
-                                return;
-                        }
-                }
+    if (gnss_local_msg.measure_type != MeasureType::GNSS_POS_VEL &&
+        gnss_local_msg.measure_type != MeasureType::ENU_VEL_ONLY) {
+      AERROR << "gnss does not have velocity,"
+             << "the gnss velocity std: " << ve_std << " " << vn_std << " "
+             << vu_std;
+      return;
+    }
+    if (!gnss_local_msg.is_have_variance) {
+      AERROR << "gnss velocity does not have velocity variance!";
+      return;
+    } else {
+      if ((ve_std > 0.1) || (vn_std > 0.1)) {
+        AWARN << "gnss velocity variance is large: " << ve_std << " " << vn_std;
+        return;
+      }
+    }
 
-                static double pre_yaw_from_vel = 0.0;
-                static double pre_measure_time = 0.0;
-                double yaw_from_vel = atan2(measure_data.gnss_vel.ve, measure_data.gnss_vel.vn);
-                if (pre_measure_time < 0.1) 
-                {
-                        pre_measure_time = measure_data.time;
-                        pre_yaw_from_vel = yaw_from_vel;
-                        return;
-                } 
-                else 
-                {
-                        static constexpr double rad_round = 2 * M_PI;
-                        static constexpr double rad_pi = M_PI;
+    static double pre_yaw_from_vel = 0.0;
+    static double pre_measure_time = 0.0;
+    double yaw_from_vel =
+        atan2(measure_data.gnss_vel.ve, measure_data.gnss_vel.vn);
+    if (pre_measure_time < 0.1) {
+      pre_measure_time = measure_data.time;
+      pre_yaw_from_vel = yaw_from_vel;
+      return;
+    } else {
+      static constexpr double rad_round = 2 * M_PI;
+      static constexpr double rad_pi = M_PI;
 
-                        double delta_yaw = yaw_from_vel - pre_yaw_from_vel;
-                        if (delta_yaw > rad_pi) 
-                        {
-                                delta_yaw = delta_yaw - rad_round;
-                        }
-                        if (delta_yaw < -rad_pi) 
-                        {
-                                delta_yaw = delta_yaw + rad_round;
-                        }
+      double delta_yaw = yaw_from_vel - pre_yaw_from_vel;
+      if (delta_yaw > rad_pi) {
+        delta_yaw = delta_yaw - rad_round;
+      }
+      if (delta_yaw < -rad_pi) {
+        delta_yaw = delta_yaw + rad_round;
+      }
 
-                        AINFO << "yaw from position difference: " << yaw_from_vel * RAD_TO_DEG;
-                        double delta_time = measure_data.time - pre_measure_time;
-                        if (delta_time < 1.0e-10) 
-                        {
-                                AINFO << "the delta time is too small: " << delta_time;
-                        }
-                        double yaw_incr = delta_yaw / delta_time;
-                        // 0.0872rad = 5deg
-                        static constexpr double rad_5deg = 5 * DEG_TO_RAD;
-                        if ((yaw_incr > rad_5deg) || (yaw_incr < -rad_5deg)) 
-                        {
-                                AWARN << "yaw velocity is large! pre, "
-                                      << "cur yaw from vel and velocity: "
-                                      << pre_yaw_from_vel * RAD_TO_DEG << " "
-                                      << yaw_from_vel * RAD_TO_DEG << " " << yaw_incr * RAD_TO_DEG;
-                                pre_measure_time = measure_data.time;
-                                pre_yaw_from_vel = yaw_from_vel;
-                                return;
-                        }
-                        pre_measure_time = measure_data.time;
-                        pre_yaw_from_vel = yaw_from_vel;
-                }
-        }
-        *measure = measure_data;
+      AINFO << "yaw from position difference: " << yaw_from_vel * RAD_TO_DEG;
+      double delta_time = measure_data.time - pre_measure_time;
+      if (delta_time < 1.0e-10) {
+        AINFO << "the delta time is too small: " << delta_time;
+      }
+      double yaw_incr = delta_yaw / delta_time;
+      // 0.0872rad = 5deg
+      static constexpr double rad_5deg = 5 * DEG_TO_RAD;
+      if ((yaw_incr > rad_5deg) || (yaw_incr < -rad_5deg)) {
+        AWARN << "yaw velocity is large! pre, "
+              << "cur yaw from vel and velocity: "
+              << pre_yaw_from_vel * RAD_TO_DEG << " "
+              << yaw_from_vel * RAD_TO_DEG << " " << yaw_incr * RAD_TO_DEG;
+        pre_measure_time = measure_data.time;
+        pre_yaw_from_vel = yaw_from_vel;
+        return;
+      }
+      pre_measure_time = measure_data.time;
+      pre_yaw_from_vel = yaw_from_vel;
+    }
+  }
+  *measure = measure_data;
 
-        ADEBUG << std::setprecision(16)
-               << "MeasureDataRepublish Debug Log: rtkgnss msg: "
-               << "[time:" << measure_data.time << "]"
-               << "[x:" << measure_data.gnss_pos.longitude * RAD_TO_DEG << "]"
-               << "[y:" << measure_data.gnss_pos.latitude * RAD_TO_DEG << "]"
-               << "[z:" << measure_data.gnss_pos.height << "]"
-               << "[std_x:" << measure_data.variance[0][0] << "]"
-               << "[std_y:" << measure_data.variance[1][1] << "]"
-               << "[std_z:" << measure_data.variance[2][2] << "]";
+  ADEBUG << std::setprecision(16)
+         << "MeasureDataRepublish Debug Log: rtkgnss msg: "
+         << "[time:" << measure_data.time << "]"
+         << "[x:" << measure_data.gnss_pos.longitude * RAD_TO_DEG << "]"
+         << "[y:" << measure_data.gnss_pos.latitude * RAD_TO_DEG << "]"
+         << "[z:" << measure_data.gnss_pos.height << "]"
+         << "[std_x:" << measure_data.variance[0][0] << "]"
+         << "[std_y:" << measure_data.variance[1][1] << "]"
+         << "[std_z:" << measure_data.variance[2][2] << "]";
 }
 
 void MeasureRepublishProcess::IntegPvaProcess(const InsPva& inspva_msg) 
@@ -423,6 +405,7 @@ bool MeasureRepublishProcess::IsSinsAlign()
         return !integ_pva_list_.empty() && integ_pva_list_.back().init_and_alignment;
 }
 
+<<<<<<< HEAD
 void MeasureRepublishProcess::TransferXYZFromBestgnsspose(const GnssBestPose& bestgnsspos_msg, MeasureData* measure) 
 {
         CHECK_NOTNULL(measure);
@@ -450,6 +433,37 @@ void MeasureRepublishProcess::TransferXYZFromBestgnsspose(const GnssBestPose& be
         }
         height_mutex_.unlock();
         measure->is_have_variance = true;
+=======
+void MeasureRepublishProcess::TransferXYZFromBestgnsspose(
+    const GnssBestPose& bestgnsspos_msg, MeasureData* measure) {
+  CHECK_NOTNULL(measure);
+
+  measure->time = bestgnsspos_msg.measurement_time();
+  if (is_trans_gpstime_to_utctime_) {
+    measure->time = TimeUtil::Gps2Unix(measure->time);
+  }
+
+  measure->gnss_pos.longitude = bestgnsspos_msg.longitude() * DEG_TO_RAD;
+  measure->gnss_pos.latitude = bestgnsspos_msg.latitude() * DEG_TO_RAD;
+  measure->gnss_pos.height =
+      bestgnsspos_msg.height_msl() + bestgnsspos_msg.undulation();
+
+  measure->variance[0][0] =
+      bestgnsspos_msg.longitude_std_dev() * bestgnsspos_msg.longitude_std_dev();
+  measure->variance[1][1] =
+      bestgnsspos_msg.latitude_std_dev() * bestgnsspos_msg.latitude_std_dev();
+  measure->variance[2][2] =
+      bestgnsspos_msg.height_std_dev() * bestgnsspos_msg.height_std_dev();
+
+  measure->measure_type = MeasureType::GNSS_POS_ONLY;
+  measure->frame_type = FrameType::ENU;
+  height_mutex_.lock();
+  if ((measure->time - 1.0 < map_height_time_)) {
+    measure->measure_type = MeasureType::GNSS_POS_XY;
+  }
+  height_mutex_.unlock();
+  measure->is_have_variance = true;
+>>>>>>> update_stream/master
 }
 
 void MeasureRepublishProcess::TransferFirstMeasureFromBestgnsspose(const GnssBestPose& bestgnsspos_msg, MeasureData* measure) 

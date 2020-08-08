@@ -28,6 +28,7 @@ namespace localization {
 namespace msf {
 
 using apollo::common::Status;
+using apollo::common::time::Clock;
 
 LocalizationIntegProcess::LocalizationIntegProcess()
     : sins_(new Sins()),
@@ -82,69 +83,74 @@ Status LocalizationIntegProcess::Init(const LocalizationIntegParam &param)
         return Status::OK();
 }
 
-void LocalizationIntegProcess::RawImuProcess(const ImuData &imu_msg) 
-{
-        integ_state_ = IntegState::NOT_INIT;
-        double cur_imu_time = imu_msg.measurement_time;
+void LocalizationIntegProcess::RawImuProcess(const ImuData &imu_msg) {
+  integ_state_ = IntegState::NOT_INIT;
+  double cur_imu_time = imu_msg.measurement_time;
 
-        if (cur_imu_time < 3000) 
-        {
-                AERROR << "the imu time is error: " << cur_imu_time;
-                return;
-        }
+  if (cur_imu_time < 3000) {
+    AERROR << "the imu time is error: " << cur_imu_time;
+    return;
+  }
 
-        static double pre_imu_time = cur_imu_time;
-        double delta_time = cur_imu_time - pre_imu_time;
-        if (delta_time > 0.1) 
-        {
-                ADEBUG << std::setprecision(16) << "the imu message loss more than 10, "
-                       << "the pre time and current time: " << pre_imu_time << " "
-                       << cur_imu_time;
-        } 
-        else if (delta_time < 0.0) 
-        {
-                ADEBUG << std::setprecision(16)
-                       << "received imu message's time is eary than last imu message, "
-                       << "the pre time and current time: " << pre_imu_time << " "
-                       << cur_imu_time;
-        }
+  static double pre_imu_time = cur_imu_time;
+  double delta_time = cur_imu_time - pre_imu_time;
+  if (delta_time > 0.1) {
+    AERROR << std::setprecision(16) << "the imu message loss more than 10, "
+           << "the pre time and current time: " << pre_imu_time << " "
+           << cur_imu_time;
+  } else if (delta_time < 0.0) {
+    AERROR << std::setprecision(16)
+           << "received imu message's time is eary than last imu message, "
+           << "the pre time and current time: " << pre_imu_time << " "
+           << cur_imu_time;
+  }
 
-        // add imu msg and get current predict pose
-        sins_->AddImu(imu_msg);
-        sins_->GetPose(&ins_pva_, pva_covariance_);
-        sins_->GetRemoveBiasImu(&corrected_imu_);
-        sins_->GetEarthParameter(&earth_param_);
+  double cur_system_time = Clock::NowInSeconds();
+  static double pre_system_time = cur_system_time;
 
-        if (sins_->IsSinsAligned()) 
-        {
-                integ_state_ = IntegState::NOT_STABLE;
-                if (delay_output_counter_ < 3000) 
-                {
-                        ++delay_output_counter_;
-                } 
-                else 
-                {
-                        integ_state_ = IntegState::OK;
-                        GetValidFromOK();
-                }
+  double delta_system_time = cur_system_time - pre_system_time;
+  if (delta_system_time > 0.1) {
+    AERROR << std::setprecision(16)
+           << "the imu message loss more than 10 according to system time, "
+           << "the pre system time and current system time: " << pre_system_time
+           << " " << cur_system_time;
+  } else if (delta_system_time < 0.0) {
+    AERROR << std::setprecision(16)
+           << "received imu message's time is eary than last imu message "
+              "according to system time, "
+           << "the pre system time and current system time: " << pre_system_time
+           << " " << cur_system_time;
+  }
 
-                if (cur_imu_time - 0.5 > pre_imu_time) 
-                {
-                        AINFO << "SINS has completed alignment!" << std::endl;
-                        pre_imu_time = cur_imu_time;
-                }
-        } 
-        else 
-        {
-                delay_output_counter_ = 0;
-                if (cur_imu_time - 0.5 > pre_imu_time) 
-                {
-                        AINFO << "SINS is aligning!" << std::endl;
-                        pre_imu_time = cur_imu_time;
-                }
-        }
+  // add imu msg and get current predict pose
+  sins_->AddImu(imu_msg);
+  sins_->GetPose(&ins_pva_, pva_covariance_);
+  sins_->GetRemoveBiasImu(&corrected_imu_);
+  sins_->GetEarthParameter(&earth_param_);
 
-        pre_imu_time = cur_imu_time;
+  if (sins_->IsSinsAligned()) {
+    integ_state_ = IntegState::NOT_STABLE;
+    if (delay_output_counter_ < 3000) {
+      ++delay_output_counter_;
+    } else {
+      integ_state_ = IntegState::OK;
+      GetValidFromOK();
+    }
+
+    if (cur_imu_time - 0.5 > pre_imu_time) {
+      AINFO << "SINS has completed alignment!" << std::endl;
+      pre_imu_time = cur_imu_time;
+    }
+  } else {
+    delay_output_counter_ = 0;
+    if (cur_imu_time - 0.5 > pre_imu_time) {
+      AINFO << "SINS is aligning!" << std::endl;
+      pre_imu_time = cur_imu_time;
+    }
+  }
+
+  pre_imu_time = cur_imu_time;
+  pre_system_time = cur_system_time;
 }
 
 void LocalizationIntegProcess::GetValidFromOK() 

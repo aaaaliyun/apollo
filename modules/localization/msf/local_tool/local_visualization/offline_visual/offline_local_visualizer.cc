@@ -17,6 +17,7 @@
 #include "modules/localization/msf/local_tool/local_visualization/offline_visual/offline_local_visualizer.h"
 
 #include <boost/filesystem.hpp>
+#include "absl/strings/str_cat.h"
 
 #include "cyber/common/log.h"
 #include "modules/localization/msf/common/io/velodyne_utility.h"
@@ -127,60 +128,61 @@ bool OfflineLocalVisualizer::Init(const std::string &map_folder, const std::stri
         return true;
 }
 
-void OfflineLocalVisualizer::Visualize() 
-{
-        for (unsigned int idx = 0; idx < pcd_timestamps_.size(); ++idx) 
-        {
-                LocalizatonInfo lidar_loc_info;
-                LocalizatonInfo gnss_loc_info;
-                LocalizatonInfo fusion_loc_info;
+void OfflineLocalVisualizer::Visualize() {
+  for (unsigned int idx = 0; idx < pcd_timestamps_.size(); ++idx) {
+    LocalizatonInfo lidar_loc_info;
+    LocalizatonInfo gnss_loc_info;
+    LocalizatonInfo fusion_loc_info;
 
-                AINFO << "Frame id: " << idx + 1;
-                auto pose_found_iter = lidar_poses_.find(idx);
-                auto std_found_iter = lidar_stds_.find(idx);
-                if (pose_found_iter != lidar_poses_.end() && std_found_iter != lidar_stds_.end()) 
-                {
-                        AINFO << "Find lidar pose.";
-                        const Eigen::Affine3d &lidar_pose = pose_found_iter->second;
-                        const Eigen::Vector3d &lidar_std = std_found_iter->second;
-                        lidar_loc_info.set(Eigen::Translation3d(lidar_pose.translation()), Eigen::Quaterniond(lidar_pose.linear()), lidar_std, "Lidar.", pcd_timestamps_[idx], idx + 1);
-                }
+    AINFO << "Frame id: " << idx + 1;
+    auto pose_found_iter = lidar_poses_.find(idx);
+    auto std_found_iter = lidar_stds_.find(idx);
+    if (pose_found_iter != lidar_poses_.end() &&
+        std_found_iter != lidar_stds_.end()) {
+      AINFO << "Find lidar pose.";
+      const Eigen::Affine3d &lidar_pose = pose_found_iter->second;
+      const Eigen::Vector3d &lidar_std = std_found_iter->second;
+      lidar_loc_info.set(Eigen::Translation3d(lidar_pose.translation()),
+                         Eigen::Quaterniond(lidar_pose.linear()), lidar_std,
+                         "Lidar.", pcd_timestamps_[idx], idx + 1);
+    }
 
-                pose_found_iter = gnss_poses_.find(idx);
-                std_found_iter = gnss_stds_.find(idx);
-                if (pose_found_iter != gnss_poses_.end() && std_found_iter != gnss_stds_.end()) 
-                {
-                        AINFO << "Find gnss pose.";
-                        const Eigen::Affine3d &gnss_pose = pose_found_iter->second;
-                        const Eigen::Vector3d &gnss_std = std_found_iter->second;
-                        gnss_loc_info.set(Eigen::Translation3d(gnss_pose.translation()), gnss_std, "GNSS.", pcd_timestamps_[idx], idx + 1);
-                }
+    pose_found_iter = gnss_poses_.find(idx);
+    std_found_iter = gnss_stds_.find(idx);
+    if (pose_found_iter != gnss_poses_.end() &&
+        std_found_iter != gnss_stds_.end()) {
+      AINFO << "Find gnss pose.";
+      const Eigen::Affine3d &gnss_pose = pose_found_iter->second;
+      const Eigen::Vector3d &gnss_std = std_found_iter->second;
+      gnss_loc_info.set(Eigen::Translation3d(gnss_pose.translation()), gnss_std,
+                        "GNSS.", pcd_timestamps_[idx], idx + 1);
+    }
 
-                pose_found_iter = fusion_poses_.find(idx);
-                std_found_iter = fusion_stds_.find(idx);
-                if (pose_found_iter != fusion_poses_.end() && std_found_iter != fusion_stds_.end()) 
-                {
-                        AINFO << "Find fusion pose.";
-                        const Eigen::Affine3d &fusion_pose = pose_found_iter->second;
-                        const Eigen::Vector3d &fusion_std = std_found_iter->second;
-                        fusion_loc_info.set(Eigen::Translation3d(fusion_pose.translation()), Eigen::Quaterniond(fusion_pose.linear()), fusion_std, "Fusion.", pcd_timestamps_[idx], idx + 1);
-                }
+    pose_found_iter = fusion_poses_.find(idx);
+    std_found_iter = fusion_stds_.find(idx);
+    if (pose_found_iter != fusion_poses_.end() &&
+        std_found_iter != fusion_stds_.end()) {
+      AINFO << "Find fusion pose.";
+      const Eigen::Affine3d &fusion_pose = pose_found_iter->second;
+      const Eigen::Vector3d &fusion_std = std_found_iter->second;
+      fusion_loc_info.set(Eigen::Translation3d(fusion_pose.translation()),
+                          Eigen::Quaterniond(fusion_pose.linear()), fusion_std,
+                          "Fusion.", pcd_timestamps_[idx], idx + 1);
+    }
 
-                std::vector<LocalizatonInfo> loc_infos;
-                loc_infos.push_back(lidar_loc_info);
-                loc_infos.push_back(gnss_loc_info);
-                loc_infos.push_back(fusion_loc_info);
+    std::vector<LocalizatonInfo> loc_infos;
+    loc_infos.push_back(lidar_loc_info);
+    loc_infos.push_back(gnss_loc_info);
+    loc_infos.push_back(fusion_loc_info);
 
-                std::string pcd_file_path;
-                std::ostringstream ss;
-                ss << idx + 1;
-                pcd_file_path = pcd_folder_ + "/" + ss.str() + ".pcd";
-                ::apollo::common::EigenVector3dVec pt3ds;
-                std::vector<unsigned char> intensities;
-                apollo::localization::msf::velodyne::LoadPcds(pcd_file_path, idx, lidar_loc_info.pose, &pt3ds, &intensities, false);
+    std::string pcd_file_path = absl::StrCat(pcd_folder_, "/", idx + 1, ".pcd");
+    ::apollo::common::EigenVector3dVec pt3ds;
+    std::vector<unsigned char> intensities;
+    apollo::localization::msf::velodyne::LoadPcds(
+        pcd_file_path, idx, lidar_loc_info.pose, &pt3ds, &intensities, false);
 
-                visual_engine_.Visualize(loc_infos, pt3ds);
-        }
+    visual_engine_.Visualize(loc_infos, pt3ds);
+  }
 }
 
 bool OfflineLocalVisualizer::PCDTimestampFileHandler() 

@@ -19,15 +19,15 @@
 #include <cmath>
 
 #include "absl/strings/str_cat.h"
+
 #include "cyber/common/log.h"
 
 namespace apollo {
 namespace common {
 namespace math {
 
-Vec2d Vec2d::CreateUnitVec2d(const double angle) 
-{
-        return Vec2d(cos(angle), sin(angle));
+Vec2d Vec2d::CreateUnitVec2d(const double angle) {
+  return Vec2d(std::cos(angle), std::sin(angle));
 }
 
 double Vec2d::Length() const { return std::hypot(x_, y_); }

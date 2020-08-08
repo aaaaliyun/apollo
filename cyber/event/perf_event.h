@@ -18,6 +18,7 @@
 #define CYBER_EVENT_PERF_EVENT_H_
 
 #include <cstdint>
+#include <limits>
 #include <sstream>
 #include <string>
 
@@ -113,6 +114,7 @@ private:
 // event_id = 1 transport
 // 1 transport time
 // 2 write_data_cache & notify listener
+<<<<<<< HEAD
 class TransportEvent : public EventBase 
 {
 public:
@@ -188,6 +190,58 @@ private:
         std::string adder_ = "";
         uint64_t msg_seq_ = 0;
         uint64_t channel_id_ = UINT64_MAX;
+=======
+class TransportEvent : public EventBase {
+ public:
+  TransportEvent() { etype_ = static_cast<int>(EventType::TRANS_EVENT); }
+
+  std::string SerializeToString() override {
+    std::stringstream ss;
+    ss << etype_ << "\t";
+    ss << eid_ << "\t";
+    ss << common::GlobalData::GetChannelById(channel_id_) << "\t";
+    ss << msg_seq_ << "\t";
+    ss << stamp_ << "\t";
+    ss << adder_;
+    return ss.str();
+  }
+
+  void set_msg_seq(uint64_t msg_seq) override { msg_seq_ = msg_seq; }
+  void set_channel_id(uint64_t channel_id) override {
+    channel_id_ = channel_id;
+  }
+  void set_adder(const std::string& adder) override { adder_ = adder; }
+
+  static std::string ShowTransPerf(TransPerf type) {
+    if (type == TransPerf::TRANSMIT_BEGIN) {
+      return "TRANSMIT_BEGIN";
+    } else if (type == TransPerf::SERIALIZE) {
+      return "SERIALIZE";
+    } else if (type == TransPerf::SEND) {
+      return "SEND";
+    } else if (type == TransPerf::MESSAGE_ARRIVE) {
+      return "MESSAGE_ARRIVE";
+    } else if (type == TransPerf::OBTAIN) {
+      return "OBTAIN";
+    } else if (type == TransPerf::DESERIALIZE) {
+      return "DESERIALIZE";
+    } else if (type == TransPerf::DISPATCH) {
+      return "DISPATCH";
+    } else if (type == TransPerf::NOTIFY) {
+      return "NOTIFY";
+    } else if (type == TransPerf::FETCH) {
+      return "FETCH";
+    } else if (type == TransPerf::CALLBACK) {
+      return "CALLBACK";
+    }
+    return "";
+  }
+
+ private:
+  std::string adder_ = "";
+  uint64_t msg_seq_ = 0;
+  uint64_t channel_id_ = std::numeric_limits<uint64_t>::max();
+>>>>>>> update_stream/master
 };
 
 }  // namespace event

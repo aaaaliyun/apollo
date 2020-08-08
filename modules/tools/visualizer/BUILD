@@ -16,8 +16,7 @@ cc_binary(
     ],
     deps = [
         ":visualizer_lib",
-        "//third_party:console_bridge",
-        "//third_party:glvnd",
+        "@console_bridge",
         "@fastrtps",
         "@qt//:qt_core",
         "@qt//:qt_gui",
@@ -27,24 +26,21 @@ cc_binary(
 )
 
 # TODO(all): Extract the large library to thin pieces.
-# name, src, hdr, uis = [], res = [], normal_hdrs = [], deps = None
 qt_cc_library(
     name = "visualizer_lib",
-    src = glob(
+    srcs = glob(
         ["*.cc"],
     ),
     copts = [
-        "-Imodules/drivers/proto",
         "-Iexternal/qt",
-        "-fPIC",
     ],
-    hdr = glob([
+    hdrs = glob([
         "*.h",
     ]),
     includes = [
         ".",
     ],
-    linkstatic = 1,
+    linkstatic = False,
     res = glob([
         "*.qrc",
     ]),

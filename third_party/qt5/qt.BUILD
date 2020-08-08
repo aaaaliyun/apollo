@@ -65,5 +65,6 @@ cc_library(
         ":qt_core",
         ":qt_gui",
         ":qt_widgets",
+        "@opengl",
     ],
 )

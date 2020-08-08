@@ -196,6 +196,7 @@ int main(int argc, char** argv)
                 {"help", no_argument, nullptr, 'h'}
         };
 
+<<<<<<< HEAD
         std::vector<std::string> opt_file_vec;
         std::vector<std::string> opt_output_vec;
         std::vector<std::string> opt_white_channels;
@@ -209,6 +210,21 @@ int main(int argc, char** argv)
         uint64_t opt_delay = 0;
         uint32_t opt_preload = 3;
         auto opt_header = HeaderBuilder::GetHeader();
+=======
+  std::vector<std::string> opt_file_vec;
+  std::vector<std::string> opt_output_vec;
+  std::vector<std::string> opt_white_channels;
+  std::vector<std::string> opt_black_channels;
+  bool opt_all = false;
+  bool opt_loop = false;
+  float opt_rate = 1.0f;
+  uint64_t opt_begin = 0;
+  uint64_t opt_end = std::numeric_limits<uint64_t>::max();
+  uint64_t opt_start = 0;
+  uint64_t opt_delay = 0;
+  uint32_t opt_preload = 3;
+  auto opt_header = HeaderBuilder::GetHeader();
+>>>>>>> update_stream/master
 
         do 
         {

@@ -65,7 +65,7 @@ cc_library(
     hdrs = ["string_util.h"],
     deps = [
         ":future",
-        "@com_google_protobuf//:protobuf",
+        "@com_google_absl//absl/strings:str_format",
     ],
 )
 
@@ -73,6 +73,7 @@ cc_library(
     name = "message_util",
     hdrs = ["message_util.h"],
     deps = [
+        "//cyber/common:file",
         "//modules/common/time",
         "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
@@ -184,6 +185,27 @@ cc_library(
     name = "eigen_defs",
     hdrs = ["eigen_defs.h"],
     deps = ["@eigen"],
+)
+
+cc_library(
+    name = "perf_util",
+    srcs = ["perf_util.cc"],
+    hdrs = ["perf_util.h"],
+    deps = [
+        "//cyber/common:macros",
+        "//modules/common/time:timer",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "perf_util_test",
+    size = "small",
+    srcs = ["perf_util_test.cc"],
+    deps = [
+        ":perf_util",
+        "@com_google_googletest//:gtest_main",
+    ],
 )
 
 cpplint()

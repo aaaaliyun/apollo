@@ -18,10 +18,13 @@
 
 #include <string>
 
+#include "absl/strings/str_cat.h"
+
 namespace apollo {
 namespace localization {
 namespace msf {
 
+<<<<<<< HEAD
 bool FrameTransform::LatlonToUtmXY(double lon_rad, double lat_rad, UTMCoor *utm_xy) 
 {
         projPJ pj_latlon;
@@ -70,6 +73,53 @@ bool FrameTransform::UtmXYToLatlon(double x, double y, int zone, bool southhemi,
         pj_free(pj_latlon);
         pj_free(pj_utm);
         return true;
+=======
+bool FrameTransform::LatlonToUtmXY(double lon_rad, double lat_rad,
+                                   UTMCoor *utm_xy) {
+  projPJ pj_latlon;
+  projPJ pj_utm;
+  int zone = 0;
+  zone = static_cast<int>((lon_rad * RAD_TO_DEG + 180) / 6) + 1;
+  std::string latlon_src =
+      "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs";
+  std::string utm_dst =
+      absl::StrCat("+proj=utm +zone=", zone, " +ellps=GRS80 +units=m +no_defs");
+  if (!(pj_latlon = pj_init_plus(latlon_src.c_str()))) {
+    return false;
+  }
+  if (!(pj_utm = pj_init_plus(utm_dst.c_str()))) {
+    return false;
+  }
+  double longitude = lon_rad;
+  double latitude = lat_rad;
+  pj_transform(pj_latlon, pj_utm, 1, 1, &longitude, &latitude, nullptr);
+  utm_xy->x = longitude;
+  utm_xy->y = latitude;
+  pj_free(pj_latlon);
+  pj_free(pj_utm);
+  return true;
+}
+bool FrameTransform::UtmXYToLatlon(double x, double y, int zone, bool southhemi,
+                                   WGS84Corr *latlon) {
+  projPJ pj_latlon;
+  projPJ pj_utm;
+  std::string latlon_src =
+      "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs";
+  std::string utm_dst =
+      absl::StrCat("+proj=utm +zone=", zone, " +ellps=GRS80 +units=m +no_defs");
+  if (!(pj_latlon = pj_init_plus(latlon_src.c_str()))) {
+    return false;
+  }
+  if (!(pj_utm = pj_init_plus(utm_dst.c_str()))) {
+    return false;
+  }
+  pj_transform(pj_utm, pj_latlon, 1, 1, &x, &y, nullptr);
+  latlon->log = x;
+  latlon->lat = y;
+  pj_free(pj_latlon);
+  pj_free(pj_utm);
+  return true;
+>>>>>>> update_stream/master
 }
 
 bool FrameTransform::XYZToBlh(const Vector3d &xyz, Vector3d *blh) 

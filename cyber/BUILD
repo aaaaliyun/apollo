@@ -48,9 +48,12 @@ cc_library(
     hdrs = ["init.h"],
     deps = [
         "//cyber:state",
+        "//cyber/common:file",
         "//cyber/logger:async_logger",
         "//cyber/node",
+        "//cyber/proto:clock_cc_proto",
         "//cyber/sysmo",
+        "//cyber/time:clock",
         "//cyber/timer:timing_wheel",
     ],
 )
@@ -100,10 +103,10 @@ cc_library(
         "//cyber/transport",
         "//cyber/transport:participant",
         "//cyber/transport:sub_listener",
-        "//third_party:uuid",
         "@com_google_glog//:glog",
         "@com_google_protobuf//:protobuf",
         "@fastrtps",
+        "@uuid",
     ],
 )
 

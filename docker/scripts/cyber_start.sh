@@ -20,11 +20,11 @@ source "${APOLLO_ROOT_DIR}/scripts/apollo.bashrc"
 
 # CACHE_ROOT_DIR="${APOLLO_ROOT_DIR}/.cache"
 
-VERSION_X86_64="cyber-x86_64-18.04-20200707_1716"
+VERSION_X86_64="cyber-x86_64-18.04-20200726_2005"
 # ARMV8
 # VERSION_AARCH64="cyber-aarch64-18.04-20200717_0327"
 # L4T
-VERSION_AARCH64="cyber-aarch64-18.04-20200703_2150"
+VERSION_AARCH64="cyber-aarch64-18.04-20200719_0434"
 VERSION_LOCAL_CYBER="local_cyber_dev"
 CYBER_CONTAINER="apollo_cyber_${USER}"
 CYBER_INSIDE="in-cyber-docker"
@@ -260,7 +260,29 @@ function determine_target_version_and_arch() {
     CUSTOM_VERSION="${version}"
 }
 
-# Operate on DOCKER_REPO
+function _geo_specific_config_for_cn() {
+    local docker_cfg="/etc/docker/daemon.json"
+    if [ -e "${docker_cfg}" ] && \
+        jq '."registry-mirrors"[]' "${docker_cfg}" &>/dev/null ; then
+        echo "Existing registry mirrors in found ${docker_cfg} and will be used."
+        return
+    fi
+
+    if [ ! -e "${docker_cfg}" ]; then
+        echo "{\"experimental\":true, \"registry-mirrors\":[ \
+               \"http://hub-mirror.c.163.com\", \
+               \"https://reg-mirror.qiniu.com\", \
+               \"https://dockerhub.azk8s.cn\" \
+           ]}" | jq -s ".[]" | sudo tee -a "${docker_cfg}"
+    else
+        local tmpfile="$(mktemp /tmp/docker.daemon.XXXXXX)"
+        jq '.+={"registry-mirrors":["http://hub-mirror.c.163.com","https://reg-mirror.qiniu.com","https://dockerhub.azk8s.cn"]}' \
+            "${docker_cfg}" > "${tmpfile}"
+        sudo cp -f "${tmpfile}" "${docker_cfg}"
+    fi
+    service docker restart
+}
+
 function geo_specific_config() {
     local geo="$1"
     if [[ -z "${geo}" ]]; then
@@ -268,7 +290,7 @@ function geo_specific_config() {
     fi
     info "Setup geolocation specific configurations for ${geo}"
     if [[ "${geo}" == "cn" ]]; then
-        info "TODO: CN mirrors"
+        _geo_specific_config_for_cn
     fi
 }
 
@@ -380,17 +402,6 @@ function setup_devices_and_mount_volumes() {
     eval "${__retval}='${volumes}'"
 }
 
-function determine_display() {
-    local display
-    # read from env
-    if [[ -z "${DISPLAY}" ]]; then
-        display=":0"
-    else
-        display="${DISPLAY}"
-    fi
-    echo "${display}"
-}
-
 function remove_existing_cyber_container() {
     if docker ps -a --format '{{.Names}}' | grep -q "${CYBER_CONTAINER}"; then
         info "Removing existing cyber container ${CYBER_CONTAINER}"
@@ -466,7 +477,7 @@ function start_cyber_container() {
     local local_volumes
     setup_devices_and_mount_volumes local_volumes
 
-    local display="$(determine_display)"
+    local display="${DISPLAY:-:0}"
 
     set -x
     ${DOCKER_RUN_CMD} -it \

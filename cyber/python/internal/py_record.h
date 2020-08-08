@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <set>
@@ -46,6 +47,7 @@ struct BagMessage {
   bool end = true;
 };
 
+<<<<<<< HEAD
 class PyRecordReader 
 {
 public:
@@ -103,6 +105,59 @@ public:
 
 private:
         std::unique_ptr<RecordReader> record_reader_;
+=======
+class PyRecordReader {
+ public:
+  explicit PyRecordReader(const std::string& file) {
+    record_reader_.reset(new RecordReader(file));
+  }
+
+  BagMessage ReadMessage(
+      uint64_t begin_time = 0,
+      uint64_t end_time = std::numeric_limits<uint64_t>::max()) {
+    BagMessage ret_msg;
+    RecordMessage record_message;
+    if (!record_reader_->ReadMessage(&record_message, begin_time, end_time)) {
+      ret_msg.end = true;
+      return ret_msg;
+    }
+
+    ret_msg.end = false;
+    ret_msg.channel_name = record_message.channel_name;
+    ret_msg.data = record_message.content;
+    ret_msg.timestamp = record_message.time;
+    ret_msg.data_type =
+        record_reader_->GetMessageType(record_message.channel_name);
+    return ret_msg;
+  }
+
+  uint64_t GetMessageNumber(const std::string& channel_name) {
+    return record_reader_->GetMessageNumber(channel_name);
+  }
+
+  std::string GetMessageType(const std::string& channel_name) {
+    return record_reader_->GetMessageType(channel_name);
+  }
+
+  std::string GetProtoDesc(const std::string& channel_name) {
+    return record_reader_->GetProtoDesc(channel_name);
+  }
+
+  std::string GetHeaderString() {
+    std::string org_data;
+    record_reader_->GetHeader().SerializeToString(&org_data);
+    return org_data;
+  }
+
+  void Reset() { record_reader_->Reset(); }
+
+  std::set<std::string> GetChannelList() const {
+    return record_reader_->GetChannelList();
+  }
+
+ private:
+  std::unique_ptr<RecordReader> record_reader_;
+>>>>>>> update_stream/master
 };
 
 class PyRecordWriter 

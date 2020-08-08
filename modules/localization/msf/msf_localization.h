@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <string>
+#include <mutex>
 
 #include "gtest/gtest_prod.h"
 
@@ -54,27 +55,32 @@ class LocalizationMsgPublisher;
  *
  * @brief generate localization info based on MSF
  */
-class MSFLocalization 
-{
-public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+class MSFLocalization {
+ public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-public:
-        MSFLocalization();
+ public:
+  MSFLocalization();
 
-        apollo::common::Status Init();
-        void InitParams();
-        void OnPointCloud(const std::shared_ptr<drivers::PointCloud> &message);
-        void OnRawImu(const std::shared_ptr<drivers::gnss::Imu> &imu_msg);
-        void OnGnssRtkObs(const std::shared_ptr<drivers::gnss::EpochObservation> &raw_obs_msg);
-        void OnGnssRtkEph(const std::shared_ptr<drivers::gnss::GnssEphemeris> &gnss_orbit_msg);
-        void OnGnssBestPose(const std::shared_ptr<drivers::gnss::GnssBestPose> &bestgnsspos_msg);
-        void OnGnssHeading(const std::shared_ptr<drivers::gnss::Heading> &gnss_heading_msg);
+  apollo::common::Status Init();
+  void InitParams();
+  void OnPointCloud(const std::shared_ptr<drivers::PointCloud> &message);
+  void OnRawImu(const std::shared_ptr<drivers::gnss::Imu> &imu_msg);
+  void OnRawImuCache(const std::shared_ptr<drivers::gnss::Imu> &imu_msg);
+  void OnGnssRtkObs(
+      const std::shared_ptr<drivers::gnss::EpochObservation> &raw_obs_msg);
+  void OnGnssRtkEph(
+      const std::shared_ptr<drivers::gnss::GnssEphemeris> &gnss_orbit_msg);
+  void OnGnssBestPose(
+      const std::shared_ptr<drivers::gnss::GnssBestPose> &bestgnsspos_msg);
+  void OnGnssHeading(
+      const std::shared_ptr<drivers::gnss::Heading> &gnss_heading_msg);
+  void OnGps();
 
-        void SetPublisher(const std::shared_ptr<LocalizationMsgPublisher> &publisher);
+  void SetPublisher(const std::shared_ptr<LocalizationMsgPublisher> &publisher);
 
-private:
-        bool LoadGnssAntennaExtrinsic(const std::string &file_path, double *offset_x,
+ private:
+  bool LoadGnssAntennaExtrinsic(const std::string &file_path, double *offset_x,
                                 double *offset_y, double *offset_z,
                                 double *uncertainty_x, double *uncertainty_y,
                                 double *uncertainty_z);
@@ -96,7 +102,9 @@ private:
         // rotation from the vehicle coord to imu coord
         Eigen::Quaternion<double> imu_vehicle_quat_;
 
-        std::shared_ptr<LocalizationMsgPublisher> publisher_;
+  std::shared_ptr<LocalizationMsgPublisher> publisher_;
+  std::shared_ptr<drivers::gnss::Imu> raw_imu_msg_;
+  std::mutex mutex_imu_msg_;
 };
 
 }  // namespace localization

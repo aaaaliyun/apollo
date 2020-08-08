@@ -103,11 +103,11 @@ void LocalizationInteg::TransferImuRfu(const drivers::gnss::Imu &imu_msg, ImuDat
 {
         CHECK_NOTNULL(imu_rfu);
 
-        double measurement_time = TimeUtil::Gps2unix(imu_msg.measurement_time());
-        imu_rfu->measurement_time = measurement_time;
-        imu_rfu->fb[0] = imu_msg.linear_acceleration().x() * FLAGS_imu_rate;
-        imu_rfu->fb[1] = imu_msg.linear_acceleration().y() * FLAGS_imu_rate;
-        imu_rfu->fb[2] = imu_msg.linear_acceleration().z() * FLAGS_imu_rate;
+  double measurement_time = TimeUtil::Gps2Unix(imu_msg.measurement_time());
+  imu_rfu->measurement_time = measurement_time;
+  imu_rfu->fb[0] = imu_msg.linear_acceleration().x() * FLAGS_imu_rate;
+  imu_rfu->fb[1] = imu_msg.linear_acceleration().y() * FLAGS_imu_rate;
+  imu_rfu->fb[2] = imu_msg.linear_acceleration().z() * FLAGS_imu_rate;
 
         imu_rfu->wibb[0] = imu_msg.angular_velocity().x() * FLAGS_imu_rate;
         imu_rfu->wibb[1] = imu_msg.angular_velocity().y() * FLAGS_imu_rate;
@@ -118,11 +118,11 @@ void LocalizationInteg::TransferImuFlu(const drivers::gnss::Imu &imu_msg, ImuDat
 {
         CHECK_NOTNULL(imu_flu);
 
-        double measurement_time = TimeUtil::Gps2unix(imu_msg.measurement_time());
-        imu_flu->measurement_time = measurement_time;
-        imu_flu->fb[0] = -imu_msg.linear_acceleration().y() * FLAGS_imu_rate;
-        imu_flu->fb[1] = imu_msg.linear_acceleration().x() * FLAGS_imu_rate;
-        imu_flu->fb[2] = imu_msg.linear_acceleration().z() * FLAGS_imu_rate;
+  double measurement_time = TimeUtil::Gps2Unix(imu_msg.measurement_time());
+  imu_flu->measurement_time = measurement_time;
+  imu_flu->fb[0] = -imu_msg.linear_acceleration().y() * FLAGS_imu_rate;
+  imu_flu->fb[1] = imu_msg.linear_acceleration().x() * FLAGS_imu_rate;
+  imu_flu->fb[2] = imu_msg.linear_acceleration().z() * FLAGS_imu_rate;
 
         imu_flu->wibb[0] = -imu_msg.angular_velocity().y() * FLAGS_imu_rate;
         imu_flu->wibb[1] = imu_msg.angular_velocity().x() * FLAGS_imu_rate;

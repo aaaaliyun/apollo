@@ -31,8 +31,6 @@ build --cxxopt="-fdiagnostics-color=always"
 # Do not show warnings from external dependencies.
 # build --output_filter="^//"
 
-build --config=dbg
-
 build --per_file_copt=external/upb/.*@-Wno-sign-compare
 build --copt="-Werror=sign-compare"
 build --copt="-Werror=return-type"
@@ -40,17 +38,18 @@ build --copt="-Werror=unused-variable"
 build --copt="-Werror=unused-but-set-variable"
 build --copt="-Werror=switch"
 build --cxxopt="-Werror=reorder"
-build --cxxopt="-Wno-sign-compare"
 
 # Default paths for SYSTEM LIBRARIES
 build --define=PREFIX=/usr
 build --define=LIBDIR=$(PREFIX)/lib
 build --define=INCLUDEDIR=$(PREFIX)/include
 
-# dbg config, as a shorthand for '--config=optimize -c dbg'
-build:dbg --config=optimize -c dbg
-build:opt --config=optimize -c opt
 
+# dbg config, as a shorthand for '--config=optimize -c dbg'
+build:dbg -c dbg
+build:opt -c opt
+
+build --config=optimize
 # Instruction set optimizations
 build:optimize --copt=-march=native
 build:optimize --host_copt=-march=native
@@ -63,6 +62,7 @@ build:opt_gpu --config=opt --config=gpu
 # Build with profiling
 build:cpu_prof --config=cpu
 build:cpu_prof --linkopt=-lprofiler
+build:cpu_prof --cxxopt="-DENABLE_PERF"
 
 # Build Apollo with C++ 17 features.
 build:c++17 --cxxopt=-std=c++1z

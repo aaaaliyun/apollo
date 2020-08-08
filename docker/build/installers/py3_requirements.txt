@@ -20,6 +20,9 @@ pyproj
 shapely
 matplotlib
 
+# Driver
+pyusb
+
 # Data format
 h5py
 utm
@@ -28,3 +31,6 @@ utm
 opencv-python
 numpy
 scipy
+
+# Libtorch-gpu dependency
+mkl

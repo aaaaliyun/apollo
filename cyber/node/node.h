@@ -41,14 +41,15 @@ class TimerComponent;
  * @warning Duplicate name is not allowed in topo objects, such as node,
  * reader/writer, service/clinet in the topo.
  */
-class Node 
-{
-public:
-        template <typename M0, typename M1, typename M2, typename M3>
-        friend class Component;
-        friend class TimerComponent;
-        friend std::unique_ptr<Node> CreateNode(const std::string&, const std::string&);
-        virtual ~Node();
+class Node {
+ public:
+  template <typename M0, typename M1, typename M2, typename M3>
+  friend class Component;
+  friend class TimerComponent;
+  friend bool Init(const char*);
+  friend std::unique_ptr<Node> CreateNode(const std::string&,
+                                          const std::string&);
+  virtual ~Node();
 
         /**
         * @brief Get node's name.

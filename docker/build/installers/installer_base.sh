@@ -34,7 +34,29 @@ export APOLLO_LD_FILE="/etc/ld.so.conf.d/apollo.conf"
 export DOWNLOAD_LOG="/opt/apollo/build.log"
 export LOCAL_HTTP_ADDR="http://172.17.0.1:8388"
 
-export SUPPORTED_NVIDIA_SMS="6.0 6.1 7.0 7.2 7.5"
+# export SUPPORTED_NVIDIA_SMS="5.0 5.2 6.0 6.1 7.0 7.2 7.5"
+export SUPPORTED_NVIDIA_SMS="5.0 6.0 6.1 7.0 7.2 7.5"
+
+function py3_version() {
+    local version
+    # major.minor.rev (e.g. 3.6.9) expected
+    version="$(python3 --version | awk '{print $2}')"
+    echo "${version%.*}"
+}
+
+function pip3_install() {
+    python3 -m pip install --no-cache-dir $@
+}
+
+function apt_get_update_and_install() {
+    # --fix-missing
+    apt-get -y update && \
+        apt-get -y install --no-install-recommends "$@"
+}
+
+function apt_get_remove() {
+    apt-get -y purge --autoremove "$@"
+}
 
 # Ref: https://reproducible-builds.org/docs/source-date-epoch
 function source_date_epoch_setup() {
@@ -110,10 +132,6 @@ function create_so_symlink() {
         ln -s "${mylib}" "${mydir}/${libX}.so.${arr[0]}"
         ln -s "${mylib}" "${mydir}/${libX}.so"
     done
-}
-
-function pip3_install() {
-    python3 -m pip install --no-cache-dir $@
 }
 
 function _local_http_cached() {

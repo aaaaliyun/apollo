@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-#include <cfloat>
+#include <limits>
 #include <vector>
 #include "modules/perception/inference/tensorrt/plugins/argmax_plugin.h"
 namespace apollo {
@@ -34,7 +34,7 @@ __global__ void cmp(const int nthreads, const float *in_data,
       return;
     }
     int c_max = 0;
-    float v_max = FLT_MIN;
+    float v_max = std::numeric_limits<float>::min();
     for (int c = 0; c < channels; c++) {
       int in_idx = ((n * channels + c) * height + h) * width + w;
       if (v_max < in_data[in_idx]) {

@@ -78,7 +78,15 @@ bool MSFLocalizationComponent::InitIO()
         std::function<void(const std::shared_ptr<drivers::PointCloud>&)>
         lidar_register_call = std::bind(&MSFLocalization::OnPointCloud, &localization_, std::placeholders::_1);
 
+<<<<<<< HEAD
         lidar_listener_ = this->node_->CreateReader<drivers::PointCloud>(reader_config, lidar_register_call);
+=======
+bool MSFLocalizationComponent::InitConfig() {
+  lidar_topic_ = FLAGS_lidar_topic;
+  bestgnsspos_topic_ = FLAGS_gnss_best_pose_topic;
+  gnss_heading_topic_ = FLAGS_heading_topic;
+  gps_topic_ = FLAGS_gps_topic;
+>>>>>>> update_stream/master
 
         std::function<void(const std::shared_ptr<drivers::gnss::GnssBestPose>&)> bestgnsspos_register_call = std::bind(&MSFLocalization::OnGnssBestPose, &localization_, std::placeholders::_1);
         bestgnsspos_listener_ = this->node_->CreateReader<drivers::gnss::GnssBestPose>(bestgnsspos_topic_, bestgnsspos_register_call);
@@ -96,6 +104,7 @@ bool MSFLocalizationComponent::InitIO()
 
         localization_.SetPublisher(publisher_);
 
+<<<<<<< HEAD
         return true;
 }
 
@@ -103,6 +112,53 @@ bool MSFLocalizationComponent::Proc(const std::shared_ptr<drivers::gnss::Imu>& i
 {
         localization_.OnRawImu(imu_msg);
         return true;
+=======
+bool MSFLocalizationComponent::InitIO() {
+  cyber::ReaderConfig reader_config;
+  reader_config.channel_name = lidar_topic_;
+  reader_config.pending_queue_size = 1;
+
+  std::function<void(const std::shared_ptr<drivers::PointCloud>&)>
+      lidar_register_call = std::bind(&MSFLocalization::OnPointCloud,
+                                      &localization_, std::placeholders::_1);
+
+  lidar_listener_ = this->node_->CreateReader<drivers::PointCloud>(
+      reader_config, lidar_register_call);
+
+  std::function<void(const std::shared_ptr<drivers::gnss::GnssBestPose>&)>
+      bestgnsspos_register_call =
+          std::bind(&MSFLocalization::OnGnssBestPose, &localization_,
+                    std::placeholders::_1);
+  bestgnsspos_listener_ =
+      this->node_->CreateReader<drivers::gnss::GnssBestPose>(
+          bestgnsspos_topic_, bestgnsspos_register_call);
+
+  std::function<void(const std::shared_ptr<drivers::gnss::Heading>&)>
+      gnss_heading_call = std::bind(&MSFLocalization::OnGnssHeading,
+                                    &localization_, std::placeholders::_1);
+  gnss_heading_listener_ = this->node_->CreateReader<drivers::gnss::Heading>(
+      gnss_heading_topic_, gnss_heading_call);
+
+  std::function<void(const std::shared_ptr<Gps>& gps_msg)> gps_call =
+      std::bind(&MSFLocalization::OnGps, &localization_);
+  gps_listener_ = this->node_->CreateReader<Gps>(gps_topic_, gps_call);
+
+  // init writer
+  if (!publisher_->InitIO()) {
+    AERROR << "Init publisher io failed.";
+    return false;
+  }
+
+  localization_.SetPublisher(publisher_);
+
+  return true;
+}
+
+bool MSFLocalizationComponent::Proc(
+    const std::shared_ptr<drivers::gnss::Imu>& imu_msg) {
+  localization_.OnRawImuCache(imu_msg);
+  return true;
+>>>>>>> update_stream/master
 }
 
 LocalizationMsgPublisher::LocalizationMsgPublisher(const std::shared_ptr<cyber::Node>& node)
@@ -156,9 +212,32 @@ void LocalizationMsgPublisher::PublishPoseBroadcastTF(const LocalizationEstimate
         tf2_broadcaster_.SendTransform(tf2_msg);
 }
 
+<<<<<<< HEAD
 void LocalizationMsgPublisher::PublishPoseBroadcastTopic(const LocalizationEstimate& localization) 
 {
         localization_talker_->Write(localization);
+=======
+void LocalizationMsgPublisher::PublishPoseBroadcastTopic(
+    const LocalizationEstimate& localization) {
+  double cur_system_time = localization.header().timestamp_sec();
+  if (pre_system_time_ > 0.0 && cur_system_time - pre_system_time_ > 0.02) {
+    AERROR << std::setprecision(16)
+           << "the localization processing time enlonged more than 2 times "
+              "according to system time, "
+           << "the pre system time and current system time: "
+           << pre_system_time_ << " " << cur_system_time;
+  } else if (pre_system_time_ > 0.0 &&
+             cur_system_time - pre_system_time_ < 0.0) {
+    AERROR << std::setprecision(16)
+           << "published localization message's time is eary than last imu "
+              "message "
+              "according to system time, "
+           << "the pre system time and current system time: "
+           << pre_system_time_ << " " << cur_system_time;
+  }
+  pre_system_time_ = cur_system_time;
+  localization_talker_->Write(localization);
+>>>>>>> update_stream/master
 }
 
 void LocalizationMsgPublisher::PublishLocalizationMsfGnss(const LocalizationEstimate& localization) 

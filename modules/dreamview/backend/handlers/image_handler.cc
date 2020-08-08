@@ -31,39 +31,41 @@ using apollo::drivers::Image;
 constexpr double ImageHandler::kImageScale;
 
 template <>
-void ImageHandler::OnImage(const std::shared_ptr<Image> &image) 
-{
-        if (requests_ == 0) 
-        {
-                return;
-        }
+void ImageHandler::OnImage(const std::shared_ptr<Image> &image) {
+  if (requests_ == 0) {
+    return;
+  }
 
-        cv::Mat mat(image->height(), image->width(), CV_8UC3, const_cast<char *>(image->data().data()), image->step());
-        cv::cvtColor(mat, mat, cv::COLOR_RGB2BGR);
-        cv::resize(mat, mat,
-                  cv::Size(static_cast<int>(image->width() * ImageHandler::kImageScale), static_cast<int>(image->height() * ImageHandler::kImageScale)),
-                  0, 0, CV_INTER_LINEAR);
+  cv::Mat mat(image->height(), image->width(), CV_8UC3,
+              const_cast<char *>(image->data().data()), image->step());
+  cv::cvtColor(mat, mat, cv::COLOR_RGB2BGR);
+  cv::resize(
+      mat, mat,
+      cv::Size(static_cast<int>(image->width() * ImageHandler::kImageScale),
+               static_cast<int>(image->height() * ImageHandler::kImageScale)),
+      0, 0, cv::INTER_LINEAR);
 
-        std::unique_lock<std::mutex> lock(mutex_);
-        cv::imencode(".jpg", mat, send_buffer_, std::vector<int>() /* params */);
-        cvar_.notify_all();
+  std::unique_lock<std::mutex> lock(mutex_);
+  cv::imencode(".jpg", mat, send_buffer_, std::vector<int>() /* params */);
+  cvar_.notify_all();
 }
 
 template <>
-void ImageHandler::OnImage(const std::shared_ptr<CompressedImage> &compressed_image) 
-{
-        if (requests_ == 0 ||
-            compressed_image->format() == "h265" /* skip video format */) 
-        {
-                return;
-        }
+void ImageHandler::OnImage(
+    const std::shared_ptr<CompressedImage> &compressed_image) {
+  if (requests_ == 0 ||
+      compressed_image->format() == "h265" /* skip video format */) {
+    return;
+  }
 
-        std::vector<uint8_t> compressed_raw_data(compressed_image->data().begin(), compressed_image->data().end());
-        cv::Mat mat_image = cv::imdecode(compressed_raw_data, CV_LOAD_IMAGE_COLOR);
+  std::vector<uint8_t> compressed_raw_data(compressed_image->data().begin(),
+                                           compressed_image->data().end());
+  cv::Mat mat_image = cv::imdecode(compressed_raw_data, cv::IMREAD_COLOR);
 
-        std::unique_lock<std::mutex> lock(mutex_);
-        cv::imencode(".jpg", mat_image, send_buffer_, std::vector<int>() /* params */);
-        cvar_.notify_all();
+  std::unique_lock<std::mutex> lock(mutex_);
+  cv::imencode(".jpg", mat_image, send_buffer_,
+               std::vector<int>() /* params */);
+  cvar_.notify_all();
 }
 
 void ImageHandler::OnImageFront(const std::shared_ptr<Image> &image) 

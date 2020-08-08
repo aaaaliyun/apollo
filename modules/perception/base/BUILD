@@ -36,6 +36,9 @@ cc_library(
         "sensor_meta.h",
         "vehicle_struct.h",
     ],
+    deps = [
+        "//modules/common/util:eigen_defs",
+    ],
 )
 
 cc_library(
@@ -46,6 +49,7 @@ cc_library(
         ":common",
         ":syncedmem",
         "//cyber",
+        "@com_google_absl//absl/strings",
         "@local_config_cuda//cuda:cuda_headers",
     ],
 )
@@ -299,12 +303,15 @@ cc_test(
 )
 
 cc_library(
+    name = "point",
+    hdrs = ["point.h"],
+)
+
+cc_library(
     name = "point_cloud",
-    hdrs = [
-        "point.h",
-        "point_cloud.h",
-    ],
+    hdrs = ["point_cloud.h"],
     deps = [
+        ":point",
         "@eigen",
     ],
 )
@@ -317,7 +324,7 @@ cc_library(
         ":point_cloud",
         "//cyber",
         "@eigen",
-        "@opencv",
+        "@opencv//:imgproc",
     ],
 )
 

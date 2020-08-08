@@ -15,7 +15,7 @@
  *****************************************************************************/
 
 #include "cyber/record/record_viewer.h"
-
+#include <limits>
 #include <algorithm>
 #include <utility>
 
@@ -111,32 +111,33 @@ void RecordViewer::Reset()
         msg_buffer_.clear();
 }
 
-void RecordViewer::UpdateTime() 
-{
-        uint64_t min_begin_time = UINT64_MAX;
-        uint64_t max_end_time = 0;
+void RecordViewer::UpdateTime() {
+  uint64_t min_begin_time = std::numeric_limits<uint64_t>::max();
+  uint64_t max_end_time = 0;
 
-        for (auto& reader : readers_) 
-        {
-                if (!reader->IsValid()) 
-                {
-                        continue;
-                }
-                const auto& header = reader->GetHeader();
-                if (min_begin_time > header.begin_time()) 
-                {
-                        min_begin_time = header.begin_time();
-                }
-                if (max_end_time < header.end_time()) 
-                {
-                        max_end_time = header.end_time();
-                }
-        }
+  for (auto& reader : readers_) {
+    if (!reader->IsValid()) {
+      continue;
+    }
+    const auto& header = reader->GetHeader();
+    if (min_begin_time > header.begin_time()) {
+      min_begin_time = header.begin_time();
+    }
+    if (max_end_time < header.end_time()) {
+      max_end_time = header.end_time();
+    }
+  }
 
-        if (begin_time_ < min_begin_time) 
-        {
-                begin_time_ = min_begin_time;
-        }
+  if (begin_time_ < min_begin_time) {
+    begin_time_ = min_begin_time;
+  }
+
+  if (end_time_ > max_end_time) {
+    end_time_ = max_end_time;
+  }
+
+  curr_begin_time_ = begin_time_;
+}
 
         if (end_time_ > max_end_time) 
         {

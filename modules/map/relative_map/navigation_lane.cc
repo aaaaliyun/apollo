@@ -425,8 +425,56 @@ common::PathPoint NavigationLane::GetPathPointByS(const common::Path &path,
         return p;
 }
 
-bool NavigationLane::ConvertNavigationLineToPath(const int line_index, common::Path *const path) 
-{
+bool NavigationLane::ConvertNavigationLineToPath(const int line_index,
+                                                 common::Path *const path) {
+  CHECK_NOTNULL(path);
+  if (!navigation_info_.navigation_path(line_index).has_path() ||
+      navigation_info_.navigation_path(line_index).path().path_point_size() ==
+          0) {
+    // path is empty
+    return false;
+  }
+  path->set_name(absl::StrCat("Path from navigation line index ", line_index));
+  const auto &navigation_path =
+      navigation_info_.navigation_path(line_index).path();
+  auto proj_index_pair = UpdateProjectionIndex(navigation_path, line_index);
+  // Can't find a proper projection index in the "line_index" lane according to
+  // current vehicle position.
+  int current_project_index = proj_index_pair.first;
+  if (current_project_index < 0 ||
+      current_project_index >= navigation_path.path_point_size()) {
+    AERROR << "Invalid projection index " << current_project_index
+           << " in line " << line_index;
+    last_project_index_map_.erase(line_index);
+    return false;
+  } else {
+    last_project_index_map_[line_index] = proj_index_pair;
+  }
+
+  // offset between the current vehicle state and navigation line
+  const double dx = -original_pose_.position().x();
+  const double dy = -original_pose_.position().y();
+  auto enu_to_flu_func = [this, dx, dy](const double enu_x, const double enu_y,
+                                        const double enu_theta, double *flu_x,
+                                        double *flu_y, double *flu_theta) {
+    if (flu_x != nullptr && flu_y != nullptr) {
+      Eigen::Vector2d flu_coordinate = common::math::RotateVector2d(
+          {enu_x + dx, enu_y + dy}, -original_pose_.heading());
+
+      *flu_x = flu_coordinate.x();
+      *flu_y = flu_coordinate.y();
+    }
+
+    if (flu_theta != nullptr) {
+      *flu_theta = common::math::NormalizeAngle(
+          common::math::NormalizeAngle(enu_theta) - original_pose_.heading());
+    }
+  };
+
+  auto gen_navi_path_loop_func =
+      [this, &navigation_path, &enu_to_flu_func](
+          const int start, const int end, const double ref_s_base,
+          const double max_length, common::Path *path) {
         CHECK_NOTNULL(path);
         if (!navigation_info_.navigation_path(line_index).has_path() || navigation_info_.navigation_path(line_index).path().path_point_size() == 0) 
         {

@@ -18,6 +18,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include "absl/strings/str_cat.h"
 
 #include "cyber/common/file.h"
 #include "modules/localization/msf/common/io/velodyne_utility.h"
@@ -93,67 +94,199 @@ void VarianceOnline(double* mean, double* var, unsigned int* N, double x)
 using ::apollo::common::EigenAffine3dVec;
 using ::apollo::common::EigenVector3dVec;
 
-int main(int argc, char** argv) 
-{
-        FeatureXYPlane plane_extractor;
+int main(int argc, char** argv) {
+  FeatureXYPlane plane_extractor;
 
-        boost::program_options::variables_map boost_args;
-        if (!ParseCommandLine(argc, argv, &boost_args)) 
-        {
-                AERROR << "Parse input command line failed.";
-                return -1;
-        }
+  boost::program_options::variables_map boost_args;
+  if (!ParseCommandLine(argc, argv, &boost_args)) {
+    AERROR << "Parse input command line failed.";
+    return -1;
+  }
 
-        const std::vector<std::string> pcd_folder_paths = boost_args["pcd_folders"].as<std::vector<std::string>>();
-        const std::vector<std::string> pose_files = boost_args["pose_files"].as<std::vector<std::string>>();
-        if (pcd_folder_paths.size() != pose_files.size()) 
-        {
-                AERROR << "The count of pcd folders is not equal pose files";
-                return -1;
-        }
+  const std::vector<std::string> pcd_folder_paths =
+      boost_args["pcd_folders"].as<std::vector<std::string>>();
+  const std::vector<std::string> pose_files =
+      boost_args["pose_files"].as<std::vector<std::string>>();
+  if (pcd_folder_paths.size() != pose_files.size()) {
+    AERROR << "The count of pcd folders is not equal pose files";
+    return -1;
+  }
 
-        const std::string map_base_folder = boost_args["map_folder"].as<std::string>();
-        bool use_plane_inliers_only = boost_args["use_plane_inliers_only"].as<bool>();
-        // bool use_plane_fitting_ransac =
-        // boost_args["use_plane_fitting_ransac"].as<bool>();
-        const int zone_id = boost_args["zone_id"].as<int>();
-        const std::string coordinate_type = boost_args["coordinate_type"].as<std::string>();
-        if (strcasecmp(coordinate_type.c_str(), "UTM") != 0 && strcasecmp(coordinate_type.c_str(), "LTM") != 0) 
-        {
-                AERROR << "Coordinate type invalid. (UTM or LTM)";
-                return -1;
-        }
-        const std::string map_resolution_type = boost_args["map_resolution_type"].as<std::string>();
-        if (strcasecmp(map_resolution_type.c_str(), "single") != 0 && strcasecmp(map_resolution_type.c_str(), "multi") != 0) 
-        {
-                AERROR << "Map resolution type invalid. (single or multi)";
-                return -1;
-        }
+  const std::string map_base_folder =
+      boost_args["map_folder"].as<std::string>();
+  bool use_plane_inliers_only = boost_args["use_plane_inliers_only"].as<bool>();
+  // bool use_plane_fitting_ransac =
+  // boost_args["use_plane_fitting_ransac"].as<bool>();
+  const int zone_id = boost_args["zone_id"].as<int>();
+  const std::string coordinate_type =
+      boost_args["coordinate_type"].as<std::string>();
+  if (strcasecmp(coordinate_type.c_str(), "UTM") != 0 &&
+      strcasecmp(coordinate_type.c_str(), "LTM") != 0) {
+    AERROR << "Coordinate type invalid. (UTM or LTM)";
+    return -1;
+  }
+  const std::string map_resolution_type =
+      boost_args["map_resolution_type"].as<std::string>();
+  if (strcasecmp(map_resolution_type.c_str(), "single") != 0 &&
+      strcasecmp(map_resolution_type.c_str(), "multi") != 0) {
+    AERROR << "Map resolution type invalid. (single or multi)";
+    return -1;
+  }
 
-        float single_resolution_map = boost_args["resolution"].as<float>();
-        if (fabs(single_resolution_map - 0.03125) > 1e-8 &&
-            fabs(single_resolution_map - 0.0625) > 1e-8 &&
-            fabs(single_resolution_map - 0.125) < 1e-8 &&
-            fabs(single_resolution_map - 0.25) < 1e-8 &&
-            fabs(single_resolution_map - 0.5) < 1e-8 &&
-            fabs(single_resolution_map - 1.0) < 1e-8 &&
-            fabs(single_resolution_map - 2.0) < 1e-8 &&
-            fabs(single_resolution_map - 4.0) < 1e-8 &&
-            fabs(single_resolution_map - 8.0) < 1e-8 &&
-            fabs(single_resolution_map - 16.0) < 1e-8) 
-        {
-                AWARN << "Map resolution can only be: 0.03125, "
-                      << "0.0625, 0.125, 0.25, 0.5, 1.0, 2.0, "
-                      << "4.0, 8.0 or 16.0.";
-        }
+  float single_resolution_map = boost_args["resolution"].as<float>();
+  if (fabs(single_resolution_map - 0.03125) > 1e-8 &&
+      fabs(single_resolution_map - 0.0625) > 1e-8 &&
+      fabs(single_resolution_map - 0.125) < 1e-8 &&
+      fabs(single_resolution_map - 0.25) < 1e-8 &&
+      fabs(single_resolution_map - 0.5) < 1e-8 &&
+      fabs(single_resolution_map - 1.0) < 1e-8 &&
+      fabs(single_resolution_map - 2.0) < 1e-8 &&
+      fabs(single_resolution_map - 4.0) < 1e-8 &&
+      fabs(single_resolution_map - 8.0) < 1e-8 &&
+      fabs(single_resolution_map - 16.0) < 1e-8) {
+    AWARN << "Map resolution can only be: 0.03125, "
+          << "0.0625, 0.125, 0.25, 0.5, 1.0, 2.0, "
+          << "4.0, 8.0 or 16.0.";
+  }
 
-        const size_t num_trials = pcd_folder_paths.size();
+  const size_t num_trials = pcd_folder_paths.size();
 
-        // load all poses
-        AINFO << "Pcd folders are as follows:";
-        for (size_t i = 0; i < num_trials; ++i) 
-        {
-                AINFO << pcd_folder_paths[i];
+  // load all poses
+  AINFO << "Pcd folders are as follows:";
+  for (size_t i = 0; i < num_trials; ++i) {
+    AINFO << pcd_folder_paths[i];
+  }
+  std::vector<EigenAffine3dVec> ieout_poses(num_trials);
+  std::vector<std::vector<double>> time_stamps(num_trials);
+  std::vector<std::vector<unsigned int>> pcd_indices(num_trials);
+  for (size_t i = 0; i < pose_files.size(); ++i) {
+    apollo::localization::msf::velodyne::LoadPcdPoses(
+        pose_files[i], &ieout_poses[i], &time_stamps[i], &pcd_indices[i]);
+  }
+
+  PyramidMapConfig conf("lossless_map");
+  PyramidMap map(&conf);
+  PyramidMapConfig& loss_less_config =
+      static_cast<PyramidMapConfig&>(map.GetMapConfig());
+  std::string map_folder_path = map_base_folder + "/lossless_map";
+  apollo::cyber::common::EnsureDirectory(map_folder_path);
+  map.SetMapFolderPath(map_folder_path);
+  for (size_t i = 0; i < pcd_folder_paths.size(); ++i) {
+    map.AddDataset(pcd_folder_paths[i]);
+  }
+  if (strcasecmp(map_resolution_type.c_str(), "single") == 0) {
+    loss_less_config.SetSingleResolutions(single_resolution_map);
+  } else {
+    loss_less_config.SetMultiResolutions();
+  }
+
+  if (strcasecmp(coordinate_type.c_str(), "UTM") == 0) {
+    loss_less_config.coordinate_type_ = "UTM";
+  } else {
+    loss_less_config.coordinate_type_ = "LTM";
+    loss_less_config.map_range_ = apollo::localization::msf::Rect2D<double>(
+        -1638400.0, -1638400.0, 1638400.0, 1638400.0);
+  }
+
+  // Output Config file
+  char file_buf[1024];
+  snprintf(file_buf, sizeof(file_buf), "%s/lossless_map/config.xml",
+           map_base_folder.c_str());
+  loss_less_config.Save(file_buf);
+
+  snprintf(file_buf, sizeof(file_buf), "%s/lossless_map/config.txt",
+           map_base_folder.c_str());
+  FILE* file = fopen(file_buf, "a");
+
+  if (file) {
+    fprintf(file, "\n\nVeldoyne %uE\n", CAR_SENSOR_LASER_NUMBER);
+    fprintf(file, "Map coordinate type: %s\n",
+            loss_less_config.coordinate_type_.c_str());
+    // if (loss_less_config.coordinate_type_ == "LTM") {
+    //     fprintf(file, "Map origin longitude: %lf\n",
+    //     loss_less_config._origin_longitude); fprintf(file, "Map origin
+    //     latitude: %lf\n", loss_less_config._origin_latitude);
+    // }
+    fprintf(file, "Map compression: %d\n",
+            loss_less_config.map_is_compression_);
+    fprintf(file, "Map resolution: ");
+    for (size_t i = 0; i < loss_less_config.map_resolutions_.size(); ++i) {
+      fprintf(file, "%lf, ", loss_less_config.map_resolutions_[i]);
+    }
+    fprintf(file, "\nMap size: %lf %lf %lf %lf\n",
+            loss_less_config.map_range_.GetMinX(),
+            loss_less_config.map_range_.GetMinY(),
+            loss_less_config.map_range_.GetMaxX(),
+            loss_less_config.map_range_.GetMaxY());
+    fprintf(file, "Map node size: %d x %d\n", loss_less_config.map_node_size_x_,
+            loss_less_config.map_node_size_y_);
+    fprintf(file, "Map row x col: \n");
+    for (size_t i = 0; i < loss_less_config.map_resolutions_.size(); ++i) {
+      fprintf(file, "%u x %u, ",
+              MapNodeIndex::GetMapIndexRangeNorth(loss_less_config,
+                                                  static_cast<unsigned int>(i)),
+              MapNodeIndex::GetMapIndexRangeEast(loss_less_config,
+                                                 static_cast<unsigned int>(i)));
+    }
+    fprintf(file, "Map image max intensity: %lf\n",
+            loss_less_config.max_intensity_value_);
+    fprintf(file, "Map image max var: %lf\n",
+            loss_less_config.max_intensity_var_value_);
+    fprintf(file, "PCD folders: \n");
+    for (unsigned int trial = 0; trial < num_trials; ++trial) {
+      fprintf(file, "%s\n", pcd_folder_paths[trial].c_str());
+    }
+    fclose(file);
+  } else {
+    AERROR << "Can't open file: " << file_buf;
+  }
+
+  PyramidMapNodePool lossless_map_node_pool(25, 8);
+  lossless_map_node_pool.Initial(&loss_less_config);
+  map.InitMapNodeCaches(12, 24);
+  map.AttachMapNodePool(&lossless_map_node_pool);
+
+  for (unsigned int trial = 0; trial < num_trials; ++trial) {
+    for (unsigned int frame_idx = 0; frame_idx < ieout_poses[trial].size();
+         ++frame_idx) {
+      unsigned int trial_frame_idx = frame_idx;
+      const EigenAffine3dVec& poses = ieout_poses[trial];
+      apollo::localization::msf::velodyne::VelodyneFrame velodyne_frame;
+      std::string pcd_file_path = absl::StrCat(
+          pcd_folder_paths[trial], "/", pcd_indices[trial][frame_idx], ".pcd");
+      const Eigen::Affine3d& pcd_pose = poses[trial_frame_idx];
+      apollo::localization::msf::velodyne::LoadPcds(
+          pcd_file_path, trial_frame_idx, pcd_pose, &velodyne_frame, false);
+      AINFO << "Loaded " << velodyne_frame.pt3ds.size()
+            << "3D Points at Trial: " << trial << " Frame: " << trial_frame_idx
+            << ".";
+
+      unsigned int resolution_id = 0;
+      unsigned int row = 0;
+      unsigned int col = 0;
+      for (size_t i = 0; i < velodyne_frame.pt3ds.size(); ++i) {
+        Eigen::Vector3d& pt3d_local = velodyne_frame.pt3ds[i];
+        unsigned char intensity = velodyne_frame.intensities[i];
+        Eigen::Vector3d pt3d_global = velodyne_frame.pose * pt3d_local;
+        MapNodeIndex map_node_index = MapNodeIndex::GetMapNodeIndex(
+            loss_less_config, pt3d_global, resolution_id, zone_id);
+        PyramidMapNode* map_node =
+            dynamic_cast<PyramidMapNode*>(map.GetMapNodeSafe(map_node_index));
+        map_node->GetCoordinate(pt3d_global, &col, &row);
+        PyramidMapMatrix& map_matrix =
+            dynamic_cast<PyramidMapMatrix&>(map_node->GetMapCellMatrix());
+        map_matrix.SetIntensitySafe(intensity, row, col);
+      }
+
+      if (use_plane_inliers_only) {
+        PclPointCloudPtrT pcl_pc = PclPointCloudPtrT(new PclPointCloudT);
+        pcl_pc->resize(velodyne_frame.pt3ds.size());
+        for (size_t i = 0; i < velodyne_frame.pt3ds.size(); ++i) {
+          PclPointT& pt = pcl_pc->at(i);
+          pt.x = static_cast<float>(velodyne_frame.pt3ds[i][0]);
+          pt.y = static_cast<float>(velodyne_frame.pt3ds[i][1]);
+          pt.z = static_cast<float>(velodyne_frame.pt3ds[i][2]);
+          pt.intensity = static_cast<float>(velodyne_frame.intensities[i]);
         }
 
         std::vector<EigenAffine3dVec> ieout_poses(num_trials);

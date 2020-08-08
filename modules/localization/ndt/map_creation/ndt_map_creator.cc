@@ -16,9 +16,11 @@
 
 #include <string>
 #include <vector>
+
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/random.hpp>
+#include "absl/strings/str_cat.h"
 
 #include "modules/localization/msf/common/io/velodyne_utility.h"
 #include "modules/localization/msf/common/util/extract_ground_plane.h"
@@ -129,49 +131,96 @@ int main(int argc, char** argv)
         ndt_map_config.map_datasets_.insert(ndt_map_config.map_datasets_.end(),
                                       pcd_folder_paths.begin(),
                                       pcd_folder_paths.end());
-        char file_buf[1024];
-        snprintf(file_buf, sizeof(file_buf), "%s/config.xml", map_base_folder.c_str());
-        ndt_map_config.Save(file_buf);
+  char file_buf[1024];
+  snprintf(file_buf, sizeof(file_buf), "%s/config.xml",
+           map_base_folder.c_str());
+  ndt_map_config.Save(file_buf);
 
-        // Initialize map and pool
-        apollo::localization::msf::pyramid_map::NdtMap ndt_map(&ndt_map_config);
-        unsigned int thread_size = 4;
-        apollo::localization::msf::pyramid_map::NdtMapNodePool ndt_map_node_pool(pool_size, thread_size);
-        ndt_map_node_pool.Initial(&ndt_map_config);
-        ndt_map.InitMapNodeCaches(pool_size / 2, pool_size);
-        ndt_map.AttachMapNodePool(&ndt_map_node_pool);
-        ndt_map.SetMapFolderPath(map_base_folder);
+  // Initialize map and pool
+  apollo::localization::msf::pyramid_map::NdtMap ndt_map(&ndt_map_config);
+  unsigned int thread_size = 4;
+  apollo::localization::msf::pyramid_map::NdtMapNodePool ndt_map_node_pool(
+      pool_size, thread_size);
+  ndt_map_node_pool.Initial(&ndt_map_config);
+  ndt_map.InitMapNodeCaches(pool_size / 2, pool_size);
+  ndt_map.AttachMapNodePool(&ndt_map_node_pool);
+  ndt_map.SetMapFolderPath(map_base_folder);
 
-        // Plane extractor
-        apollo::localization::msf::FeatureXYPlane plane_extractor;
+  // Plane extractor
+  apollo::localization::msf::FeatureXYPlane plane_extractor;
 
-        for (unsigned int i = 0; i < pcd_folder_paths.size(); ++i) 
-        {
-                const EigenAffine3dVec& pcd_poses_i = pcd_poses[i];
-                for (unsigned int frame_idx = 0; frame_idx < pcd_poses_i.size(); ++frame_idx) 
-                {
-                        apollo::localization::msf::velodyne::VelodyneFrame velodyne_frame;
-                        std::string pcd_file_path;
-                        std::ostringstream ss;
-                        ss << pcd_indices[i][frame_idx];
-                        pcd_file_path = pcd_folder_paths[i] + "/" + ss.str() + ".pcd";
-                        Eigen::Affine3d pcd_pose = pcd_poses_i[frame_idx];
-                        // Load pcd
-                        apollo::localization::msf::velodyne::LoadPcds(pcd_file_path, pcd_indices[i][frame_idx], pcd_pose, &velodyne_frame, false);
+  for (unsigned int i = 0; i < pcd_folder_paths.size(); ++i) {
+    const EigenAffine3dVec& pcd_poses_i = pcd_poses[i];
+    for (unsigned int frame_idx = 0; frame_idx < pcd_poses_i.size();
+         ++frame_idx) {
+      apollo::localization::msf::velodyne::VelodyneFrame velodyne_frame;
+      std::string pcd_file_path = absl::StrCat(
+          pcd_folder_paths[i], "/", pcd_indices[i][frame_idx], ".pcd");
+      Eigen::Affine3d pcd_pose = pcd_poses_i[frame_idx];
+      // Load pcd
+      apollo::localization::msf::velodyne::LoadPcds(
+          pcd_file_path, pcd_indices[i][frame_idx], pcd_pose, &velodyne_frame,
+          false);
 
-                        std::cout << "Loaded " << velodyne_frame.pt3ds.size() << "3D Points at Trial: " << i << " Frame: " << pcd_indices[i][frame_idx] << "." << std::endl;
+      std::cout << "Loaded " << velodyne_frame.pt3ds.size()
+                << "3D Points at Trial: " << i
+                << " Frame: " << pcd_indices[i][frame_idx] << "." << std::endl;
 
-                        // Process the point cloud
-                        for (size_t k = 0; k < velodyne_frame.pt3ds.size(); ++k) 
-                        {
-                                Eigen::Vector3d& pt3d_local = velodyne_frame.pt3ds[k];
-                                unsigned char intensity = velodyne_frame.intensities[k];
-                                Eigen::Vector3d pt3d_global = velodyne_frame.pose * pt3d_local;
+      // Process the point cloud
+      for (size_t k = 0; k < velodyne_frame.pt3ds.size(); ++k) {
+        Eigen::Vector3d& pt3d_local = velodyne_frame.pt3ds[k];
+        unsigned char intensity = velodyne_frame.intensities[k];
+        Eigen::Vector3d pt3d_global = velodyne_frame.pose * pt3d_local;
 
-                                for (size_t res = 0; res < ndt_map_config.map_resolutions_.size(); ++res) 
-                                {
-                                        apollo::localization::msf::pyramid_map::MapNodeIndex index =
-                                        apollo::localization::msf::pyramid_map::MapNodeIndex::GetMapNodeIndex(ndt_map_config, pt3d_global, static_cast<unsigned int>(res), zone_id);
+        for (size_t res = 0; res < ndt_map_config.map_resolutions_.size();
+             ++res) {
+          apollo::localization::msf::pyramid_map::MapNodeIndex index =
+              apollo::localization::msf::pyramid_map::MapNodeIndex::
+                  GetMapNodeIndex(ndt_map_config, pt3d_global,
+                                  static_cast<unsigned int>(res), zone_id);
+
+          apollo::localization::msf::pyramid_map::NdtMapNode* ndt_map_node =
+              static_cast<apollo::localization::msf::pyramid_map::NdtMapNode*>(
+                  ndt_map.GetMapNodeSafe(index));
+          apollo::localization::msf::pyramid_map::NdtMapMatrix& ndt_map_matrix =
+              static_cast<
+                  apollo::localization::msf::pyramid_map::NdtMapMatrix&>(
+                  ndt_map_node->GetMapCellMatrix());
+
+          Eigen::Vector2d coord2d;
+          coord2d[0] = pt3d_global[0];
+          coord2d[1] = pt3d_global[1];
+          unsigned int x = 0;
+          unsigned int y = 0;
+          ndt_map_node->GetCoordinate(coord2d, &x, &y);
+
+          // get the centroid
+          Eigen::Vector2d left_top_corner = ndt_map_node->GetLeftTopCorner();
+          float resolution = ndt_map_node->GetMapResolution();
+          Eigen::Vector3f centroid;
+          centroid[0] = static_cast<float>(coord2d[0]) -
+                        static_cast<float>(left_top_corner[0]) -
+                        resolution * static_cast<float>(x);
+          centroid[1] = static_cast<float>(coord2d[1]) -
+                        static_cast<float>(left_top_corner[1]) -
+                        resolution * static_cast<float>(y);
+          apollo::localization::msf::pyramid_map::NdtMapCells& ndt_map_cell =
+              ndt_map_matrix.GetMapCell(y, x);
+          int altitude_index = ndt_map_cell.CalAltitudeIndex(
+              ndt_map_config.map_resolutions_z_[res],
+              static_cast<float>(pt3d_global[2]));
+          centroid[2] = static_cast<float>(pt3d_global[2]) -
+                        static_cast<float>(altitude_index) *
+                            ndt_map_config.map_resolutions_z_[res];
+
+          ndt_map_cell.AddSample(intensity, static_cast<float>(pt3d_global[2]),
+                                 ndt_map_config.map_resolutions_z_[res],
+                                 centroid, false);
+          ndt_map_node->SetIsChanged(true);
+        }
+      }
+    }
+  }
 
                                         apollo::localization::msf::pyramid_map::NdtMapNode* ndt_map_node = static_cast<apollo::localization::msf::pyramid_map::NdtMapNode*>(ndt_map.GetMapNodeSafe(index));
                                         apollo::localization::msf::pyramid_map::NdtMapMatrix& ndt_map_matrix = static_cast<apollo::localization::msf::pyramid_map::NdtMapMatrix&>(ndt_map_node->GetMapCellMatrix());

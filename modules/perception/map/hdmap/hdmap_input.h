@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "cyber/common/macros.h"
+#include "modules/common/util/eigen_defs.h"
 #include "modules/map/hdmap/hdmap.h"
 #include "modules/map/hdmap/hdmap_common.h"
 #include "modules/perception/base/hdmap_struct.h"
@@ -49,27 +50,17 @@ class HDMapInput {
   void MergeBoundaryJunction(
       const std::vector<apollo::hdmap::RoadRoiPtr>& boundary,
       const std::vector<apollo::hdmap::JunctionInfoConstPtr>& junctions,
-      std::vector<base::RoadBoundary,
-                  Eigen::aligned_allocator<base::RoadBoundary> >*
-          road_boundaries_ptr,
-      std::vector<base::PointCloud<base::PointD>,
-                  Eigen::aligned_allocator<base::PointCloud<base::PointD> > >*
+      apollo::common::EigenVector<base::RoadBoundary>* road_boundaries_ptr,
+      apollo::common::EigenVector<base::PointCloud<base::PointD>>*
           road_polygons_ptr,
-      std::vector<base::PointCloud<base::PointD>,
-                  Eigen::aligned_allocator<base::PointCloud<base::PointD> > >*
+      apollo::common::EigenVector<base::PointCloud<base::PointD>>*
           junction_polygons_ptr);
 
   bool GetRoadBoundaryFilteredByJunctions(
-      const std::vector<base::RoadBoundary,
-                        Eigen::aligned_allocator<base::RoadBoundary> >&
-          road_boundaries,
-      const std::vector<
-          base::PointCloud<base::PointD>,
-          Eigen::aligned_allocator<base::PointCloud<base::PointD> > >&
+      const apollo::common::EigenVector<base::RoadBoundary>& road_boundaries,
+      const apollo::common::EigenVector<base::PointCloud<base::PointD>>&
           junctions,
-      std::vector<base::RoadBoundary,
-                  Eigen::aligned_allocator<base::RoadBoundary> >*
-          flt_road_boundaries_ptr);
+      apollo::common::EigenVector<base::RoadBoundary>* flt_road_boundaries_ptr);
 
   void DownsamplePoints(const base::PointDCloudPtr& raw_cloud_ptr,
                         base::PointCloud<base::PointD>* polygon_ptr,
@@ -77,12 +68,9 @@ class HDMapInput {
 
   void SplitBoundary(
       const base::PointCloud<base::PointD>& boundary_line,
-      const std::vector<
-          base::PointCloud<base::PointD>,
-          Eigen::aligned_allocator<base::PointCloud<base::PointD> > >&
+      const apollo::common::EigenVector<base::PointCloud<base::PointD>>&
           junctions,
-      std::vector<base::PointCloud<base::PointD>,
-                  Eigen::aligned_allocator<base::PointCloud<base::PointD> > >*
+      apollo::common::EigenVector<base::PointCloud<base::PointD>>*
           boundary_line_vec_ptr);
 
   bool GetSignalsFromHDMap(const Eigen::Vector3d& pointd,

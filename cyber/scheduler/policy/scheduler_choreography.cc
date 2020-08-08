@@ -40,61 +40,57 @@ using apollo::cyber::common::PathExists;
 using apollo::cyber::common::WorkRoot;
 using apollo::cyber::croutine::RoutineState;
 
-SchedulerChoreography::SchedulerChoreography() 
-{
-        std::string conf("conf/");
-        conf.append(GlobalData::Instance()->ProcessGroup()).append(".conf");
-        auto cfg_file = GetAbsolutePath(WorkRoot(), conf);
+SchedulerChoreography::SchedulerChoreography()
+    : choreography_processor_prio_(0), pool_processor_prio_(0) {
+  std::string conf("conf/");
+  conf.append(GlobalData::Instance()->ProcessGroup()).append(".conf");
+  auto cfg_file = GetAbsolutePath(WorkRoot(), conf);
 
-        apollo::cyber::proto::CyberConfig cfg;
-        if (PathExists(cfg_file) && GetProtoFromFile(cfg_file, &cfg)) 
-        {
-                for (auto& thr : cfg.scheduler_conf().threads()) 
-                {
-                        inner_thr_confs_[thr.name()] = thr;
-                }
+  apollo::cyber::proto::CyberConfig cfg;
+  if (PathExists(cfg_file) && GetProtoFromFile(cfg_file, &cfg)) {
+    for (auto& thr : cfg.scheduler_conf().threads()) {
+      inner_thr_confs_[thr.name()] = thr;
+    }
 
-                if (cfg.scheduler_conf().has_process_level_cpuset()) 
-                {
-                        process_level_cpuset_ = cfg.scheduler_conf().process_level_cpuset();
-                        ProcessLevelResourceControl();
-                }
+    if (cfg.scheduler_conf().has_process_level_cpuset()) {
+      process_level_cpuset_ = cfg.scheduler_conf().process_level_cpuset();
+      ProcessLevelResourceControl();
+    }
 
-                const apollo::cyber::proto::ChoreographyConf& choreography_conf = cfg.scheduler_conf().choreography_conf();
-                proc_num_ = choreography_conf.choreography_processor_num();
-                choreography_affinity_ = choreography_conf.choreography_affinity();
-                choreography_processor_policy_ = choreography_conf.choreography_processor_policy();
+    const apollo::cyber::proto::ChoreographyConf& choreography_conf =
+        cfg.scheduler_conf().choreography_conf();
+    proc_num_ = choreography_conf.choreography_processor_num();
+    choreography_affinity_ = choreography_conf.choreography_affinity();
+    choreography_processor_policy_ =
+        choreography_conf.choreography_processor_policy();
 
-                choreography_processor_prio_ = choreography_conf.choreography_processor_prio();
-                ParseCpuset(choreography_conf.choreography_cpuset(), &choreography_cpuset_);
+    choreography_processor_prio_ =
+        choreography_conf.choreography_processor_prio();
+    ParseCpuset(choreography_conf.choreography_cpuset(), &choreography_cpuset_);
 
-                task_pool_size_ = choreography_conf.pool_processor_num();
-                pool_affinity_ = choreography_conf.pool_affinity();
-                pool_processor_policy_ = choreography_conf.pool_processor_policy();
-                pool_processor_prio_ = choreography_conf.pool_processor_prio();
-                ParseCpuset(choreography_conf.pool_cpuset(), &pool_cpuset_);
+    task_pool_size_ = choreography_conf.pool_processor_num();
+    pool_affinity_ = choreography_conf.pool_affinity();
+    pool_processor_policy_ = choreography_conf.pool_processor_policy();
+    pool_processor_prio_ = choreography_conf.pool_processor_prio();
+    ParseCpuset(choreography_conf.pool_cpuset(), &pool_cpuset_);
 
-                for (const auto& task : choreography_conf.tasks()) 
-                {
-                        cr_confs_[task.name()] = task;
-                }
-        }
+    for (const auto& task : choreography_conf.tasks()) {
+      cr_confs_[task.name()] = task;
+    }
+  }
 
-        if (proc_num_ == 0) 
-        {
-                auto& global_conf = GlobalData::Instance()->Config();
-                if (global_conf.has_scheduler_conf() && global_conf.scheduler_conf().has_default_proc_num()) 
-                {
-                        proc_num_ = global_conf.scheduler_conf().default_proc_num();
-                } 
-                else 
-                {
-                        proc_num_ = 2;
-                }
-                task_pool_size_ = proc_num_;
-        }
+  if (proc_num_ == 0) {
+    auto& global_conf = GlobalData::Instance()->Config();
+    if (global_conf.has_scheduler_conf() &&
+        global_conf.scheduler_conf().has_default_proc_num()) {
+      proc_num_ = global_conf.scheduler_conf().default_proc_num();
+    } else {
+      proc_num_ = 2;
+    }
+    task_pool_size_ = proc_num_;
+  }
 
-        CreateProcessor();
+  CreateProcessor();
 }
 
 void SchedulerChoreography::CreateProcessor() 

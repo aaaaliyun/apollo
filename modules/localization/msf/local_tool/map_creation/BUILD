@@ -8,16 +8,14 @@ cc_binary(
     srcs = ["lossless_map_creator.cc"],
     linkstatic = 0,
     deps = [
-        "//cyber",
-        "//modules/localization/msf/common/io:localization_msf_common_io",
-        "//modules/localization/msf/common/util:localization_msf_common_util",
-        "//modules/localization/msf/local_pyramid_map/base_map:localization_pyramid_map_base_map",
-        "//modules/localization/msf/local_pyramid_map/pyramid_map:localization_pyramid_map_pyramid_map",
-        "//modules/localization/msf/local_pyramid_map/pyramid_map:localization_pyramid_map_pyramid_map_pool",
+        "//cyber/common:file",
+        "//modules/localization/msf/common/io:common_io",
+        "//modules/localization/msf/common/util",
+        "//modules/localization/msf/local_pyramid_map/base_map",
+        "//modules/localization/msf/local_pyramid_map/pyramid_map",
+        "//modules/localization/msf/local_pyramid_map/pyramid_map:pyramid_map_pool",
         "@boost",
-        "@eigen",
-        "@lz4",
-        "@opencv",
+        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -26,13 +24,10 @@ cc_binary(
     srcs = ["lossless_map_to_lossy_map.cc"],
     linkstatic = 0,
     deps = [
-        "//cyber",
-        "//modules/localization/msf/local_pyramid_map/base_map:localization_pyramid_map_base_map",
-        "//modules/localization/msf/local_pyramid_map/pyramid_map:localization_pyramid_map_pyramid_map",
-        "//modules/localization/msf/local_pyramid_map/pyramid_map:localization_pyramid_map_pyramid_map_pool",
+        "//modules/localization/msf/local_pyramid_map/base_map",
+        "//modules/localization/msf/local_pyramid_map/pyramid_map",
+        "//modules/localization/msf/local_pyramid_map/pyramid_map:pyramid_map_pool",
         "@boost",
-        "@eigen",
-        "@opencv",
     ],
 )
 
@@ -42,8 +37,6 @@ cc_binary(
     linkstatic = 0,
     deps = [
         "//modules/localization/msf/local_tool/map_creation/poses_interpolation:poses_interpolation_lib",
-        "@eigen",
-        "@opencv",
     ],
 )
 

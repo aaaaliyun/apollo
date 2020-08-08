@@ -36,7 +36,8 @@ MSFLocalization::MSFLocalization()
     : monitor_logger_(
           apollo::common::monitor::MonitorMessageItem::LOCALIZATION),
       localization_state_(msf::LocalizationMeasureState::OK),
-      pcd_msg_index_(-1) {}
+      pcd_msg_index_(-1),
+      raw_imu_msg_(nullptr) {}
 
 Status MSFLocalization::Init() 
 {
@@ -232,13 +233,21 @@ void MSFLocalization::OnRawImu(const std::shared_ptr<drivers::gnss::Imu> &imu_ms
         localization_state_ = result.state();
 }
 
-void MSFLocalization::OnGnssBestPose(const std::shared_ptr<drivers::gnss::GnssBestPose> &bestgnsspos_msg) 
-{
-        if ((localization_state_ == msf::LocalizationMeasureState::OK || localization_state_ == msf::LocalizationMeasureState::VALID) && 
-            FLAGS_gnss_only_init) 
-        {
-                return;
-        }
+void MSFLocalization::OnRawImuCache(
+    const std::shared_ptr<drivers::gnss::Imu> &imu_msg) {
+  if (imu_msg) {
+    std::unique_lock<std::mutex> lock(mutex_imu_msg_);
+    raw_imu_msg_ = const_cast<std::shared_ptr<drivers::gnss::Imu> &>(imu_msg);
+  }
+}
+
+void MSFLocalization::OnGnssBestPose(
+    const std::shared_ptr<drivers::gnss::GnssBestPose> &bestgnsspos_msg) {
+  if ((localization_state_ == msf::LocalizationMeasureState::OK ||
+       localization_state_ == msf::LocalizationMeasureState::VALID) &&
+      FLAGS_gnss_only_init) {
+    return;
+  }
 
         localization_integ_.GnssBestPoseProcess(*bestgnsspos_msg);
 
@@ -291,9 +300,14 @@ void MSFLocalization::OnGnssHeading(const std::shared_ptr<drivers::gnss::Heading
         localization_integ_.GnssHeadingProcess(*gnss_heading_msg);
 }
 
-void MSFLocalization::SetPublisher(const std::shared_ptr<LocalizationMsgPublisher> &publisher) 
-{
-        publisher_ = publisher;
+void MSFLocalization::OnGps() {
+  std::unique_lock<std::mutex> lock(mutex_imu_msg_);
+  OnRawImu(raw_imu_msg_);
+}
+
+void MSFLocalization::SetPublisher(
+    const std::shared_ptr<LocalizationMsgPublisher> &publisher) {
+  publisher_ = publisher;
 }
 
 void MSFLocalization::CompensateImuVehicleExtrinsic(LocalizationEstimate *local_result) 

@@ -30,6 +30,7 @@
 #include "modules/drivers/gnss/proto/gnss_raw_observation.pb.h"
 #include "modules/drivers/gnss/proto/imu.pb.h"
 #include "modules/drivers/proto/pointcloud.pb.h"
+#include "modules/localization/proto/gps.pb.h"
 #include "modules/localization/proto/localization.pb.h"
 #include "modules/transform/transform_broadcaster.h"
 
@@ -60,11 +61,16 @@ private:
         std::shared_ptr<cyber::Reader<drivers::gnss::Heading>> gnss_heading_listener_ = nullptr;
         std::string gnss_heading_topic_ = "";
 
-private:
-        std::shared_ptr<LocalizationMsgPublisher> publisher_;
-        MSFLocalization localization_;
-public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    std::shared_ptr<cyber::Reader<Gps>> gps_listener_ = nullptr;
+    std::string gps_topic_ = "";
+
+ private:
+  std::shared_ptr<LocalizationMsgPublisher> publisher_;
+  MSFLocalization localization_;
+
+ public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 CYBER_REGISTER_COMPONENT(MSFLocalizationComponent);
@@ -101,8 +107,10 @@ private:
         std::string gnss_local_topic_ = "";
         std::shared_ptr<cyber::Writer<LocalizationEstimate>> gnss_local_talker_ = nullptr;
 
-        std::string localization_status_topic_ = "";
-        std::shared_ptr<cyber::Writer<LocalizationStatus>> localization_status_talker_ = nullptr;
+  std::string localization_status_topic_ = "";
+  std::shared_ptr<cyber::Writer<LocalizationStatus>>
+      localization_status_talker_ = nullptr;
+  double pre_system_time_ = 0.0;
 };
 
 }  // namespace localization

@@ -19,19 +19,25 @@
 #include <libgen.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #include <csignal>
 #include <cstdio>
 #include <ctime>
+#include <memory>
 #include <string>
 
 #include "cyber/binary.h"
+#include "cyber/common/file.h"
 #include "cyber/common/global_data.h"
 #include "cyber/data/data_dispatcher.h"
 #include "cyber/logger/async_logger.h"
+#include "cyber/node/node.h"
+#include "cyber/proto/clock.pb.h"
 #include "cyber/scheduler/scheduler.h"
 #include "cyber/service_discovery/topology_manager.h"
 #include "cyber/sysmo/sysmo.h"
 #include "cyber/task/task.h"
+#include "cyber/time/clock.h"
 #include "cyber/timer/timing_wheel.h"
 #include "cyber/transport/transport.h"
 
@@ -43,8 +49,13 @@ using apollo::cyber::service_discovery::TopologyManager;
 
 namespace {
 
+const std::string& kClockChannel = "/clock";
+const std::string& kClockNode = "clock";
+
 bool g_atexit_registered = false;
 std::mutex g_mutex;
+std::unique_ptr<Node> clock_node;
+
 logger::AsyncLogger* async_logger = nullptr;
 
 void InitLogger(const char* binary_name) 
@@ -72,10 +83,7 @@ void InitLogger(const char* binary_name)
 }
 
 
-void StopLogger() 
-{
-        delete async_logger;
-}
+void StopLogger() { delete async_logger; }
 
 }  // namespace
 
@@ -90,32 +98,41 @@ void OnShutdown(int sig)
 
 void ExitHandle() { Clear(); }
 
-bool Init(const char* binary_name) 
-{
-        std::lock_guard<std::mutex> lg(g_mutex);
-        if (GetState() != STATE_UNINITIALIZED) 
-        {
-                return false;
-        }
+bool Init(const char* binary_name) {
+  std::lock_guard<std::mutex> lg(g_mutex);
+  if (GetState() != STATE_UNINITIALIZED) {
+    return false;
+  }
 
-        InitLogger(binary_name);
-        auto thread = const_cast<std::thread*>(async_logger->LogThread());
-        scheduler::Instance()->SetInnerThreadAttr("async_log", thread);
-        SysMo::Instance();
-        std::signal(SIGINT, OnShutdown);
-        // Register exit handlers
-        if (!g_atexit_registered) 
-        {
-                if (std::atexit(ExitHandle) != 0) 
-                {
-                        AERROR << "Register exit handle failed";
-                        return false;
-                }
-                AINFO << "Register exit handle succ.";
-                g_atexit_registered = true;
-        }
-        SetState(STATE_INITIALIZED);
-        return true;
+  InitLogger(binary_name);
+  auto thread = const_cast<std::thread*>(async_logger->LogThread());
+  scheduler::Instance()->SetInnerThreadAttr("async_log", thread);
+  SysMo::Instance();
+  std::signal(SIGINT, OnShutdown);
+  // Register exit handlers
+  if (!g_atexit_registered) {
+    if (std::atexit(ExitHandle) != 0) {
+      AERROR << "Register exit handle failed";
+      return false;
+    }
+    AINFO << "Register exit handle succ.";
+    g_atexit_registered = true;
+  }
+  SetState(STATE_INITIALIZED);
+
+  auto global_data = GlobalData::Instance();
+  if (global_data->IsMockTimeMode()) {
+    auto node_name = kClockNode + std::to_string(getpid());
+    clock_node = std::unique_ptr<Node>(new Node(node_name));
+    auto cb =
+        [](const std::shared_ptr<const apollo::cyber::proto::Clock>& msg) {
+          if (msg->has_clock()) {
+            Clock::Instance()->SetNow(Time(msg->clock()));
+          }
+        };
+    clock_node->CreateReader<apollo::cyber::proto::Clock>(kClockChannel, cb);
+  }
+  return true;
 }
 
 void Clear() 
