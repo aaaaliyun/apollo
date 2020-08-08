@@ -102,80 +102,6 @@ int ZlibStrategy::ZlibCompress(BufferStr* src, BufferStr* dst)
         return Z_OK;
 }
 
-<<<<<<< HEAD
-int ZlibStrategy::ZlibUncompress(BufferStr* src, BufferStr* dst) 
-{
-        dst->resize(zlib_chunk * 2);
-        int ret;
-        unsigned have;
-        z_stream stream_data;
-        unsigned char* in = &((*src)[0]);
-        unsigned char* out = &((*dst)[0]);
-        unsigned int src_idx = 0;
-        unsigned int dst_idx = 0;
-
-        /* allocate inflate state */
-        stream_data.zalloc = Z_NULL;
-        stream_data.zfree = Z_NULL;
-        stream_data.opaque = Z_NULL;
-        stream_data.avail_in = 0;
-        stream_data.next_in = Z_NULL;
-        ret = inflateInit(&stream_data);
-        if (ret != Z_OK) 
-        {
-                return ret;
-        }
-        /* decompress until deflate stream ends or end of file */
-        do 
-        {
-                in = &((*src)[src_idx]);
-                if (src->size() - src_idx > zlib_chunk) 
-                {
-                        stream_data.avail_in = zlib_chunk;
-                } 
-                else 
-                {
-                        stream_data.avail_in = static_cast<unsigned int>(src->size()) - src_idx;
-                }
-                stream_data.next_in = in;
-                src_idx += stream_data.avail_in;
-                if (stream_data.avail_in == 0) 
-                {
-                        break;
-                }
-                /* run inflate() on input until output buffer not full */
-                do 
-                {
-                        stream_data.avail_out = zlib_chunk;
-                        stream_data.next_out = out;
-                        ret = inflate(&stream_data, Z_NO_FLUSH);
-                        DCHECK_NE(ret, Z_STREAM_ERROR); /* state not clobbered */
-                        switch (ret) 
-                        {
-                                case Z_NEED_DICT:
-                                        ret = Z_DATA_ERROR; /* and fall through */
-                                case Z_DATA_ERROR:
-                                case Z_MEM_ERROR:
-                                        (void)inflateEnd(&stream_data);
-                                        return ret;
-                        }
-                        have = zlib_chunk - stream_data.avail_out;
-                        dst_idx += have;
-                        if (dst_idx + zlib_chunk > dst->size()) 
-                        {
-                                dst->resize(dst_idx + zlib_chunk * 2);
-                        }
-                        out = &((*dst)[dst_idx]);
-                } while (stream_data.avail_out == 0);
-
-                /* done when inflate() says it's done */
-        } while (ret != Z_STREAM_END);
-
-        /* clean up and return */
-        (void)inflateEnd(&stream_data);
-        dst->resize(dst_idx);
-        return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
-=======
 int ZlibStrategy::ZlibUncompress(BufferStr* src, BufferStr* dst) {
   dst->resize(zlib_chunk * 2);
   int ret;
@@ -235,7 +161,6 @@ int ZlibStrategy::ZlibUncompress(BufferStr* src, BufferStr* dst) {
   (void)inflateEnd(&stream_data);
   dst->resize(dst_idx);
   return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
->>>>>>> update_stream/master
 }
 
 }  // namespace msf

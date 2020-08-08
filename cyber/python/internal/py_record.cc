@@ -75,57 +75,6 @@ PyObject *cyber_delete_PyRecordReader(PyObject *self, PyObject *args)
         return Py_None;
 }
 
-<<<<<<< HEAD
-PyObject *cyber_PyRecordReader_ReadMessage(PyObject *self, PyObject *args) 
-{
-        PyObject *pyobj_reader = nullptr;
-        uint64_t begin_time = 0;
-        uint64_t end_time = UINT64_MAX;
-        if (!PyArg_ParseTuple(args, const_cast<char *>("OKK:PyRecordReader_ReadMessage"), &pyobj_reader, &begin_time, &end_time)) 
-        {
-                return nullptr;
-        }
-
-        auto *reader = reinterpret_cast<PyRecordReader *>(PyCapsule_GetPointer(pyobj_reader, "apollo_cyber_record_pyrecordfilereader"));
-        if (nullptr == reader) 
-        {
-                AERROR << "PyRecordReader_ReadMessage ptr is null!";
-                return nullptr;
-        }
-
-        const auto result = reader->ReadMessage(begin_time, end_time);
-        PyObject *pyobj_bag_message = PyDict_New();
-
-        PyObject *bld_name = Py_BuildValue("s", result.channel_name.c_str());
-        PyDict_SetItemString(pyobj_bag_message, "channel_name", bld_name);
-        Py_DECREF(bld_name);
-
-        PyObject *bld_data = Py_BuildValue("y#", result.data.c_str(), result.data.length());
-
-        ACHECK(bld_data) << "Py_BuildValue returns NULL.";
-        PyDict_SetItemString(pyobj_bag_message, "data", bld_data);
-        Py_DECREF(bld_data);
-
-        ACHECK(bld_data) << "Py_BuildValue returns NULL.";
-        PyDict_SetItemString(pyobj_bag_message, "data", bld_data);
-        Py_DECREF(bld_data);
-
-        PyObject *bld_type = Py_BuildValue("s", result.data_type.c_str());
-        PyDict_SetItemString(pyobj_bag_message, "data_type", bld_type);
-        Py_DECREF(bld_type);
-
-        PyObject *bld_time = Py_BuildValue("s", "timestamp");
-        PyObject *bld_rtime = Py_BuildValue("K", result.timestamp);
-        PyDict_SetItem(pyobj_bag_message, bld_time, bld_rtime);
-        Py_DECREF(bld_time);
-        Py_DECREF(bld_rtime);
-
-        PyObject *bld_end = Py_BuildValue("s", "end");
-        PyDict_SetItem(pyobj_bag_message, bld_end, result.end ? Py_True : Py_False);
-        Py_DECREF(bld_end);
-
-        return pyobj_bag_message;
-=======
 PyObject *cyber_PyRecordReader_ReadMessage(PyObject *self, PyObject *args) {
   PyObject *pyobj_reader = nullptr;
   uint64_t begin_time = 0;
@@ -172,7 +121,6 @@ PyObject *cyber_PyRecordReader_ReadMessage(PyObject *self, PyObject *args) {
   Py_DECREF(bld_end);
 
   return pyobj_bag_message;
->>>>>>> update_stream/master
 }
 
 PyObject *cyber_PyRecordReader_GetMessageNumber(PyObject *self,
@@ -598,25 +546,6 @@ static PyMethodDef _cyber_record_methods[] =
 };
 
 /// Init function of this module
-<<<<<<< HEAD
-PyMODINIT_FUNC PyInit__cyber_record_wrapper(void) 
-{
-        static struct PyModuleDef module_def = 
-        {
-                PyModuleDef_HEAD_INIT,
-                "_cyber_record_wrapper",    // Module name.
-                "CyberRecord module",   // Module doc.
-                -1,                     // Module size.
-                _cyber_record_methods,  // Module methods.
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr,
-        };
-
-        AINFO << "init _cyber_record_wrapper";
-        return PyModule_Create(&module_def);
-=======
 PyMODINIT_FUNC PyInit__cyber_record_wrapper(void) {
   static struct PyModuleDef module_def = {
       PyModuleDef_HEAD_INIT,
@@ -632,5 +561,4 @@ PyMODINIT_FUNC PyInit__cyber_record_wrapper(void) {
 
   AINFO << "init _cyber_record_wrapper";
   return PyModule_Create(&module_def);
->>>>>>> update_stream/master
 }

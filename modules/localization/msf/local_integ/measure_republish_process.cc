@@ -405,35 +405,6 @@ bool MeasureRepublishProcess::IsSinsAlign()
         return !integ_pva_list_.empty() && integ_pva_list_.back().init_and_alignment;
 }
 
-<<<<<<< HEAD
-void MeasureRepublishProcess::TransferXYZFromBestgnsspose(const GnssBestPose& bestgnsspos_msg, MeasureData* measure) 
-{
-        CHECK_NOTNULL(measure);
-
-        measure->time = bestgnsspos_msg.measurement_time();
-        if (is_trans_gpstime_to_utctime_) 
-        {
-                measure->time = TimeUtil::Gps2unix(measure->time);
-        }
-
-        measure->gnss_pos.longitude = bestgnsspos_msg.longitude() * DEG_TO_RAD;
-        measure->gnss_pos.latitude = bestgnsspos_msg.latitude() * DEG_TO_RAD;
-        measure->gnss_pos.height = bestgnsspos_msg.height_msl() + bestgnsspos_msg.undulation();
-
-        measure->variance[0][0] = bestgnsspos_msg.longitude_std_dev() * bestgnsspos_msg.longitude_std_dev();
-        measure->variance[1][1] = bestgnsspos_msg.latitude_std_dev() * bestgnsspos_msg.latitude_std_dev();
-        measure->variance[2][2] = bestgnsspos_msg.height_std_dev() * bestgnsspos_msg.height_std_dev();
-
-        measure->measure_type = MeasureType::GNSS_POS_ONLY;
-        measure->frame_type = FrameType::ENU;
-        height_mutex_.lock();
-        if ((measure->time - 1.0 < map_height_time_)) 
-        {
-                measure->measure_type = MeasureType::GNSS_POS_XY;
-        }
-        height_mutex_.unlock();
-        measure->is_have_variance = true;
-=======
 void MeasureRepublishProcess::TransferXYZFromBestgnsspose(
     const GnssBestPose& bestgnsspos_msg, MeasureData* measure) {
   CHECK_NOTNULL(measure);
@@ -463,7 +434,6 @@ void MeasureRepublishProcess::TransferXYZFromBestgnsspose(
   }
   height_mutex_.unlock();
   measure->is_have_variance = true;
->>>>>>> update_stream/master
 }
 
 void MeasureRepublishProcess::TransferFirstMeasureFromBestgnsspose(const GnssBestPose& bestgnsspos_msg, MeasureData* measure) 

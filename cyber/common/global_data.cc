@@ -198,23 +198,12 @@ uint64_t GlobalData::RegisterNode(const std::string& node_name)
         return id;
 }
 
-<<<<<<< HEAD
-std::string GlobalData::GetNodeById(uint64_t id) 
-{
-        std::string* node_name = nullptr;
-        if (node_id_map_.Get(id, &node_name)) 
-        {
-                return *node_name;
-        }
-        return empty_str_;
-=======
 std::string GlobalData::GetNodeById(uint64_t id) {
   std::string* node_name = nullptr;
   if (node_id_map_.Get(id, &node_name)) {
     return *node_name;
   }
   return kEmptyString;
->>>>>>> update_stream/master
 }
 
 uint64_t GlobalData::RegisterChannel(const std::string& channel) 
@@ -235,23 +224,12 @@ uint64_t GlobalData::RegisterChannel(const std::string& channel)
         return id;
 }
 
-<<<<<<< HEAD
-std::string GlobalData::GetChannelById(uint64_t id) 
-{
-        std::string* channel = nullptr;
-        if (channel_id_map_.Get(id, &channel)) 
-        {
-                return *channel;
-        }
-        return empty_str_;
-=======
 std::string GlobalData::GetChannelById(uint64_t id) {
   std::string* channel = nullptr;
   if (channel_id_map_.Get(id, &channel)) {
     return *channel;
   }
   return kEmptyString;
->>>>>>> update_stream/master
 }
 
 uint64_t GlobalData::RegisterService(const std::string& service) 
@@ -272,23 +250,12 @@ uint64_t GlobalData::RegisterService(const std::string& service)
         return id;
 }
 
-<<<<<<< HEAD
-std::string GlobalData::GetServiceById(uint64_t id) 
-{
-        std::string* service = nullptr;
-        if (service_id_map_.Get(id, &service)) 
-        {
-                return *service;
-        }
-        return empty_str_;
-=======
 std::string GlobalData::GetServiceById(uint64_t id) {
   std::string* service = nullptr;
   if (service_id_map_.Get(id, &service)) {
     return *service;
   }
   return kEmptyString;
->>>>>>> update_stream/master
 }
 
 uint64_t GlobalData::RegisterTaskName(const std::string& task_name) 
@@ -309,23 +276,12 @@ uint64_t GlobalData::RegisterTaskName(const std::string& task_name)
         return id;
 }
 
-<<<<<<< HEAD
-std::string GlobalData::GetTaskNameById(uint64_t id) 
-{
-        std::string* task_name = nullptr;
-        if (task_id_map_.Get(id, &task_name)) 
-        {
-                return *task_name;
-        }
-        return empty_str_;
-=======
 std::string GlobalData::GetTaskNameById(uint64_t id) {
   std::string* task_name = nullptr;
   if (task_id_map_.Get(id, &task_name)) {
     return *task_name;
   }
   return kEmptyString;
->>>>>>> update_stream/master
 }
 
 }  // namespace common

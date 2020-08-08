@@ -26,21 +26,6 @@ namespace apollo {
 namespace cyber {
 namespace record {
 
-<<<<<<< HEAD
-struct PlayParam 
-{
-        bool is_play_all_channels = false;
-        bool is_loop_playback = false;
-        double play_rate = 1.0;
-        uint64_t begin_time_ns = 0;
-        uint64_t end_time_ns = UINT64_MAX;
-        uint64_t start_time_s = 0;
-        uint64_t delay_time_s = 0;
-        uint32_t preload_time_s = 3;
-        std::set<std::string> files_to_play;
-        std::set<std::string> channels_to_play;
-        std::set<std::string> black_channels;
-=======
 struct PlayParam {
   bool is_play_all_channels = false;
   bool is_loop_playback = false;
@@ -53,7 +38,6 @@ struct PlayParam {
   std::set<std::string> files_to_play;
   std::set<std::string> channels_to_play;
   std::set<std::string> black_channels;
->>>>>>> update_stream/master
 };
 
 }  // namespace record
