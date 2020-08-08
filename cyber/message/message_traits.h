@@ -30,7 +30,7 @@ namespace apollo {
 namespace cyber {
 namespace message {
 
-DEFINE_TYPE_TRAIT(HasByteSize, ByteSize)
+DEFINE_TYPE_TRAIT(HasByteSize, ByteSizeLong)
 DEFINE_TYPE_TRAIT(HasType, TypeName)
 DEFINE_TYPE_TRAIT(HasSetType, SetTypeName)
 DEFINE_TYPE_TRAIT(HasGetDescriptorString, GetDescriptorString)
@@ -123,10 +123,9 @@ SetTypeName(const std::string& type_name, T* message)
 }
 
 template <typename T>
-typename std::enable_if<HasByteSize<T>::value, int>::type 
-ByteSize(const T& message) 
-{
-        return message.ByteSize();
+typename std::enable_if<HasByteSize<T>::value, int>::type ByteSize(
+    const T& message) {
+  return static_cast<int>(message.ByteSizeLong());
 }
 
 template <typename T>

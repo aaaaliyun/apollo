@@ -15,11 +15,11 @@
  *****************************************************************************/
 #include "modules/perception/lidar/lib/detection/lidar_point_pillars/point_pillars_detection.h"
 
-#include <cuda_runtime_api.h>
-
 #include <algorithm>
 #include <numeric>
 #include <random>
+
+#include <cuda_runtime_api.h>
 
 #include "cyber/common/log.h"
 
@@ -78,7 +78,8 @@ bool PointPillarsDetection::Detect(const DetectionOptions& options,
   Timer timer;
 
   int num_points;
-  cur_cloud_ptr_ = std::make_shared<base::PointFCloud>(*original_cloud_);
+//  cur_cloud_ptr_ = std::make_shared<base::PointFCloud>(*original_cloud_);
+  cur_cloud_ptr_ = original_cloud_;  // TODO(chenjiahao): for emergency use
 
   // down sample the point cloud through filtering beams
   if (FLAGS_enable_downsample_beams) {

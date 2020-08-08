@@ -108,79 +108,62 @@ private:
 };
 
 template <typename T>
-bool RecordFileWriter::WriteSection(const T& message) 
-{
-        proto::SectionType type;
-        if (std::is_same<T, proto::ChunkHeader>::value) 
-        {
-                type = proto::SectionType::SECTION_CHUNK_HEADER;
-        } 
-        else if (std::is_same<T, proto::ChunkBody>::value) 
-        {
-                type = proto::SectionType::SECTION_CHUNK_BODY;
-        } 
-        else if (std::is_same<T, proto::Channel>::value) 
-        {
-                type = proto::SectionType::SECTION_CHANNEL;
-        } 
-        else if (std::is_same<T, proto::Header>::value) 
-        {
-                type = proto::SectionType::SECTION_HEADER;
-                if (!SetPosition(0)) 
-                {
-                        AERROR << "Jump to position #0 failed";
-                        return false;
-                }
-        } 
-        else if (std::is_same<T, proto::Index>::value) 
-        {
-                type = proto::SectionType::SECTION_INDEX;
-        } 
-        else 
-        {
-                AERROR << "Do not support this template typename.";
-                return false;
-        }
-        Section section;
-        /// zero out whole struct even if padded
-        memset(&section, 0, sizeof(section));
-        section = {type, message.ByteSize()};
-        ssize_t count = write(fd_, &section, sizeof(section));
-        if (count < 0) 
-        {
-                AERROR << "Write fd failed, fd: " << fd_ << ", errno: " << errno;
-                return false;
-        }
-        if (count != sizeof(section)) 
-        {
-                AERROR << "Write fd failed, fd: " << fd_
-                       << ", expect count: " << sizeof(section)
-                       << ", actual count: " << count;
-                return false;
-        }
-        {
-                google::protobuf::io::FileOutputStream raw_output(fd_);
-                message.SerializeToZeroCopyStream(&raw_output);
-        }
-        if (type == proto::SectionType::SECTION_HEADER) 
-        {
-                static char blank[HEADER_LENGTH] = {'0'};
-                count = write(fd_, &blank, HEADER_LENGTH - message.ByteSize());
-                if (count < 0) 
-                {
-                        AERROR << "Write fd failed, fd: " << fd_ << ", errno: " << errno;
-                        return false;
-                }
-                if (count != HEADER_LENGTH - message.ByteSize()) 
-                {
-                        AERROR << "Write fd failed, fd: " << fd_
-                               << ", expect count: " << sizeof(section)
-                               << ", actual count: " << count;
-                        return false;
-                }
-        }
-        header_.set_size(CurrentPosition());
-        return true;
+
+bool RecordFileWriter::WriteSection(const T& message) {
+  proto::SectionType type;
+  if (std::is_same<T, proto::ChunkHeader>::value) {
+    type = proto::SectionType::SECTION_CHUNK_HEADER;
+  } else if (std::is_same<T, proto::ChunkBody>::value) {
+    type = proto::SectionType::SECTION_CHUNK_BODY;
+  } else if (std::is_same<T, proto::Channel>::value) {
+    type = proto::SectionType::SECTION_CHANNEL;
+  } else if (std::is_same<T, proto::Header>::value) {
+    type = proto::SectionType::SECTION_HEADER;
+    if (!SetPosition(0)) {
+      AERROR << "Jump to position #0 failed";
+      return false;
+    }
+  } else if (std::is_same<T, proto::Index>::value) {
+    type = proto::SectionType::SECTION_INDEX;
+  } else {
+    AERROR << "Do not support this template typename.";
+    return false;
+  }
+  Section section;
+  /// zero out whole struct even if padded
+  memset(&section, 0, sizeof(section));
+  section = {type, static_cast<int64_t>(message.ByteSizeLong())};
+  ssize_t count = write(fd_, &section, sizeof(section));
+  if (count < 0) {
+    AERROR << "Write fd failed, fd: " << fd_ << ", errno: " << errno;
+    return false;
+  }
+  if (count != sizeof(section)) {
+    AERROR << "Write fd failed, fd: " << fd_
+           << ", expect count: " << sizeof(section)
+           << ", actual count: " << count;
+    return false;
+  }
+  {
+    google::protobuf::io::FileOutputStream raw_output(fd_);
+    message.SerializeToZeroCopyStream(&raw_output);
+  }
+  if (type == proto::SectionType::SECTION_HEADER) {
+    static char blank[HEADER_LENGTH] = {'0'};
+    count = write(fd_, &blank, HEADER_LENGTH - message.ByteSizeLong());
+    if (count < 0) {
+      AERROR << "Write fd failed, fd: " << fd_ << ", errno: " << errno;
+      return false;
+    }
+    if (static_cast<size_t>(count) != HEADER_LENGTH - message.ByteSizeLong()) {
+      AERROR << "Write fd failed, fd: " << fd_
+             << ", expect count: " << sizeof(section)
+             << ", actual count: " << count;
+      return false;
+    }
+  }
+  header_.set_size(CurrentPosition());
+  return true;
 }
 
 }  // namespace record

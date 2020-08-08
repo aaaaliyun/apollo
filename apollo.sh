@@ -103,13 +103,14 @@ function _usage() {
   .${BOLD}/apollo.sh${NO_COLOR} [OPTION]"
   echo -e "\n${RED}Options${NO_COLOR}:
   ${BLUE}config [options]${NO_COLOR}: config bazel build environment either non-interactively (default) or interactively.
-  ${BLUE}build [module]${NO_COLOR}: run build for cyber (<module> = cyber) or modules/<module>.  If <module> not specified, build all.
+  ${BLUE}build [module]${NO_COLOR}: run build for cyber (<module> = cyber) or modules/<module>.  If <module> unspecified, build all.
   ${BLUE}build_dbg [module]${NO_COLOR}: run debug build (default).
   ${BLUE}build_opt [module]${NO_COLOR}: run optimized build.
   ${BLUE}build_cpu [module]${NO_COLOR}: build in CPU mode. Equivalent to 'bazel build --config=cpu'
   ${BLUE}build_gpu [module]${NO_COLOR}: run build in GPU mode. Equivalent to 'bazel build --config=gpu'
   ${BLUE}build_opt_gpu [module]${NO_COLOR}: optimized build in GPU mode. Equivalent to 'bazel build --config=opt --config=gpu'
-  ${BLUE}test [module]${NO_COLOR}: run unit tests for cyber (<module> = cyber) or modules/<module>. If <module> not specified, unit test all.
+  ${BLUE}test [module]${NO_COLOR}: run unit tests for cyber (<module> = cyber) or modules/<module>. If <module> unspecified, unit test all.
+  ${BLUE}coverage [module]${NO_COLOR}: run bazel coverage test for cyber (<module> = cyber) or modules/<module>. If <module> unspecified, coverage test all.
   ${BLUE}lint${NO_COLOR}: run code style check
   ${BLUE}buildify${NO_COLOR}: run 'buildifier' to fix style of bazel files
   ${BLUE}check${NO_COLOR}: run build, test and lint on all modules. Make sure check pass before checking in new code
@@ -129,6 +130,7 @@ function main() {
     fi
     local build_sh="${APOLLO_ROOT_DIR}/scripts/apollo_build.sh"
     local test_sh="${APOLLO_ROOT_DIR}/scripts/apollo_test.sh"
+    local coverage_sh="${APOLLO_ROOT_DIR}/scripts/apollo_coverage.sh"
     local ci_sh="${APOLLO_ROOT_DIR}/scripts/apollo_ci.sh"
     local cmd="$1"; shift
     case "${cmd}" in
@@ -157,13 +159,16 @@ function main() {
             env ${APOLLO_ENV} bash "${build_sh}" --config=cpu_prof "$@"
             ;;
         build_teleop)
-            env ${APOLLO_ENV} bash "${build_sh}" --config=teleop --config=opt "$@"
+            env ${APOLLO_ENV} bash "${build_sh}" --config=teleop "$@"
             ;;
         build_fe)
             build_dreamview_frontend
             ;;
         test)
             env ${APOLLO_ENV} bash "${test_sh}" --config=unit_test "$@"
+            ;;
+        coverage)
+            env ${APOLLO_ENV} bash "${coverage_sh}" "$@"
             ;;
         cibuild)
             env ${APOLLO_ENV} bash "${ci_sh}" "build"
